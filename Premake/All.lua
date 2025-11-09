@@ -69,6 +69,7 @@ function abSetWorkspaceDefaults(name)
 	workspace(name)
 	configurations(abConfigurations)
 	location "Workspaces"
+end
 
 function abSDL3()
 	externalproject "SDL"
@@ -79,3 +80,4 @@ function abSDL3()
 	   	architecture "x64"
 	   	objdir(abObjDir)
 		targetdir(abTargetDir)
+end
