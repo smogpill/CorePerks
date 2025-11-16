@@ -1,6 +1,7 @@
 local m = {}
+m.defineSuffix = "VULKAN"
 function m.AddDependency()
-	defines("CP_VULKAN")
+	cp.AddDependencyDefine(m)
 	includedirs "%VULKAN_SDK%/Include"
 	filter "kind:WindowedApp"
 		libdirs "%VULKAN_SDK%/Lib"

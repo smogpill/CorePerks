@@ -1,10 +1,10 @@
 local m = {}
+m.defineSuffix = "SDL"
 function m.AddDependency()
-	defines("CP_SDL")
+	cp.AddDependencyDefine(m)
 	includedirs { path.join(cp.externPath, "SDL3/include") }
+	cp.AddDependency("SDL")
 	filter "kind:WindowedApp"
-		links { "SDL" }
-		dependson { "SDL" }
 		--postbuildcommands { "{COPY} \"../libs/SDL3.dll\" \"%{cfg.targetdir}\"", "{ECHO} 'Copied SDL3.dll to %{cfg.targetdir}'" }
 	filter {}
 end

@@ -1,6 +1,7 @@
 local m = {}
+m.defineSuffix = "JOLT_PHYSICS"
 function m.AddDependency()
-	defines("CP_JOLT_PHYSICS")
+	cp.AddDependencyDefine(m)
 	includedirs { path.join(cp.externPath, "JoltPhysics")}
 	filter "kind:WindowedApp"
 	links { "Jolt" }

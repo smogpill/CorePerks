@@ -1,5 +1,6 @@
 local m = {}
+m.defineSuffix = "TINYOBJLOADER"
 function m.AddDependency()
-	defines("CP_TINYOBJLOADER")
+	cp.AddDependencyDefine(m)
 end
 return m

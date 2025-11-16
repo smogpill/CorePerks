@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "CorePerks/Generated/Config.h"
 #include "CorePerks/Base/ExternalIncludes.h"
 #include "CorePerks/Base/Platform.h"
 
@@ -31,4 +32,3 @@ namespace cp
 #define CP_SAFE_SCOPE(_x_) do { _x_ } while (!!false)
 
 #include "CorePerks/Base/Diagnostics.h"
-#include "CorePerks/Base/Platform.h"

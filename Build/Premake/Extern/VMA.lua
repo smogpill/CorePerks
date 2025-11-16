@@ -1,6 +1,7 @@
 local m = {}
+m.defineSuffix = "VMA"
 function m.AddDependency()
-	defines("CP_VMA")
+	cp.AddDependencyDefine(m)
 	includedirs { path.join(cp.externPath, "VulkanMemoryAllocator/include") }
 end
 return m

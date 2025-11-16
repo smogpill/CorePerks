@@ -1,6 +1,7 @@
 local m = {}
+m.defineSuffix = "STB"
 function m.AddDependency()
-	defines("CP_STB")
+	cp.AddDependencyDefine(m)
 	includedirs { path.join(cp.externPath, "stb") }
 end
 return m

@@ -1,5 +1,6 @@
 local m = {}
+m.defineSuffix = "GLM"
 function m.AddDependency()
-	defines("CP_GLM")
+	cp.AddDependencyDefine(m)
 end
 return m
