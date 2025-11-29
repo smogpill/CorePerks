@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -11,17 +11,17 @@ namespace cp
 	public:
 		virtual ~RefCounted() = default;
 
-		void AddRef() const { ++_nbRefs; }
-		void RemoveRef() const;
-		void DisableRefCounting() const { _nbRefs = s_disabledRefCounting; }
+		void add_ref() const { ++_ref_count; }
+		void remove_ref() const;
+		void disable_ref_counting() const { _ref_count = s_disabled_ref_counting; }
 
 	protected:
-		virtual void OnAllRefsRemoved() { delete this; }
+		virtual void on_all_refs_removed() { delete this; }
 
 	private:
-		static constexpr uint32 s_disabledRefCounting = 0xdddddddd;
+		static constexpr uint32 s_disabled_ref_counting = 0xdddddddd;
 
-		mutable std::atomic<uint32> _nbRefs = 0;
+		mutable std::atomic<uint32> _ref_count = 0;
 	};
 
 	template <class T>
@@ -29,13 +29,13 @@ namespace cp
 	{
 	public:
 		RefPtr() = default;
-		RefPtr(const RefPtr& other) : _ptr(other._ptr) { if (_ptr) _ptr->AddRef(); }
+		RefPtr(const RefPtr& other) : _ptr(other._ptr) { if (_ptr) _ptr->add_ref(); }
 		RefPtr(RefPtr&& other) : _ptr(other._ptr) { other._ptr = nullptr; }
-		explicit RefPtr(T* ptr) : _ptr(ptr) { if (_ptr) _ptr->AddRef(); }
-		~RefPtr() { Release(); }
+		explicit RefPtr(T* ptr) : _ptr(ptr) { if (_ptr) _ptr->add_ref(); }
+		~RefPtr() { release(); }
 
-		auto Get() const -> T* { return _ptr; }
-		void Release() { if (_ptr) _ptr->RemoveRef(); }
+		auto get() const -> T* { return _ptr; }
+		void release() { if (_ptr) _ptr->remove_ref(); }
 
 		auto operator=(const RefPtr& other) -> RefPtr&;
 		auto operator=(RefPtr&& other) -> RefPtr&;
@@ -54,17 +54,17 @@ namespace cp
 	class ConstRefPtr
 	{
 	public:
-		~ConstRefPtr() { Release(); }
-		void Release() { if (_ptr) _ptr->RemoveRef(); }
+		~ConstRefPtr() { release(); }
+		void release() { if (_ptr) _ptr->remove_ref(); }
 	private:
 		const T* _ptr = nullptr;
 	};
 
 	template <class T>
-	void RefCounted<T>::RemoveRef() const
+	void RefCounted<T>::remove_ref() const
 	{
-		if (--_nbRefs == 0)
-			const_cast<RefCounted<T>*>(this)->OnAllRefsRemoved();
+		if (--_ref_count == 0)
+			const_cast<RefCounted<T>*>(this)->on_all_refs_removed();
 	}
 
 	template <class T>
@@ -73,9 +73,9 @@ namespace cp
 		T* oldPtr = _ptr;
 		_ptr = other._ptr;
 		if (_ptr)
-			_ptr->AddRef();
+			_ptr->add_ref();
 		if (oldPtr)
-			oldPtr->RemoveRef();
+			oldPtr->remove_ref();
 		return *this;
 	}
 
@@ -94,9 +94,9 @@ namespace cp
 			T* oldPtr = _ptr;
 			_ptr = ptr;
 			if (_ptr)
-				_ptr->AddRef();
+				_ptr->add_ref();
 			if (oldPtr)
-				oldPtr->RemoveRef();
+				oldPtr->remove_ref();
 		}
 		return *this;
 	}

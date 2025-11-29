@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -8,20 +8,20 @@
 namespace cp
 {
 	ResourceHandleBase::ResourceHandleBase(const std::string& id)
-		: _holder(ResourceManager::Get().GetOrCreateHolder(id))
+		: _holder(ResourceManager::get().get_or_create_holder(id))
 	{
 	}
 
-	void ResourceHandleBase::SetID(const std::string& id)
+	void ResourceHandleBase::set_id(const std::string& id)
 	{
-		_holder = ResourceManager::Get().GetOrCreateHolder(id);
+		_holder = ResourceManager::get().get_or_create_holder(id);
 	}
 
-	void ResourceHandleBase::SetResource(Resource* resource)
+	void ResourceHandleBase::set_resource(Resource* resource)
 	{
 		if (_holder)
 		{
-			_holder->Set(resource);
+			_holder->set(resource);
 		}
 		else
 		{
@@ -29,21 +29,21 @@ namespace cp
 		}
 	}
 
-	void ResourceHandleBase::UnloadAsync()
+	void ResourceHandleBase::unload_async()
 	{
 		if (_holder)
-			_holder->UnloadAsync();
+			_holder->unload_async();
 	}
 
-	void ResourceHandleBase::StoreAsync(std::function<void(bool)> onDone)
+	void ResourceHandleBase::store_async(std::function<void(bool)> onDone)
 	{
 		if (_holder)
-			_holder->StoreAsync(std::move(onDone));
+			_holder->store_async(std::move(onDone));
 	}
 
-	void ResourceHandleBase::LoadAsync(std::function<Resource* ()> createFunction)
+	void ResourceHandleBase::load_async(std::function<Resource* ()> createFunction)
 	{
 		if (_holder)
-			_holder->LoadAsync(std::move(createFunction));
+			_holder->load_async(std::move(createFunction));
 	}
 }

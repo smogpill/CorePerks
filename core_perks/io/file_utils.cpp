@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -6,7 +6,7 @@
 
 namespace cp
 {
-    bool ReadBinaryFile(const std::string& path, std::vector<char>& buffer)
+    bool read_binary_file(const std::string& path, std::vector<char>& buffer)
     {
         buffer.clear();
 

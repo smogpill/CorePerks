@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -39,34 +39,34 @@ namespace cp
 		ResourceHolder(const std::string& id);
 		virtual ~ResourceHolder();
 
-		void AddLoadCallback(Callback callback);
-		auto GetId() const -> const std::string& { return _id; }
-		auto GetName() const -> std::string;
-		auto GetIdHash() const -> uint64 { return _idHash; }
-		void AddLoadingDependency();
-		void RemoveLoadingDependency();
-		void LoadAsync(std::function<Resource* ()> createFunc);
-		bool PathExists() const;
-		void UnloadAsync();
-		void StoreAsync(Callback callback);
-		auto Get() const -> Resource* { return _resource; }
-		void Set(Resource* resource);
-		auto GetAssetPath() const -> std::string;
+		void add_load_callback(Callback callback);
+		auto get_id() const -> const std::string& { return _id; }
+		auto get_name() const -> std::string;
+		auto get_id_hash() const -> uint64 { return _id_hash; }
+		void add_loading_dependency();
+		void remove_loading_dependency();
+		void load_async(std::function<Resource* ()> createFunc);
+		bool path_exists() const;
+		void unload_async();
+		void store_async(Callback callback);
+		auto get() const -> Resource* { return _resource; }
+		void set(Resource* resource);
+		auto get_asset_path() const -> std::string;
 
 	protected:
 		friend class ResourceLoader;
 		friend class ResourceManager;
-		void OnAllRefsRemoved() override;
+		void on_all_refs_removed() override;
 
 		std::string _id;
-		uint64 _idHash = 0;
-		cp::RefPtr<ResourceHolder> _loadingParent;
-		std::atomic<uint32> _nbLoadingDependencies = 0;
-		std::mutex _callbackMutex;
+		uint64 _id_hash = 0;
+		cp::RefPtr<ResourceHolder> _loading_parent;
+		std::atomic<uint32> _nb_loading_dependencies = 0;
+		std::mutex _callback_mutex;
 		std::atomic<ResourceState> _state = ResourceState::NONE;
-		std::vector<Callback> _loadCallbacks;
+		std::vector<Callback> _load_callbacks;
 		std::atomic<Resource*> _resource = nullptr;
-		std::atomic<Resource*> _loadingResource = nullptr;
-		bool _loadingResult = false;
+		std::atomic<Resource*> _loading_resource = nullptr;
+		bool _loading_result = false;
 	};
 }

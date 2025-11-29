@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -19,7 +19,7 @@ namespace cp
 		StateMessage(const T& typedId) : StateMessage(static_cast<StateMessageID>(typedId)) {}
 		virtual ~StateMessage() = default;
 
-		auto GetId() const { return _id; }
+		auto get_id() const { return _id; }
 
 	private:
 		StateMessageID _id = 0;
@@ -30,10 +30,10 @@ namespace cp
 	public:
 		StateEvent(StateEventID id) : _id(id) {}
 		template <class T>
-		StateEvent(const T& typedId) : StateEvent(static_cast<StateEventID>(typedId)) {}
+		StateEvent(const T& typed_id) : StateEvent(static_cast<StateEventID>(typed_id)) {}
 		virtual ~StateEvent() = default;
 
-		auto GetId() const { return _id; }
+		auto get_id() const { return _id; }
 
 	private:
 		StateEventID _id = 0;
@@ -47,29 +47,29 @@ namespace cp
 		explicit StateMachine(const T& typedId) : StateMachine(static_cast<StateID>(typedId)) {}
 		virtual ~StateMachine();
 
-		void AddState(StateMachine& state);
-		void SetCurrentState(StateID id, const StateMessage& message = StateMessage());
+		void add_state(StateMachine& state);
+		void set_current_state(StateID id, const StateMessage& message = StateMessage());
 		template <class T>
-		void SetCurrentState(const T& typedId, const StateMessage& message = StateMessage()) { SetCurrentState(static_cast<StateID>(typedId), message); }
+		void set_current_state(const T& typedId, const StateMessage& message = StateMessage()) { set_current_state(static_cast<StateID>(typedId), message); }
 		template <class T>
-		auto GetState(const T& typedId) const -> StateMachine* { return GetState(static_cast<StateID>(typedId)); }
-		auto GetState(StateID id) const -> StateMachine*;
-		auto GetId() const { return _id; }
+		auto get_state(const T& typedId) const -> StateMachine* { return get_state(static_cast<StateID>(typedId)); }
+		auto get_state(StateID id) const -> StateMachine*;
+		auto get_id() const { return _id; }
 		template <class T>
-		auto GetTypedId() const { return static_cast<T>(_id); }
-		void Update();
-		void HandleEvent(const StateEvent& event);
-		auto GetParent() -> StateMachine* { return _parent; }
+		auto get_typed_id() const { return static_cast<T>(_id); }
+		void update();
+		void handle_event(const StateEvent& event);
+		auto get_parent() -> StateMachine* { return _parent; }
 
 	protected:
-		virtual void OnEnter(StateMachine* from, const StateMessage& message) {}
-		virtual void OnExit(StateMachine* to, const StateMessage& message) {}
-		virtual void OnUpdate() {}
-		virtual void OnEvent(const StateEvent& event) {}
+		virtual void on_enter(StateMachine* from, const StateMessage& message) {}
+		virtual void on_exit(StateMachine* to, const StateMessage& message) {}
+		virtual void on_update() {}
+		virtual void on_event(const StateEvent& event) {}
 
 	private:
 		StateMachine* _parent = nullptr;
-		StateMachine* _currentState = nullptr;
+		StateMachine* _current_state = nullptr;
 		StateID _id = 0;
 		std::vector<RefPtr<StateMachine>> _states;
 	};
@@ -84,21 +84,21 @@ namespace cp
 		using OnEventFunc = std::function<void(const StateEvent&)>;
 
 		explicit LambdaStateMachine(StateID id) : Base(id) {}
-		void SetOnUpdate(OnUpdateFunc func) { _onUpdate = func; }
-		void SetOnEnter(OnEnterFunc func) { _onEnter = func; }
-		void SetOnExit(OnExitFunc func) { _onExit = func; }
-		void SetOnEvent(OnEventFunc func) { _onEvent = func; }
+		void set_on_update(OnUpdateFunc func) { _on_update = func; }
+		void set_on_enter(OnEnterFunc func) { _on_enter = func; }
+		void set_on_exit(OnExitFunc func) { _on_exit = func; }
+		void set_on_event(OnEventFunc func) { _on_event = func; }
 
 	protected:
-		void OnEnter(StateMachine* from, const StateMessage& message) override;
-		void OnExit(StateMachine* to, const StateMessage& message) override;
-		void OnUpdate() override;
-		void OnEvent(const StateEvent& event) override;
+		void on_enter(StateMachine* from, const StateMessage& message) override;
+		void on_exit(StateMachine* to, const StateMessage& message) override;
+		void on_update() override;
+		void on_event(const StateEvent& event) override;
 
 	private:
-		OnUpdateFunc _onUpdate;
-		OnEnterFunc _onEnter;
-		OnExitFunc _onExit;
-		OnEventFunc _onEvent;
+		OnUpdateFunc _on_update;
+		OnEnterFunc _on_enter;
+		OnExitFunc _on_exit;
+		OnEventFunc _on_event;
 	};
 }

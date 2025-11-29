@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -8,7 +8,7 @@
 namespace cp
 {
 	ResourceManager::ResourceManager(const std::string& assetsPath)
-		: _assetsPath(assetsPath)
+		: _assets_path(assetsPath)
 	{
 
 	}
@@ -19,15 +19,15 @@ namespace cp
 		CP_ASSERT(_map.empty());
 	}
 
-	void ResourceManager::DestroyHolder(ResourceHolder& holder)
+	void ResourceManager::destroy_holder(ResourceHolder& holder)
 	{
 		_mutex.lock();
-		auto it = _map.find(holder.GetId());
+		auto it = _map.find(holder.get_id());
 		_map.erase(it);
 		_mutex.unlock();
 	}
 
-	ResourceHolder* ResourceManager::GetOrCreateHolder(const std::string& id)
+	ResourceHolder* ResourceManager::get_or_create_holder(const std::string& id)
 	{
 		std::scoped_lock lock(_mutex);
 		auto it = _map.find(id);

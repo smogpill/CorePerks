@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -13,8 +13,8 @@ namespace cp
 	public:
 		virtual ~Resource() {}
 
-		virtual bool OnLoad(ResourceLoader& loader) = 0 { return true; }
-		virtual bool OnDependenciesLoaded() { return true; }
-		virtual void OnStore(cp::BinaryOutputStream& stream) const {}
+		virtual bool on_load(ResourceLoader& loader) = 0 { return true; }
+		virtual bool on_dependencies_loaded() { return true; }
+		virtual void on_store(cp::BinaryOutputStream& stream) const {}
 	};
 }

@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -16,20 +16,20 @@ namespace cp
         }
 
         // Create blocking I/O thread
-        _blockingThread = std::jthread([this](std::stop_token st)
+        _blocking_thread = std::jthread([this](std::stop_token st)
             {
                 while (!st.stop_requested())
                 {
                     Job job;
                     {
-                        std::unique_lock lock(_blockingMutex);
-                        _blockingCondition.wait(lock, [this, &st]
+                        std::unique_lock lock(_blocking_mutex);
+                        _blocking_condition.wait(lock, [this, &st]
                             {
-                                return !_blockingQueue.empty() || st.stop_requested();
+                                return !_blocking_queue.empty() || st.stop_requested();
                             });
                         if (st.stop_requested()) break;
-                        job = std::move(_blockingQueue.front());
-                        _blockingQueue.pop_front();
+                        job = std::move(_blocking_queue.front());
+                        _blocking_queue.pop_front();
                     }
                     job();
                 }
@@ -38,7 +38,7 @@ namespace cp
 
     JobSystem::~JobSystem()
     {
-        Stop();
+        stop();
     }
 
     void JobSystem::WorkerThread()
@@ -47,29 +47,29 @@ namespace cp
         {
             Job job;
             {
-                std::unique_lock lock(_queueMutex);
+                std::unique_lock lock(_queue_mutex);
                 _condition.wait(lock, [this]
                     {
-                        return !_jobQueue.empty() || !_running;
+                        return !_job_queue.empty() || !_running;
                     });
 
-                if (!_running && _jobQueue.empty())
+                if (!_running && _job_queue.empty())
                     break;
 
-                job = std::move(_jobQueue.front());
-                _jobQueue.pop_front();
+                job = std::move(_job_queue.front());
+                _job_queue.pop_front();
             }
             job();
         }
     }
 
-    void JobSystem::Stop()
+    void JobSystem::stop()
     {
         if (!_running.exchange(false))
             return;
 
         _condition.notify_all();
-        _blockingCondition.notify_all();
+        _blocking_condition.notify_all();
 
         for (auto& thread : _threads)
         {
@@ -77,11 +77,11 @@ namespace cp
                 thread.join();
         }
 
-        _blockingThread.request_stop();
-        _blockingCondition.notify_all();
-        if (_blockingThread.joinable())
+        _blocking_thread.request_stop();
+        _blocking_condition.notify_all();
+        if (_blocking_thread.joinable())
         {
-            _blockingThread.join();
+            _blocking_thread.join();
         }
     }
 }

@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -14,18 +14,18 @@ namespace cp
 		ResourceManager(const std::string& assetsPath);
 		~ResourceManager();
 
-		auto GetAssetsPath() const -> const std::string& { return _assetsPath; }
+		auto get_assets_path() const -> const std::string& { return _assets_path; }
 
 	private:
 		friend class ResourceHolder;
 		friend class ResourceHandleBase;
 
-		auto GetOrCreateHolder(const std::string& id) -> ResourceHolder*;
-		void DestroyHolder(ResourceHolder& holder);
+		auto get_or_create_holder(const std::string& id) -> ResourceHolder*;
+		void destroy_holder(ResourceHolder& holder);
 
 		mutable std::mutex _mutex;
 		std::unordered_map<std::string, ResourceHolder*> _map;
-		std::queue<ResourceHandleBase*> _loadQueue;
-		std::string _assetsPath;
+		std::queue<ResourceHandleBase*> _load_queue;
+		std::string _assets_path;
 	};
 }

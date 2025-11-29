@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -13,85 +13,85 @@ namespace cp
 
 	StateMachine::~StateMachine()
 	{
-		if (_currentState)
-			_currentState->OnExit(nullptr, StateMessage());
+		if (_current_state)
+			_current_state->on_exit(nullptr, StateMessage());
 	}
 
-	void StateMachine::AddState(StateMachine& state)
+	void StateMachine::add_state(StateMachine& state)
 	{
-		CP_ASSERT(GetState(state.GetId()) == nullptr);
+		CP_ASSERT(get_state(state.get_id()) == nullptr);
 		_states.push_back(RefPtr(&state));
 		state._parent = this;
 	}
 
-	void StateMachine::Update()
+	void StateMachine::update()
 	{
-		OnUpdate();
-		if (_currentState)
-			_currentState->Update();
+		on_update();
+		if (_current_state)
+			_current_state->update();
 	}
 
-	void StateMachine::HandleEvent(const StateEvent& event)
+	void StateMachine::handle_event(const StateEvent& event)
 	{
-		OnEvent(event);
-		if (_currentState)
-			_currentState->OnEvent(event);
+		on_event(event);
+		if (_current_state)
+			_current_state->on_event(event);
 	}
 
-	void StateMachine::SetCurrentState(StateID id, const StateMessage& message)
+	void StateMachine::set_current_state(StateID id, const StateMessage& message)
 	{
-		if (_currentState && _currentState->GetId() == id)
+		if (_current_state && _current_state->get_id() == id)
 			return;
 
-		StateMachine* previousState = _currentState;
+		StateMachine* previousState = _current_state;
 		StateMachine* nextState = nullptr;
 		for (RefPtr<StateMachine>& state : _states)
 		{
 			if (state->_id == id)
 			{
-				nextState = state.Get();
+				nextState = state.get();
 				break;
 			}
 		}
 
-		if (_currentState)
-			_currentState->OnExit(nextState, message);
-		_currentState = nextState;
-		if (_currentState)
-			_currentState->OnEnter(previousState, message);
+		if (_current_state)
+			_current_state->on_exit(nextState, message);
+		_current_state = nextState;
+		if (_current_state)
+			_current_state->on_enter(previousState, message);
 	}
 
-	auto StateMachine::GetState(StateID id) const -> StateMachine*
+	auto StateMachine::get_state(StateID id) const -> StateMachine*
 	{
 		auto it = std::ranges::find_if(_states, [id](const RefPtr<StateMachine>& state) { return state->_id == id; });
-		return it != _states.end() ? it->Get() : nullptr;
+		return it != _states.end() ? it->get() : nullptr;
 	}
 
-	void LambdaStateMachine::OnUpdate()
+	void LambdaStateMachine::on_update()
 	{
-		Base::OnUpdate();
-		if (_onUpdate)
-			_onUpdate();
+		Base::on_update();
+		if (_on_update)
+			_on_update();
 	}
 
-	void LambdaStateMachine::OnEnter(StateMachine* from, const StateMessage& message)
+	void LambdaStateMachine::on_enter(StateMachine* from, const StateMessage& message)
 	{
-		Base::OnEnter(from, message);
-		if (_onEnter)
-			_onEnter(from, message);
+		Base::on_enter(from, message);
+		if (_on_enter)
+			_on_enter(from, message);
 	}
 
-	void LambdaStateMachine::OnExit(StateMachine* to, const StateMessage& message)
+	void LambdaStateMachine::on_exit(StateMachine* to, const StateMessage& message)
 	{
-		if (_onExit)
-			_onExit(to, message);
-		Base::OnExit(to, message);
+		if (_on_exit)
+			_on_exit(to, message);
+		Base::on_exit(to, message);
 	}
 
-	void LambdaStateMachine::OnEvent(const StateEvent& event)
+	void LambdaStateMachine::on_event(const StateEvent& event)
 	{
-		Base::OnEvent(event);
-		if (_onEvent)
-			_onEvent(event);
+		Base::on_event(event);
+		if (_on_event)
+			_on_event(event);
 	}
 }

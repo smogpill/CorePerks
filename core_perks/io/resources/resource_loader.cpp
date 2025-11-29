@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -13,15 +13,15 @@ namespace cp
     {
     }
 
-    auto ResourceLoader::GetAssetPath() const -> std::string
+    auto ResourceLoader::get_asset_path() const -> std::string
     {
-        return _holder.GetAssetPath();
+        return _holder.get_asset_path();
     }
 
-    bool ResourceLoader::ReadAsBinaryFile(std::vector<uint8>& content)
+    bool ResourceLoader::read_as_binary_file(std::vector<uint8>& content)
     {
         namespace fs = std::filesystem;
-        const std::filesystem::path path = GetAssetPath();
+        const std::filesystem::path path = get_asset_path();
 
         CP_TRY(fs::exists(path), "File does not exist: {}", path.string());
         CP_TRY(fs::is_regular_file(path), "Path is not a regular file: {}", path.string());
@@ -42,13 +42,13 @@ namespace cp
         return true;
     }
 
-    bool ResourceLoader::PathExists() const
+    bool ResourceLoader::path_exists() const
     {
-        return _holder.PathExists();
+        return _holder.path_exists();
     }
 
-    auto ResourceLoader::GetId() const -> const std::string&
+    auto ResourceLoader::get_id() const -> const std::string&
     {
-        return _holder.GetId();
+        return _holder.get_id();
     }
 }

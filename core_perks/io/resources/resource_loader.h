@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -19,25 +19,25 @@ namespace cp
 
 		ResourceLoader(ResourceHolder& holder);
 		template <class T>
-		auto AddDependency(const std::string& id, const DependencyOptions& options = DependencyOptions()) -> ResourceHandle<T>;
-		auto GetId() const -> const std::string&;
-		auto GetAssetPath() const -> std::string;
-		bool ReadAsBinaryFile(std::vector<uint8>& content);
-		bool PathExists() const;
+		auto add_dependency(const std::string& id, const DependencyOptions& options = DependencyOptions()) -> ResourceHandle<T>;
+		auto get_id() const -> const std::string&;
+		auto get_asset_path() const -> std::string;
+		bool read_as_binary_file(std::vector<uint8>& content);
+		bool path_exists() const;
 
 	private:
 		ResourceHolder& _holder;
 	};
 
 	template <class T>
-	auto ResourceLoader::AddDependency(const std::string& id, const DependencyOptions& options) -> ResourceHandle<T>
+	auto ResourceLoader::add_dependency(const std::string& id, const DependencyOptions& options) -> ResourceHandle<T>
 	{
 		ResourceHandle<T> handle(id);
-		if (handle._holder->PathExists() || !options._optional)
+		if (handle._holder->path_exists() || !options._optional)
 		{
-			handle._holder->_loadingParent = &_holder;
-			_holder.AddLoadingDependency();
-			handle.LoadAsync();
+			handle._holder->_loading_parent = &_holder;
+			_holder.add_loading_dependency();
+			handle.load_async();
 		}
 		return handle;
 	}

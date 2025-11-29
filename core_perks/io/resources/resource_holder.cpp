@@ -1,4 +1,4 @@
-// CorePerks (https://github.com/smogpill/CorePerks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
@@ -14,35 +14,35 @@ namespace cp
 {
     ResourceHolder::ResourceHolder(const std::string& id)
         : _id(id)
-        , _idHash(hash::strong::hash64(id))
+        , _id_hash(hash::strong::hash64(id))
     {
     }
 
     ResourceHolder::~ResourceHolder()
     {
         delete _resource;
-        delete _loadingResource;
+        delete _loading_resource;
     }
 
-    void ResourceHolder::AddLoadingDependency()
+    void ResourceHolder::add_loading_dependency()
     {
-        ++_nbLoadingDependencies;
+        ++_nb_loading_dependencies;
     }
 
-    void ResourceHolder::RemoveLoadingDependency()
+    void ResourceHolder::remove_loading_dependency()
     {
-        if (--_nbLoadingDependencies == 0)
+        if (--_nb_loading_dependencies == 0)
         {
-            _callbackMutex.lock();
+            _callback_mutex.lock();
 
-            Resource* loadedResource = _loadingResource.exchange(nullptr);
+            Resource* loadedResource = _loading_resource.exchange(nullptr);
 
             // Notify that all dependencies have been loaded
-            if (_loadingResult)
-                _loadingResult = loadedResource->OnDependenciesLoaded();
+            if (_loading_result)
+                _loading_result = loadedResource->on_dependencies_loaded();
 
             // Swap the resource and update the state
-            if (_loadingResult)
+            if (_loading_result)
             {
                 Resource* oldResource = _resource.exchange(loadedResource);
                 delete oldResource;
@@ -56,92 +56,92 @@ namespace cp
             }
 
             // Call the callbacks
-            std::vector<std::function<void(bool)>> callbacks = std::move(_loadCallbacks);
-            _callbackMutex.unlock();
+            std::vector<std::function<void(bool)>> callbacks = std::move(_load_callbacks);
+            _callback_mutex.unlock();
             for (auto& cb : callbacks)
             {
-                cp::JobSystem::Get().Enqueue([callback = std::move(cb), loadingResult = _loadingResult]() { callback(loadingResult); });
+                cp::JobSystem::get().enqeue([callback = std::move(cb), loadingResult = _loading_result]() { callback(loadingResult); });
             }
 
             // Notify the parent resource
-            if (_loadingParent)
+            if (_loading_parent)
             {
-                if (!_loadingResult)
-                    _loadingParent->_loadingResult = false;
-                _loadingParent->RemoveLoadingDependency();
-                _loadingParent = nullptr;
+                if (!_loading_result)
+                    _loading_parent->_loading_result = false;
+                _loading_parent->remove_loading_dependency();
+                _loading_parent = nullptr;
             }
         }
     }
 
-    void ResourceHolder::OnAllRefsRemoved()
+    void ResourceHolder::on_all_refs_removed()
     {
-        ResourceManager::Get().DestroyHolder(*this);
-        Base::OnAllRefsRemoved();
+        ResourceManager::get().destroy_holder(*this);
+        Base::on_all_refs_removed();
     }
 
-    void ResourceHolder::AddLoadCallback(Callback callback)
+    void ResourceHolder::add_load_callback(Callback callback)
     {
-        std::scoped_lock lock(_callbackMutex);
+        std::scoped_lock lock(_callback_mutex);
         switch (_state)
         {
         case ResourceState::READY:
         {
-            cp::JobSystem::Get().Enqueue([cb = std::move(callback)]() { cb(true); });
+            cp::JobSystem::get().enqeue([cb = std::move(callback)]() { cb(true); });
             break;
         }
         case ResourceState::FAILED:
         {
-            cp::JobSystem::Get().Enqueue([cb = std::move(callback)]() { cb(false); });
+            cp::JobSystem::get().enqeue([cb = std::move(callback)]() { cb(false); });
             break;
         }
         default:
         {
-            _loadCallbacks.push_back(std::move(callback));
+            _load_callbacks.push_back(std::move(callback));
             break;
         }
         }
     }
 
-    void ResourceHolder::LoadAsync(std::function<Resource* ()> createFunc)
+    void ResourceHolder::load_async(std::function<Resource* ()> createFunc)
     {
         ResourceState expected = ResourceState::NONE;
         if (_state.compare_exchange_strong(expected, ResourceState::LOADING))
         {
-            AddRef();
-            cp::JobSystem::Get().Enqueue([this, create = std::move(createFunc)]()
+            add_ref();
+            cp::JobSystem::get().enqeue([this, create = std::move(createFunc)]()
                 {
-                    Resource* oldResource = _loadingResource.exchange(create());
+                    Resource* oldResource = _loading_resource.exchange(create());
                     delete oldResource;
                     ResourceLoader loader(*this);
-                    AddLoadingDependency();
-                    _loadingResult = _loadingResource.load()->OnLoad(loader);
-                    RemoveLoadingDependency();
-                    RemoveRef();
+                    add_loading_dependency();
+                    _loading_result = _loading_resource.load()->on_load(loader);
+                    remove_loading_dependency();
+                    remove_ref();
                 });
         }
     }
 
-    void ResourceHolder::UnloadAsync()
+    void ResourceHolder::unload_async()
     {
         ResourceState expected = ResourceState::READY;
         if (_state.compare_exchange_strong(expected, ResourceState::RELEASING))
         {
-            AddRef();
-            cp::JobSystem::Get().Enqueue([this]()
+            add_ref();
+            cp::JobSystem::get().enqeue([this]()
                 {
                     Resource* resource = _resource.exchange(nullptr);
                     delete resource;
-                    RemoveRef();
+                    remove_ref();
                 });
         }
     }
 
-    void ResourceHolder::StoreAsync(Callback callbackFunc)
+    void ResourceHolder::store_async(Callback callbackFunc)
     {
-        AddRef();
+        add_ref();
 
-        cp::JobSystem::Get().Enqueue([this, callback = std::move(callbackFunc)]()
+        cp::JobSystem::get().enqeue([this, callback = std::move(callbackFunc)]()
             {
                 ResourceState expected = ResourceState::READY;
                 while (!_state.compare_exchange_weak(expected, ResourceState::SERIALIZING))
@@ -155,7 +155,7 @@ namespace cp
                 }
                 const Resource* resource = _resource;
                 cp::BinaryOutputStream stream;
-                resource->OnStore(stream);
+                resource->on_store(stream);
 
                 expected = ResourceState::SERIALIZING;
                 const bool wasSerializing = _state.compare_exchange_strong(expected, ResourceState::READY);
@@ -163,9 +163,9 @@ namespace cp
 
                 namespace fs = std::filesystem;
 
-                const fs::path filePath = GetAssetPath();
+                const fs::path filePath = get_asset_path();
 
-                RemoveRef();
+                remove_ref();
 
                 {
                     auto parentPath = filePath.parent_path();
@@ -198,25 +198,25 @@ namespace cp
             });
     }
 
-    bool ResourceHolder::PathExists() const
+    bool ResourceHolder::path_exists() const
     {
-        return std::filesystem::exists(GetAssetPath());
+        return std::filesystem::exists(get_asset_path());
     }
 
-    auto ResourceHolder::GetName() const -> std::string
+    auto ResourceHolder::get_name() const -> std::string
     {
         const size_t pos = _id.find_last_of('/');
         return (pos == std::string::npos) ? _id : _id.substr(pos + 1);
     }
 
-    void ResourceHolder::Set(Resource* resource)
+    void ResourceHolder::set(Resource* resource)
     {
         Resource* oldResource = _resource.exchange(resource);
         delete oldResource;
     }
 
-    auto ResourceHolder::GetAssetPath() const -> std::string
+    auto ResourceHolder::get_asset_path() const -> std::string
     {
-        return (std::filesystem::path(ResourceManager::Get().GetAssetsPath()) / GetId()).string();
+        return (std::filesystem::path(ResourceManager::get().get_assets_path()) / get_id()).string();
     }
 }
