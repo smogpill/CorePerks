@@ -6,11 +6,11 @@
 
 namespace cp
 {
-    JobSystem::JobSystem(uint numThreads)
+    JobSystem::JobSystem(uint thread_count)
     {
         // Create worker threads
-        _threads.reserve(numThreads);
-        for (uint i = 0; i < numThreads; ++i)
+        _threads.reserve(thread_count);
+        for (uint i = 0; i < thread_count; ++i)
         {
             _threads.emplace_back(&JobSystem::WorkerThread, this);
         }

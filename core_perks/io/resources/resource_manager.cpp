@@ -7,8 +7,8 @@
 
 namespace cp
 {
-	ResourceManager::ResourceManager(const std::string& assetsPath)
-		: _assets_path(assetsPath)
+	ResourceManager::ResourceManager(const std::string& assets_path)
+		: _assets_path(assets_path)
 	{
 
 	}

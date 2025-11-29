@@ -10,7 +10,7 @@ namespace cp
     class JobSystem : public Singleton<JobSystem>
     {
     public:
-        JobSystem(uint numThreads = std::thread::hardware_concurrency());
+        JobSystem(uint thread_count = std::thread::hardware_concurrency());
         ~JobSystem();
 
         /// Enqueue a regular function/lambda as a job
@@ -23,7 +23,7 @@ namespace cp
 
         /// Enqueue a coroutine and return a handle to await its result
         template<typename CoroutineJob>
-        auto enqueue_coroutine(CoroutineJob&& coroTask);
+        auto enqueue_coroutine(CoroutineJob&& coro_task);
 
         /// Run a blocking function on a dedicated thread (for I/O)
         template<typename Callable>

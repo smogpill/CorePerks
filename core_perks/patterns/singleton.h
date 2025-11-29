@@ -23,6 +23,9 @@ namespace cp
 		static auto get_as_ptr() -> T* { return s_instance; }
 		static bool exists() { return s_instance != nullptr; }
 
+		Singleton(const Singleton&) = delete;
+		Singleton& operator=(const Singleton&) = delete;
+
 	private:
 		static inline T* s_instance = nullptr;
 	};

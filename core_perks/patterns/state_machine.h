@@ -16,7 +16,7 @@ namespace cp
 		StateMessage() = default;
 		StateMessage(StateMessageID id) : _id(id) {}
 		template <class T>
-		StateMessage(const T& typedId) : StateMessage(static_cast<StateMessageID>(typedId)) {}
+		StateMessage(const T& typed_id) : StateMessage(static_cast<StateMessageID>(typed_id)) {}
 		virtual ~StateMessage() = default;
 
 		auto get_id() const { return _id; }
@@ -44,15 +44,15 @@ namespace cp
 	public:
 		explicit StateMachine(StateID id);
 		template <class T>
-		explicit StateMachine(const T& typedId) : StateMachine(static_cast<StateID>(typedId)) {}
+		explicit StateMachine(const T& typed_id) : StateMachine(static_cast<StateID>(typed_id)) {}
 		virtual ~StateMachine();
 
 		void add_state(StateMachine& state);
 		void set_current_state(StateID id, const StateMessage& message = StateMessage());
 		template <class T>
-		void set_current_state(const T& typedId, const StateMessage& message = StateMessage()) { set_current_state(static_cast<StateID>(typedId), message); }
+		void set_current_state(const T& typed_id, const StateMessage& message = StateMessage()) { set_current_state(static_cast<StateID>(typed_id), message); }
 		template <class T>
-		auto get_state(const T& typedId) const -> StateMachine* { return get_state(static_cast<StateID>(typedId)); }
+		auto get_state(const T& typed_id) const -> StateMachine* { return get_state(static_cast<StateID>(typed_id)); }
 		auto get_state(StateID id) const -> StateMachine*;
 		auto get_id() const { return _id; }
 		template <class T>

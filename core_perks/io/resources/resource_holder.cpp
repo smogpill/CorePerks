@@ -35,22 +35,22 @@ namespace cp
         {
             _callback_mutex.lock();
 
-            Resource* loadedResource = _loading_resource.exchange(nullptr);
+            Resource* loaded_resource = _loading_resource.exchange(nullptr);
 
             // Notify that all dependencies have been loaded
             if (_loading_result)
-                _loading_result = loadedResource->on_dependencies_loaded();
+                _loading_result = loaded_resource->on_dependencies_loaded();
 
             // Swap the resource and update the state
             if (_loading_result)
             {
-                Resource* oldResource = _resource.exchange(loadedResource);
-                delete oldResource;
+                Resource* old_resource = _resource.exchange(loaded_resource);
+                delete old_resource;
                 _state = ResourceState::READY;
             }
             else
             {
-                delete loadedResource;
+                delete loaded_resource;
                 if (_state != ResourceState::READY)
                     _state = ResourceState::FAILED;
             }
@@ -60,7 +60,7 @@ namespace cp
             _callback_mutex.unlock();
             for (auto& cb : callbacks)
             {
-                cp::JobSystem::get().enqeue([callback = std::move(cb), loadingResult = _loading_result]() { callback(loadingResult); });
+                cp::JobSystem::get().enqeue([callback = std::move(cb), loading_result = _loading_result]() { callback(loading_result); });
             }
 
             // Notify the parent resource
@@ -103,16 +103,16 @@ namespace cp
         }
     }
 
-    void ResourceHolder::load_async(std::function<Resource* ()> createFunc)
+    void ResourceHolder::load_async(std::function<Resource* ()> create_func)
     {
         ResourceState expected = ResourceState::NONE;
         if (_state.compare_exchange_strong(expected, ResourceState::LOADING))
         {
             add_ref();
-            cp::JobSystem::get().enqeue([this, create = std::move(createFunc)]()
+            cp::JobSystem::get().enqeue([this, create = std::move(create_func)]()
                 {
-                    Resource* oldResource = _loading_resource.exchange(create());
-                    delete oldResource;
+                    Resource* old_resource = _loading_resource.exchange(create());
+                    delete old_resource;
                     ResourceLoader loader(*this);
                     add_loading_dependency();
                     _loading_result = _loading_resource.load()->on_load(loader);
@@ -137,11 +137,11 @@ namespace cp
         }
     }
 
-    void ResourceHolder::store_async(Callback callbackFunc)
+    void ResourceHolder::store_async(Callback callback_func)
     {
         add_ref();
 
-        cp::JobSystem::get().enqeue([this, callback = std::move(callbackFunc)]()
+        cp::JobSystem::get().enqeue([this, callback = std::move(callback_func)]()
             {
                 ResourceState expected = ResourceState::READY;
                 while (!_state.compare_exchange_weak(expected, ResourceState::SERIALIZING))
@@ -158,25 +158,25 @@ namespace cp
                 resource->on_store(stream);
 
                 expected = ResourceState::SERIALIZING;
-                const bool wasSerializing = _state.compare_exchange_strong(expected, ResourceState::READY);
-                CP_ASSERT(wasSerializing);
+                const bool was_serializing = _state.compare_exchange_strong(expected, ResourceState::READY);
+                CP_ASSERT(was_serializing);
 
                 namespace fs = std::filesystem;
 
-                const fs::path filePath = get_asset_path();
+                const fs::path file_path = get_asset_path();
 
                 remove_ref();
 
                 {
-                    auto parentPath = filePath.parent_path();
-                    if (!parentPath.empty())
-                        fs::create_directories(parentPath);
+                    auto parent_path = file_path.parent_path();
+                    if (!parent_path.empty())
+                        fs::create_directories(parent_path);
                 }
 
-                std::ofstream file(filePath, std::ios::binary);
+                std::ofstream file(file_path, std::ios::binary);
                 if (!file.is_open())
                 {
-                    CP_ERROR("Failed to open for write: {}", filePath.string());
+                    CP_ERROR("Failed to open for write: {}", file_path.string());
                     callback(false);
                     return;
                 }
@@ -187,7 +187,7 @@ namespace cp
 
                 if (!file.good())
                 {
-                    CP_ERROR("Failed to write: {}", filePath.string());
+                    CP_ERROR("Failed to write: {}", file_path.string());
                     callback(false);
                     return;
                 }
@@ -211,8 +211,8 @@ namespace cp
 
     void ResourceHolder::set(Resource* resource)
     {
-        Resource* oldResource = _resource.exchange(resource);
-        delete oldResource;
+        Resource* old_resource = _resource.exchange(resource);
+        delete old_resource;
     }
 
     auto ResourceHolder::get_asset_path() const -> std::string

@@ -70,12 +70,12 @@ namespace cp
 	template <class T>
 	auto RefPtr<T>::operator=(const RefPtr& other) -> RefPtr&
 	{
-		T* oldPtr = _ptr;
+		T* old_ptr = _ptr;
 		_ptr = other._ptr;
 		if (_ptr)
 			_ptr->add_ref();
-		if (oldPtr)
-			oldPtr->remove_ref();
+		if (old_ptr)
+			old_ptr->remove_ref();
 		return *this;
 	}
 
@@ -91,12 +91,12 @@ namespace cp
 	{
 		if (_ptr != ptr)
 		{
-			T* oldPtr = _ptr;
+			T* old_ptr = _ptr;
 			_ptr = ptr;
 			if (_ptr)
 				_ptr->add_ref();
-			if (oldPtr)
-				oldPtr->remove_ref();
+			if (old_ptr)
+				old_ptr->remove_ref();
 		}
 		return *this;
 	}

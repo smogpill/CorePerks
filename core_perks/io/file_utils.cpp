@@ -18,10 +18,10 @@ namespace cp
             return false;
         }
 
-        size_t fileSize = static_cast<size_t>(file.tellg());
-        buffer.resize(fileSize);
+        size_t file_size = static_cast<size_t>(file.tellg());
+        buffer.resize(file_size);
         file.seekg(0);
-        file.read(buffer.data(), fileSize);
+        file.read(buffer.data(), file_size);
         file.close();
 
         return true;

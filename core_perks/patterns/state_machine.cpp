@@ -43,22 +43,22 @@ namespace cp
 		if (_current_state && _current_state->get_id() == id)
 			return;
 
-		StateMachine* previousState = _current_state;
-		StateMachine* nextState = nullptr;
+		StateMachine* previous_state = _current_state;
+		StateMachine* next_state = nullptr;
 		for (RefPtr<StateMachine>& state : _states)
 		{
 			if (state->_id == id)
 			{
-				nextState = state.get();
+				next_state = state.get();
 				break;
 			}
 		}
 
 		if (_current_state)
-			_current_state->on_exit(nextState, message);
-		_current_state = nextState;
+			_current_state->on_exit(next_state, message);
+		_current_state = next_state;
 		if (_current_state)
-			_current_state->on_enter(previousState, message);
+			_current_state->on_enter(previous_state, message);
 	}
 
 	auto StateMachine::get_state(StateID id) const -> StateMachine*

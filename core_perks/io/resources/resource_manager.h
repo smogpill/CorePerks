@@ -11,7 +11,7 @@ namespace cp
 	class ResourceManager : public Singleton<ResourceManager>
 	{
 	public:
-		ResourceManager(const std::string& assetsPath);
+		ResourceManager(const std::string& assets_path);
 		~ResourceManager();
 
 		auto get_assets_path() const -> const std::string& { return _assets_path; }

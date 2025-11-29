@@ -45,7 +45,7 @@ namespace cp
 		auto get_id_hash() const -> uint64 { return _id_hash; }
 		void add_loading_dependency();
 		void remove_loading_dependency();
-		void load_async(std::function<Resource* ()> createFunc);
+		void load_async(std::function<Resource* ()> create_func);
 		bool path_exists() const;
 		void unload_async();
 		void store_async(Callback callback);
