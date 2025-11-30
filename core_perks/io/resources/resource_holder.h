@@ -31,11 +31,12 @@ namespace cp
 		bool _result = false;
 	};
 
-	class ResourceHolder : public cp::RefCounted<ResourceHolder>
+	class ResourceHolder : public RefCounted<ResourceHolder>
 	{
-		using Base = cp::RefCounted<ResourceHolder>;
+		using Base = RefCounted<ResourceHolder>;
 	public:
 		using Callback = std::function<void(bool)>;
+		using CreateFunc = std::function<Resource*()>;
 		ResourceHolder(const std::string& id);
 		virtual ~ResourceHolder();
 
@@ -60,13 +61,15 @@ namespace cp
 
 		std::string _id;
 		uint64 _id_hash = 0;
-		cp::RefPtr<ResourceHolder> _loading_parent;
+		RefPtr<ResourceHolder> _loading_parent;
 		std::atomic<uint32> _nb_loading_dependencies = 0;
 		std::mutex _callback_mutex;
 		std::atomic<ResourceState> _state = ResourceState::NONE;
 		std::vector<Callback> _load_callbacks;
 		std::atomic<Resource*> _resource = nullptr;
 		std::atomic<Resource*> _loading_resource = nullptr;
+		/// TODO: Replace by RTTI
+		CreateFunc _create_func;
 		bool _loading_result = false;
 	};
 }

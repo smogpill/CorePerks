@@ -2,13 +2,5 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/io/resources/resource.h"
-
-namespace cp
-{
-	class ResourcePack : public Resource
-	{
-	public:
-	private:
-	};
-}
+#include "core_perks/base/reflection/type.h"
+#include "core_perks/base/reflection/type_manager.h"

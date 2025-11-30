@@ -10,6 +10,7 @@ namespace cp
 
 	class Resource
 	{
+		CP_CLASS(Resource);
 	public:
 		virtual ~Resource() {}
 

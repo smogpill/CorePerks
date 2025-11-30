@@ -26,11 +26,14 @@ namespace cp
 #ifdef CP_MSVC
 #define CP_BREAKPOINT() cp::return_void(IsDebuggerPresent() && (__debugbreak(), 1))
 #define CP_FORCE_INLINE __forceinline
+#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __declspec(dllexport)
 #else
 #define CP_BREAKPOINT() std::breakpoint_if_debugging()
 #define CP_FORCE_INLINE [[gnu::always_inline]]
+#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __attribute__ ((used))
 #endif
 
 #define CP_SAFE_SCOPE(_x_) do { _x_ } while (!!false)
 
 #include "core_perks/base/diagnostics.h"
+#include "core_perks/base/reflection/reflection.h"

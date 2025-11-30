@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
-#include "core_perks/io/resources/resource.h"
-#include "core_perks/io/resources/resource_manager.h"
+#include "core_perks/base/reflection/type_manager.h"
 
 namespace cp
 {
-	CP_DEFINE_CLASS(Resource)
+	TypeManager::TypeManager()
 	{
-
+		for (Type* type : Type::_types)
+			type->init();
 	}
 }

@@ -27,6 +27,7 @@
 #include <condition_variable>
 #include <optional>
 #include <nmmintrin.h>
+#include <bit>
 
 #ifdef CP_XXHASH
 #ifdef CP_PRIVATE_INCLUDES
