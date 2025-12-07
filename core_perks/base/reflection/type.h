@@ -100,13 +100,14 @@ namespace cp
 		Type(const char* name);
 		virtual ~Type() = default;
 
-		auto create() -> void* { return _create(); }
-		auto copy_create(const void* from) -> void* { return _copy_create(from); }
-		void construct(void* ptr) { _construct(ptr); }
-		void copy_construct(void* ptr, const void* from) { _copy_construct(ptr, from); }
-		void destruct(void* ptr) { _destruct(ptr); }
+		template <class T = void>
+		auto create() const -> T* { return static_cast<T*>(_create()); }
+		auto copy_create(const void* from) const -> void* { return _copy_create(from); }
+		void construct(void* ptr) const { _construct(ptr); }
+		void copy_construct(void* ptr, const void* from) const { _copy_construct(ptr, from); }
+		void destruct(void* ptr) const { _destruct(ptr); }
 		template <class T>
-		auto get() -> Type* { return detail::TypeStatic<T>::get_type(); }
+		static auto get() -> Type* { return detail::TypeStatic<T>::get_type_static(); }
 
 		template <class T>
 		void _init_generics();
@@ -123,8 +124,8 @@ namespace cp
 		uint16 _alignment8 = 0;
 		bool _initialized : 1 = false;
 		bool _trivially_copyable : 1 = false;
-		std::function<void* ()> _create;
-		std::function<void* (const void*)> _copy_create;
+		std::function<void*()> _create;
+		std::function<void*(const void*)> _copy_create;
 		std::function<void(void*)> _construct;
 		std::function<void(void*, const void*)> _copy_construct;
 		std::function<void(void*, void*)> _move;
@@ -143,7 +144,7 @@ namespace cp
 		_size8 = sizeof(T);
 		_alignment8 = alignof(T);
 		_trivially_copyable = std::is_trivially_copyable<T>::value;
-		using type_factory = detail::TypeFactory<T, !std::is_abstract_v<T>&& std::is_default_constructible_v<T>>;
+		using type_factory = detail::TypeFactory<T, !std::is_abstract_v<T> && std::is_default_constructible_v<T>>;
 		_create = &type_factory::create;
 		_copy_create = &type_factory::copy_create;
 		_construct = &type_factory::construct;
@@ -227,14 +228,3 @@ namespace cp
 #define CP_DEFINE_TYPE(_type_) \
 	_CP_TYPE_INITIALIZATION(_type_)
 
-CP_TYPE(bool);
-CP_TYPE(int8);
-CP_TYPE(int16);
-CP_TYPE(int32);
-CP_TYPE(int64);
-CP_TYPE(uint8);
-CP_TYPE(uint16);
-CP_TYPE(uint32);
-CP_TYPE(uint64);
-CP_TYPE(float);
-CP_TYPE(double);

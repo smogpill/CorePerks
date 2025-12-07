@@ -2,27 +2,13 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "core_perks/io/resources/base/resource_base.h"
 #include "core_perks/patterns/reference.h"
 
 namespace cp
 {
 	class ResourceLoader;
 	class Resource;
-
-	enum class ResourceState
-	{
-		// Stable states
-		NONE,
-		READY,
-		FAILED,
-
-		// Transitions
-		LOADING_DEPENDENCIES,
-		LOADING_SELF,
-		PROCESSING,
-		SERIALIZING,
-		RELEASING
-	};
 
 	template <class T>
 	struct LoadResult
@@ -31,22 +17,20 @@ namespace cp
 		bool _result = false;
 	};
 
-	class ResourceHolder : public RefCounted<ResourceHolder>
+	class ResourceEntry : public RefCounted
 	{
-		using Base = RefCounted<ResourceHolder>;
+		using Base = RefCounted;
 	public:
 		using Callback = std::function<void(bool)>;
-		using CreateFunc = std::function<Resource*()>;
-		ResourceHolder(const std::string& id);
-		virtual ~ResourceHolder();
+		ResourceEntry(const std::string& id, uint64 id_hash, const cp::Type& type);
+		virtual ~ResourceEntry();
 
-		void add_load_callback(Callback callback);
 		auto get_id() const -> const std::string& { return _id; }
 		auto get_name() const -> std::string;
 		auto get_id_hash() const -> uint64 { return _id_hash; }
 		void add_loading_dependency();
 		void remove_loading_dependency();
-		void load_async(std::function<Resource* ()> create_func);
+		void load_async(Callback callback);
 		bool path_exists() const;
 		void unload_async();
 		void store_async(Callback callback);
@@ -58,18 +42,22 @@ namespace cp
 		friend class ResourceLoader;
 		friend class ResourceManager;
 		void on_all_refs_removed() override;
+		void add_load_callback(Callback callback);
 
 		std::string _id;
 		uint64 _id_hash = 0;
-		RefPtr<ResourceHolder> _loading_parent;
+		const cp::Type* _type = nullptr;
+		RefPtr<ResourceEntry> _loading_parent;
 		std::atomic<uint32> _nb_loading_dependencies = 0;
 		std::mutex _callback_mutex;
 		std::atomic<ResourceState> _state = ResourceState::NONE;
+		std::atomic<ResourceState> _target_state = ResourceState::NONE;
 		std::vector<Callback> _load_callbacks;
 		std::atomic<Resource*> _resource = nullptr;
 		std::atomic<Resource*> _loading_resource = nullptr;
-		/// TODO: Replace by RTTI
-		CreateFunc _create_func;
+		std::vector<UntypedResourceHandle> _dependencies;
+
 		bool _loading_result = false;
+		std::mutex _mutex;
 	};
 }

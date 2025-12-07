@@ -3,19 +3,19 @@
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
 #include "core_perks/io/resources/resource_loader.h"
-#include "core_perks/io/resources/resource_holder.h"
+#include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_manager.h"
 
 namespace cp
 {
-    ResourceLoader::ResourceLoader(ResourceHolder& holder)
-        : _holder(holder)
+    ResourceLoader::ResourceLoader(ResourceEntry& entry)
+        : _entry(entry)
     {
     }
 
     auto ResourceLoader::get_asset_path() const -> std::string
     {
-        return _holder.get_asset_path();
+        return _entry.get_asset_path();
     }
 
     bool ResourceLoader::read_as_binary_file(std::vector<uint8>& content)
@@ -44,11 +44,11 @@ namespace cp
 
     bool ResourceLoader::path_exists() const
     {
-        return _holder.path_exists();
+        return _entry.path_exists();
     }
 
     auto ResourceLoader::get_id() const -> const std::string&
     {
-        return _holder.get_id();
+        return _entry.get_id();
     }
 }

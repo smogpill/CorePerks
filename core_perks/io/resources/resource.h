@@ -12,10 +12,13 @@ namespace cp
 	{
 		CP_CLASS(Resource);
 	public:
-		virtual ~Resource() {}
+		virtual ~Resource() = default;
 
 		virtual bool on_load(ResourceLoader& loader) = 0 { return true; }
 		virtual bool on_dependencies_loaded() { return true; }
 		virtual void on_store(cp::BinaryOutputStream& stream) const {}
+
+	private:
+		uint32 _version = 0;
 	};
 }

@@ -82,7 +82,7 @@ namespace cp
             void await_suspend(std::coroutine_handle<> h)
             {
                 // Wrap the coroutine task and continuation in a job
-                JobSystem::s_instance->enqeue([this, h]() mutable
+                JobSystem::_singleton->enqeue([this, h]() mutable
                     {
                         _task.start(); // Execute the coroutine until it suspends or completes
                         if (_task.done())

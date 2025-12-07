@@ -7,35 +7,46 @@
 
 namespace cp
 {
-	ResourceManager::ResourceManager(const std::string& assets_path)
-		: _assets_path(assets_path)
-	{
-
-	}
-
 	ResourceManager::~ResourceManager()
 	{
 		std::scoped_lock lock(_mutex);
 		CP_ASSERT(_map.empty());
 	}
 
-	void ResourceManager::destroy_holder(ResourceHolder& holder)
+	void ResourceManager::set_assets_path(const std::string& path)
+	{
+		_assets_path = path;
+	}
+
+	void ResourceManager::set_cache_path(const std::string& path)
+	{
+		_cache_path = path;
+	}
+
+	void ResourceManager::destroy_entry(ResourceEntry& entry)
 	{
 		_mutex.lock();
-		auto it = _map.find(holder.get_id());
+		auto it = _map.find(entry.get_id());
 		_map.erase(it);
 		_mutex.unlock();
 	}
 
-	ResourceHolder* ResourceManager::get_or_create_holder(const std::string& id)
+	void ResourceManager::add_request(const UntypedResourceHandle& request)
 	{
 		std::scoped_lock lock(_mutex);
-		auto it = _map.find(id);
+		_requests.push(request);
+	}
+
+	ResourceEntry* ResourceManager::get_or_create_entry(const std::string& id)
+	{
+		const uint64 id_hash = hash_resource_id(id);
+		std::scoped_lock lock(_mutex);
+		auto it = _map.find(id_hash);
 		if (it == _map.end())
 		{
-			ResourceHolder* holder = new ResourceHolder(id);
-			_map[id] = holder;
-			return holder;
+			ResourceEntry* entry = new ResourceEntry(id, id_hash);
+			_map[id] = entry;
+			return entry;
 		}
 		else
 		{

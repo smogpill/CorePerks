@@ -3,3 +3,12 @@
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
 #include "core_perks/io/resources/resource_pack.h"
+
+namespace cp
+{
+	void ResourcePack::add_resource(const UntypedResourceHandle& handle)
+	{
+		if (!contains(_resources, handle))
+			_resources.push_back(handle);
+	}
+}

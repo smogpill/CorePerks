@@ -6,3 +6,7 @@
 #ifdef _MSC_VER
 #define CP_MSVC
 #endif
+
+#ifdef _WIN32
+#define CP_WINDOWS
+#endif

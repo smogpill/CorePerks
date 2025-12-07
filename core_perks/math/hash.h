@@ -47,6 +47,7 @@ namespace cp::hash
 		using crc32::hash32;
 		using crc32::hash64;
 	}
+
 	namespace strong
 	{
 #ifdef CP_XXHASH

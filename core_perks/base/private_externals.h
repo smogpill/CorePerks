@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-namespace cp
-{
-	bool read_binary_file(const std::string& path, std::vector<char>& buffer);
-}
+#ifdef CP_XXHASH
+#include <xxHash/xxhash.h>
+#endif
+
+#ifdef CP_RAPIDJSON
+#include <rapidjson/rapidjson.h>
+#endif

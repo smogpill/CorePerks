@@ -5,8 +5,9 @@
 
 namespace cp
 {
-	namespace hash
+	class resource_provider
 	{
-		//auto HashResourceID(const std::string& id) -> uint64 { return hash}
-	}
+	public:
+
+	};
 }

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/io/resources/resource_holder.h"
+#include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_manager.h"
 
 namespace cp
@@ -17,7 +17,7 @@ namespace cp
 			bool _optional = false;
 		};
 
-		ResourceLoader(ResourceHolder& holder);
+		ResourceLoader(ResourceEntry& entry);
 		template <class T>
 		auto add_dependency(const std::string& id, const DependencyOptions& options = DependencyOptions()) -> ResourceHandle<T>;
 		auto get_id() const -> const std::string&;
@@ -26,17 +26,17 @@ namespace cp
 		bool path_exists() const;
 
 	private:
-		ResourceHolder& _holder;
+		ResourceEntry& _entry;
 	};
 
 	template <class T>
 	auto ResourceLoader::add_dependency(const std::string& id, const DependencyOptions& options) -> ResourceHandle<T>
 	{
 		ResourceHandle<T> handle(id);
-		if (handle._holder->path_exists() || !options._optional)
+		if (handle._entry->path_exists() || !options._optional)
 		{
-			handle._holder->_loading_parent = &_holder;
-			_holder.add_loading_dependency();
+			handle._entry->_loading_parent = &_entry;
+			_entry.add_loading_dependency();
 			handle.load_async();
 		}
 		return handle;

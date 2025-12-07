@@ -7,21 +7,21 @@
 
 namespace cp
 {
-	ResourceHandleBase::ResourceHandleBase(const std::string& id)
-		: _holder(ResourceManager::get().get_or_create_holder(id))
+	UntypedResourceHandle::UntypedResourceHandle(const std::string& id)
+		: _entry(ResourceManager::get().get_or_create_entry(id))
 	{
 	}
 
-	void ResourceHandleBase::set_id(const std::string& id)
+	void UntypedResourceHandle::set_id(const std::string& id)
 	{
-		_holder = ResourceManager::get().get_or_create_holder(id);
+		_entry = ResourceManager::get().get_or_create_entry(id);
 	}
 
-	void ResourceHandleBase::set_resource(Resource* resource)
+	void UntypedResourceHandle::set_resource(Resource* resource)
 	{
-		if (_holder)
+		if (_entry)
 		{
-			_holder->set(resource);
+			_entry->set(resource);
 		}
 		else
 		{
@@ -29,21 +29,21 @@ namespace cp
 		}
 	}
 
-	void ResourceHandleBase::unload_async()
+	void UntypedResourceHandle::unload_async()
 	{
-		if (_holder)
-			_holder->unload_async();
+		if (_entry)
+			_entry->unload_async();
 	}
 
-	void ResourceHandleBase::store_async(std::function<void(bool)> onDone)
+	void UntypedResourceHandle::store_async(std::function<void(bool)> on_done)
 	{
-		if (_holder)
-			_holder->store_async(std::move(onDone));
+		if (_entry)
+			_entry->store_async(std::move(on_done));
 	}
 
-	void ResourceHandleBase::load_async(std::function<Resource* ()> createFunction)
+	void UntypedResourceHandle::load_async(std::function<void(bool)> on_done)
 	{
-		if (_holder)
-			_holder->load_async(std::move(createFunction));
+		if (_entry)
+			_entry->load_async(std::move(on_done));
 	}
 }

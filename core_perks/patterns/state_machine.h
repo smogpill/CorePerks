@@ -39,7 +39,7 @@ namespace cp
 		StateEventID _id = 0;
 	};
 
-	class StateMachine : public RefCounted<StateMachine>
+	class StateMachine : public RefCounted
 	{
 	public:
 		explicit StateMachine(StateID id);
@@ -72,33 +72,5 @@ namespace cp
 		StateMachine* _current_state = nullptr;
 		StateID _id = 0;
 		std::vector<RefPtr<StateMachine>> _states;
-	};
-
-	class LambdaStateMachine : public StateMachine
-	{
-		using Base = StateMachine;
-	public:
-		using OnUpdateFunc = std::function<void()>;
-		using OnEnterFunc = std::function<void(StateMachine*, const StateMessage&)>;
-		using OnExitFunc = std::function<void(StateMachine*, const StateMessage&)>;
-		using OnEventFunc = std::function<void(const StateEvent&)>;
-
-		explicit LambdaStateMachine(StateID id) : Base(id) {}
-		void set_on_update(OnUpdateFunc func) { _on_update = func; }
-		void set_on_enter(OnEnterFunc func) { _on_enter = func; }
-		void set_on_exit(OnExitFunc func) { _on_exit = func; }
-		void set_on_event(OnEventFunc func) { _on_event = func; }
-
-	protected:
-		void on_enter(StateMachine* from, const StateMessage& message) override;
-		void on_exit(StateMachine* to, const StateMessage& message) override;
-		void on_update() override;
-		void on_event(const StateEvent& event) override;
-
-	private:
-		OnUpdateFunc _on_update;
-		OnEnterFunc _on_enter;
-		OnExitFunc _on_exit;
-		OnEventFunc _on_event;
 	};
 }

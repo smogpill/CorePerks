@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
-#include "core_perks/io/resources/resource_holder.h"
+#include "core_perks/io/resources/base/resource_base.h"
+#include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_manager.h"
 #include "core_perks/io/resources/resource_loader.h"
 #include "core_perks/io/resources/resource.h"
@@ -12,24 +13,25 @@
 
 namespace cp
 {
-    ResourceHolder::ResourceHolder(const std::string& id)
+    ResourceEntry::ResourceEntry(const std::string& id, uint64 id_hash, const cp::Type& type)
         : _id(id)
-        , _id_hash(hash::strong::hash64(id))
+        , _id_hash(id_hash)
+        , _type(&type)
     {
     }
 
-    ResourceHolder::~ResourceHolder()
+    ResourceEntry::~ResourceEntry()
     {
         delete _resource;
         delete _loading_resource;
     }
 
-    void ResourceHolder::add_loading_dependency()
+    void ResourceEntry::add_loading_dependency()
     {
         ++_nb_loading_dependencies;
     }
 
-    void ResourceHolder::remove_loading_dependency()
+    void ResourceEntry::remove_loading_dependency()
     {
         if (--_nb_loading_dependencies == 0)
         {
@@ -74,13 +76,13 @@ namespace cp
         }
     }
 
-    void ResourceHolder::on_all_refs_removed()
+    void ResourceEntry::on_all_refs_removed()
     {
-        ResourceManager::get().destroy_holder(*this);
+        ResourceManager::get().destroy_entry(*this);
         Base::on_all_refs_removed();
     }
 
-    void ResourceHolder::add_load_callback(Callback callback)
+    void ResourceEntry::add_load_callback(Callback callback)
     {
         std::scoped_lock lock(_callback_mutex);
         switch (_state)
@@ -103,15 +105,22 @@ namespace cp
         }
     }
 
-    void ResourceHolder::load_async(std::function<Resource* ()> create_func)
+    void ResourceEntry::load_async(Callback on_done)
     {
         ResourceState expected = ResourceState::NONE;
+        if (!_target_state.compare_exchange_strong(expected, ResourceState::READY))
+        {
+
+        }
+        add_load_callback(on_done);
+        
         if (_state.compare_exchange_strong(expected, ResourceState::LOADING))
         {
             add_ref();
-            cp::JobSystem::get().enqeue([this, create = std::move(create_func)]()
+            cp::JobSystem::get().enqeue([this]()
                 {
-                    Resource* old_resource = _loading_resource.exchange(create());
+                    Resource* new_resource = _type->create<Resource>();
+                    Resource* old_resource = _loading_resource.exchange(new_resource);
                     delete old_resource;
                     ResourceLoader loader(*this);
                     add_loading_dependency();
@@ -122,7 +131,7 @@ namespace cp
         }
     }
 
-    void ResourceHolder::unload_async()
+    void ResourceEntry::unload_async()
     {
         ResourceState expected = ResourceState::READY;
         if (_state.compare_exchange_strong(expected, ResourceState::RELEASING))
@@ -137,11 +146,11 @@ namespace cp
         }
     }
 
-    void ResourceHolder::store_async(Callback callback_func)
+    void ResourceEntry::store_async(Callback on_done)
     {
         add_ref();
 
-        cp::JobSystem::get().enqeue([this, callback = std::move(callback_func)]()
+        cp::JobSystem::get().enqeue([this, callback = std::move(on_done)]()
             {
                 ResourceState expected = ResourceState::READY;
                 while (!_state.compare_exchange_weak(expected, ResourceState::SERIALIZING))
@@ -198,24 +207,24 @@ namespace cp
             });
     }
 
-    bool ResourceHolder::path_exists() const
+    bool ResourceEntry::path_exists() const
     {
         return std::filesystem::exists(get_asset_path());
     }
 
-    auto ResourceHolder::get_name() const -> std::string
+    auto ResourceEntry::get_name() const -> std::string
     {
         const size_t pos = _id.find_last_of('/');
         return (pos == std::string::npos) ? _id : _id.substr(pos + 1);
     }
 
-    void ResourceHolder::set(Resource* resource)
+    void ResourceEntry::set(Resource* resource)
     {
         Resource* old_resource = _resource.exchange(resource);
         delete old_resource;
     }
 
-    auto ResourceHolder::get_asset_path() const -> std::string
+    auto ResourceEntry::get_asset_path() const -> std::string
     {
         return (std::filesystem::path(ResourceManager::get().get_assets_path()) / get_id()).string();
     }

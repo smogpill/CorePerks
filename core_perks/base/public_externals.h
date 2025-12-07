@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <span>
 #include <vector>
 #include <deque>
 #include <queue>
@@ -28,12 +29,6 @@
 #include <optional>
 #include <nmmintrin.h>
 #include <bit>
-
-#ifdef CP_XXHASH
-#ifdef CP_PRIVATE_INCLUDES
-#include <xxHash/xxhash.h>
-#endif
-#endif
 
 #ifdef CP_XXHASHCT
 #include <xxhashct/xxh32.hpp>

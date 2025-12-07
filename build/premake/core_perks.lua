@@ -49,9 +49,9 @@ function cp.project(name)
 	configurations(project_configurations)
 
 	filter{"configurations:debug"}
-		defines {"CP_DEBUG", "CP_DEBUG_OR_DEV"}
+		defines {"CP_DEBUG"}
 	filter{"configurations:dev"}
-		defines {"CP_DEV", "CP_DEBUG_OR_DEV"}
+		defines {"CP_DEV"}
 	filter{"configurations:profile"}
 		defines {"CP_PROFILE"}
 	filter{"configurations:release"}

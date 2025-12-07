@@ -5,7 +5,6 @@
 
 namespace cp
 {
-	template <class T>
 	class RefCounted
 	{
 	public:
@@ -60,11 +59,10 @@ namespace cp
 		const T* _ptr = nullptr;
 	};
 
-	template <class T>
-	void RefCounted<T>::remove_ref() const
+	inline void RefCounted::remove_ref() const
 	{
 		if (--_ref_count == 0)
-			const_cast<RefCounted<T>*>(this)->on_all_refs_removed();
+			const_cast<RefCounted*>(this)->on_all_refs_removed();
 	}
 
 	template <class T>

@@ -2,8 +2,15 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#if defined(CP_DEBUG) || defined(CP_DEV)
+#define CP_DEBUG_OR_DEV
+#endif
+#if defined(CP_PROFILE) || defined(CP_RELEASE)
+#define CP_PROFILE_OR_RELEASE
+#endif
+
 #include "core_perks/generated/config.h"
-#include "core_perks/base/external_includes.h"
+#include "core_perks/base/public_externals.h"
 #include "core_perks/base/platform.h"
 
 // Base types
@@ -37,3 +44,15 @@ namespace cp
 
 #include "core_perks/base/diagnostics.h"
 #include "core_perks/base/reflection/reflection.h"
+
+CP_TYPE(bool);
+CP_TYPE(int8);
+CP_TYPE(int16);
+CP_TYPE(int32);
+CP_TYPE(int64);
+CP_TYPE(uint8);
+CP_TYPE(uint16);
+CP_TYPE(uint32);
+CP_TYPE(uint64);
+CP_TYPE(float);
+CP_TYPE(double);
