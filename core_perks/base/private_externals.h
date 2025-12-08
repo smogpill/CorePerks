@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#include <cstdlib>
 
 #ifdef CP_XXHASH
 #include <xxHash/xxhash.h>

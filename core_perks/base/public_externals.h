@@ -29,6 +29,7 @@
 #include <optional>
 #include <nmmintrin.h>
 #include <bit>
+#include <initializer_list>
 
 #ifdef CP_XXHASHCT
 #include <xxhashct/xxh32.hpp>

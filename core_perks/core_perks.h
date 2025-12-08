@@ -19,3 +19,7 @@
 #ifdef CP_VULKAN
 #include "core_perks/vulkan/vulkan.h"
 #endif
+#ifdef CP_TRACY
+#define TRACY_ENABLE
+#include <tracy/Tracy.hpp>
+#endif

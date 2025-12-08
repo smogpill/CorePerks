@@ -1,6 +1,7 @@
 local m = {}
 m.define_suffix = "TRACY"
 function m.add_dependency()
+	includedirs { path.join(cp.extern_path, "tracy/public") }
 	filter { "configurations:debug or dev or profile" }
 	defines { "TRACY_ENABLE" }
 	filter {}

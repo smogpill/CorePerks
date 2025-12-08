@@ -2,5 +2,8 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/containers/vector_extensions.h"
-#include "core_perks/containers/vector.h"
+
+namespace cp
+{
+	
+}
