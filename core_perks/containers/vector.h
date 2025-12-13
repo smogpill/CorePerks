@@ -107,10 +107,10 @@ namespace cp
 
 	template <class T>
 	Vector<T>::Vector(Vector<T>&& other)
-		: data_(other._data)
+		: data_(other.data_)
 		, size_(other.size_)
 		, capacity_(other.capacity_)
-		: _tag(tag)
+		: tag_(tag)
 	{
 		other.data_ = nullptr;
 		other.size_ = 0;
@@ -137,11 +137,11 @@ namespace cp
 	template <class T>
 	Vector<T>::~Vector()
 	{
-		if (_data)
+		if (data_)
 		{
 			std::destroy(data_, data_ + size_);
 			CP_ASSERT(_allocator);
-			free(_data);
+			free(data_);
 		}
 	}
 
@@ -152,7 +152,7 @@ namespace cp
 			return;
 		std::destroy(data_, data_ + size_);
 #ifdef CP_DEBUG
-		fill_as_deleted(_data, uint64(size_) * sizeof(T));
+		fill_as_deleted(data_, uint64(size_) * sizeof(T));
 #endif
 		size_ = 0;
 	}
@@ -176,8 +176,8 @@ namespace cp
 	template <class T>
 	void Vector<T>::set_capacity(uint32 new_capacity)
 	{
-		CP_ASSERT(new_capacity >= _size);
-		if (new_capacity != _capacity)
+		CP_ASSERT(new_capacity >= size_);
+		if (new_capacity != capacity_)
 		{
 			// Aligned to min 16 bytes:
 			// - For simplicity. For example for working using SIMD on a float array.
@@ -186,15 +186,15 @@ namespace cp
 			CP_ASSERT(_allocator);
 			T* new_buffer;
 			const size_t new_capacity8 = uint64(new_capacity) * sizeof(T);
-			new_buffer = static_cast<T*>(aligned_alloc(alignment, new_capacity8, _tag));
-			if (_data)
+			new_buffer = static_cast<T*>(aligned_alloc(alignment, new_capacity8, tag_));
+			if (data_)
 			{
-				std::uninitialized_move(_data, _data + _size, new_buffer);
-				std::destroy(_data, _data + _size);
-				free(_data);
+				std::uninitialized_move(data_, data_ + size_, new_buffer);
+				std::destroy(data_, data_ + size_);
+				free(data_);
 			}
-			_data = new_buffer;
-			_capacity = new_capacity;
+			data_ = new_buffer;
+			capacity_ = new_capacity;
 		}
 	}
 
@@ -217,7 +217,7 @@ namespace cp
 			}
 			else
 			{
-				std::destroy(_data + new_size, data_ + size_);
+				std::destroy(data_ + new_size, data_ + size_);
 #ifdef CP_DEBUG
 				fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
@@ -235,11 +235,11 @@ namespace cp
 			{
 				reserve(new_size);
 				for (uint32 i = size_; i < new_size; ++i)
-					::new (_data + i) T(value);
+					::new (data_ + i) T(value);
 			}
 			else
 			{
-				std::destroy(data_ + new_size, _data + size_);
+				std::destroy(data_ + new_size, data_ + size_);
 #ifdef CP_DEBUG
 				fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
@@ -280,7 +280,7 @@ namespace cp
 		const uint32 other_size = range.size_;
 		const uint32 desired_size = size_ + other_size;
 		reserve(desired_size);
-		T* dest = _data + size_;
+		T* dest = data_ + size_;
 		for (uint32 i = 0; i < other_size; ++i)
 			new (dest + i) T(range[i]);
 		size_ = desired_size;
@@ -308,8 +308,8 @@ namespace cp
 		{
 			const uint32 new_size = size_ - count;
 			for (uint32 i = 0; i < size_; ++i)
-				_data[i] = std::move(data_[i + count]);
-			std::destroy(data_ + new_size, _data + size_);
+				data_[i] = std::move(data_[i + count]);
+			std::destroy(data_ + new_size, data_ + size_);
 #ifdef CP_DEBUG
 			fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
@@ -397,7 +397,7 @@ namespace cp
 	uint32 Vector<T>::erase_at(const uint32 index)
 	{
 		CP_ASSERT(index < size_);
-		erase(&_data[index]);
+		erase(&data_[index]);
 		return index;
 	}
 
@@ -413,7 +413,7 @@ namespace cp
 	T* Vector<T>::swap_and_pop(T* it)
 	{
 		CP_ASSERT(it && it >= begin() && it < end());
-		T* back = &_data[--size_];
+		T* back = &data_[--size_];
 		*it = std::move(*back);
 		std::destroy_at(back);
 #ifdef CP_DEBUG
@@ -445,7 +445,7 @@ namespace cp
 		const uint32 list_size = (uint32)list.size();
 		reserve(list_size);
 		for (uint32 i = 0; i < list_size; ++i)
-			new (_data + i) T(list.begin()[i]);
+			new (data_ + i) T(list.begin()[i]);
 		size_ = list_size;
 	}
 
@@ -468,7 +468,7 @@ namespace cp
 		{
 			CP_ASSERT(end_idx <= size_);
 			for (uint32 i = end_idx; i < size_; ++i)
-				_data[i - end_idx] = std::move(data_[i]);
+				data_[i - end_idx] = std::move(data_[i]);
 			size_ -= end_idx;
 		}
 	}

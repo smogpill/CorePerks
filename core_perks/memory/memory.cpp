@@ -25,7 +25,7 @@ namespace cp
 
 	void* alloc(size_t size, AllocTag tag)
 	{
-		aligned_alloc(alignof(std::max_align_t), size, tag);
+		return aligned_alloc(alignof(std::max_align_t), size, tag);
 	}
 
 	void* aligned_alloc(size_t alignment, size_t size, AllocTag tag)

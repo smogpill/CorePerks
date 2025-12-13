@@ -26,15 +26,6 @@ namespace cp
 		uint8 tag_ = 0;
 	};
 
-	/*
-	template <class T>
-	class TaggedAllocator
-	{
-	public:
-		AllocTag _tag;
-	};
-	*/
-
 	void* alloc(size_t size, AllocTag tag = AllocTag());
 	void* aligned_alloc(size_t alignment, size_t size, AllocTag tag = AllocTag());
 	void free(void* ptr);
