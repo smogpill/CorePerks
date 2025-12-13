@@ -14,29 +14,29 @@ namespace cp
 	{
 	public:
 		StateMessage() = default;
-		StateMessage(StateMessageID id) : _id(id) {}
+		StateMessage(StateMessageID id) : id_(id) {}
 		template <class T>
 		StateMessage(const T& typed_id) : StateMessage(static_cast<StateMessageID>(typed_id)) {}
 		virtual ~StateMessage() = default;
 
-		auto get_id() const { return _id; }
+		StateMessageID get_id() const { return id_; }
 
 	private:
-		StateMessageID _id = 0;
+		StateMessageID id_ = 0;
 	};
 
 	class StateEvent
 	{
 	public:
-		StateEvent(StateEventID id) : _id(id) {}
+		StateEvent(StateEventID id) : id_(id) {}
 		template <class T>
 		StateEvent(const T& typed_id) : StateEvent(static_cast<StateEventID>(typed_id)) {}
 		virtual ~StateEvent() = default;
 
-		auto get_id() const { return _id; }
+		StateEventID get_id() const { return id_; }
 
 	private:
-		StateEventID _id = 0;
+		StateEventID id_ = 0;
 	};
 
 	class StateMachine : public RefCounted
@@ -52,14 +52,14 @@ namespace cp
 		template <class T>
 		void set_current_state(const T& typed_id, const StateMessage& message = StateMessage()) { set_current_state(static_cast<StateID>(typed_id), message); }
 		template <class T>
-		auto get_state(const T& typed_id) const -> StateMachine* { return get_state(static_cast<StateID>(typed_id)); }
-		auto get_state(StateID id) const -> StateMachine*;
-		auto get_id() const { return _id; }
+		StateMachine* get_state(const T& typed_id) const { return get_state(static_cast<StateID>(typed_id)); }
+		StateMachine* get_state(StateID id) const;
+		StateID get_id() const { return id_; }
 		template <class T>
-		auto get_typed_id() const { return static_cast<T>(_id); }
+		T get_typed_id() const { return static_cast<T>(id_); }
 		void update();
 		void handle_event(const StateEvent& event);
-		auto get_parent() -> StateMachine* { return _parent; }
+		StateMachine* get_parent() { return parent_; }
 
 	protected:
 		virtual void on_enter(StateMachine* from, const StateMessage& message) {}
@@ -68,9 +68,9 @@ namespace cp
 		virtual void on_event(const StateEvent& event) {}
 
 	private:
-		StateMachine* _parent = nullptr;
-		StateMachine* _current_state = nullptr;
-		StateID _id = 0;
-		std::vector<RefPtr<StateMachine>> _states;
+		StateMachine* parent_ = nullptr;
+		StateMachine* current_state_ = nullptr;
+		StateID id_ = 0;
+		std::vector<RefPtr<StateMachine>> states_;
 	};
 }

@@ -13,12 +13,12 @@ namespace cp
 
 		struct Header
 		{
-			uint32 _size;
-			uint32 _header_alloc_size;
+			uint32 size_;
+			uint32 header_alloc_size_;
 #ifdef CP_DEBUG
-			const char* _file; // not using const char* to avoid 8-byte alignment on the struct
-			uint32 _line;
-			uint32 _marker;
+			const char* file_; // not using const char* to avoid 8-byte alignment on the struct
+			uint32 line_;
+			uint32 marker_;
 #endif
 		};
 
@@ -39,21 +39,21 @@ namespace cp
 		if (size == 0) [[unlikely]]
 			return nullptr;
 
-		const size_t ptr_offset = align_up(_offset + sizeof(stack_allocator::Header), std::max((size_t)alignment, alignof(stack_allocator::Header)));
-		const size_t header_alloc_size = ptr_offset - _offset;
-		_offset = ptr_offset + size;
-		if (_offset > _capacity)
+		const size_t ptr_offset = align_up(offset_ + sizeof(stack_allocator::Header), std::max((size_t)alignment, alignof(stack_allocator::Header)));
+		const size_t header_alloc_size = ptr_offset - offset_;
+		offset_ = ptr_offset + size;
+		if (offset_ > capacity_)
 			CP_FATAL("Stack allocator is full D:");
 
-		void* ptr = _memory + ptr_offset;
+		void* ptr = memory_ + ptr_offset;
 		stack_allocator::Header* header = stack_allocator::get_header(ptr);
-		header->_size = size;
-		CP_ASSERT(header_alloc_size <= std::numeric_limits<decltype(header->_header_alloc_size)>::max());
-		header->_header_alloc_size = (uint8)header_alloc_size;
+		header->size_ = size;
+		CP_ASSERT(header_alloc_size <= std::numeric_limits<decltype(header->header_alloc_size_)>::max());
+		header->header_alloc_size_ = (uint8)header_alloc_size;
 #ifdef CP_DEBUG
-		header->_marker = stack_allocator::marker;
-		header->_file = file;
-		header->_line = line;
+		header->marker_ = stack_allocator::marker;
+		header->file_ = file;
+		header->line_ = line;
 #endif
 		return ptr;
 	}
@@ -65,10 +65,10 @@ namespace cp
 
 		stack_allocator::Header* header = stack_allocator::get_header(ptr);
 #ifdef CP_DEBUG
-        if (header->_marker != stack_allocator::marker) [[unlikely]]
+        if (header->marker_ != stack_allocator::marker) [[unlikely]]
             CP_FATAL("Stack allocator corruption :S (marker mismatch)");
 #endif
-		CP_ASSERT((uint8*)ptr + header->_size == _memory + _offset);
-        _offset = (uint64)ptr - header->_header_alloc_size;
+		CP_ASSERT((uint8*)ptr + header->size_ == memory_ + offset_);
+        offset_ = (uint64)ptr - header->header_alloc_size_;
 	}
 }

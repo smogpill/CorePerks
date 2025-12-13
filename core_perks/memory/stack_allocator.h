@@ -15,8 +15,8 @@ namespace cp
 		);
 		void free(void* ptr);
 	private:
-		uint8* _memory = nullptr;
-		uint64 _offset = 0;
-		uint64 _capacity = 0;
+		uint8* memory_ = nullptr;
+		uint64 offset_ = 0;
+		uint64 capacity_ = 0;
 	};
 }

@@ -10,10 +10,10 @@ namespace cp
 	public:
 		void* alloc(size_t size, size_t alignment = alignof(std::max_align_t));
 		void free(void*) {}
-		void reset() { _offset = 0; }
+		void reset() { offset_ = 0; }
 	private:
-		uint8* _memory = nullptr;
-		size_t _offset = 0;
-		size_t _capacity = 0;
+		uint8* memory_ = nullptr;
+		size_t offset_ = 0;
+		size_t capacity_ = 0;
 	};
 }

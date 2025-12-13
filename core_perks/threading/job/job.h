@@ -10,12 +10,12 @@ public:
 
     template<typename Callable>
     Job(Callable&& callable)
-        : _function([callable = std::forward<Callable>(callable)]() { callable(); })
+        : function_([callable = std::forward<Callable>(callable)]() { callable(); })
     {
     }
 
-    void operator()() { _function(); }
+    void operator()() { function_(); }
 
 private:
-    std::function<void()> _function;
+    std::function<void()> function_;
 };

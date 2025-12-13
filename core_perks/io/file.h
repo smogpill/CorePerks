@@ -9,21 +9,21 @@ namespace cp
 	{
 	public:
 		~MappedRegion();
-		auto data() { return _data; }
-		auto size() const { return _size; }
-		auto span() -> std::span<std::byte> { return std::span<std::byte>(static_cast<std::byte*>(_data), _size); }
-		bool is_mapped() const { return _data != nullptr; }
-		auto begin() -> std::byte* { return static_cast<std::byte*>(_data); }
-		auto end() -> std::byte* { return static_cast<std::byte*>(_data) + _size; }
+		void* data() { return data_; }
+		uint64 size() const { return size_; }
+		auto span() -> std::span<std::byte> { return std::span<std::byte>(static_cast<std::byte*>(data_), size_); }
+		bool is_mapped() const { return data_ != nullptr; }
+		std::byte* begin() { return static_cast<std::byte*>(data_); }
+		std::byte* end() { return static_cast<std::byte*>(data_) + size_; }
 
 	private:
 		friend class FileHandle;
 
-		void* _data = nullptr;
-		uint64 _size = 0;
+		void* data_ = nullptr;
+		uint64 size_ = 0;
 #ifdef CP_WINDOWS
-		HANDLE _mapping = INVALID_HANDLE_VALUE;
-		void* _view = nullptr;
+		HANDLE mapping_ = INVALID_HANDLE_VALUE;
+		void* view_ = nullptr;
 #endif
 	};
 
@@ -50,19 +50,19 @@ namespace cp
 		~FileHandle();
 		
 		bool is_open() const;
-		auto map(Access access = Access::READ_ONLY) -> MappedRegion;
-		auto map_region(uint64 offset, uint64 size, Access access = Access::READ_ONLY) -> MappedRegion;
-		auto get_size() const -> uint64;
-		auto native_handle() const { return _native_handle; }
+		MappedRegion map(Access access = Access::READ_ONLY);
+		MappedRegion map_region(uint64 offset, uint64 size, Access access = Access::READ_ONLY);
+		uint64 get_size() const;
+		auto native_handle() const { return native_handle_; }
 
 	private:
 		void open(const std::string& path, Mode mode);
 		void close();
 
-		std::string _path;
+		std::string path_;
 
 #ifdef CP_WINDOWS
-		HANDLE _native_handle = INVALID_HANDLE_VALUE;
+		HANDLE native_handle_ = INVALID_HANDLE_VALUE;
 #endif
 	};
 }

@@ -8,7 +8,7 @@ namespace cp
 {
 	void ResourcePack::add_resource(const UntypedResourceHandle& handle)
 	{
-		if (!contains(_resources, handle))
-			_resources.push_back(handle);
+		if (!contains(resources_, handle))
+			resources_.push_back(handle);
 	}
 }

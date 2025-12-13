@@ -10,17 +10,17 @@ namespace cp
 	public:
 		virtual ~RefCounted() = default;
 
-		void add_ref() const { ++_ref_count; }
+		void add_ref() const { ++ref_count_; }
 		void remove_ref() const;
-		void disable_ref_counting() const { _ref_count = s_disabled_ref_counting; }
+		void disable_ref_counting() const { ref_count_ = disabled_ref_counting; }
 
 	protected:
 		virtual void on_all_refs_removed() { delete this; }
 
 	private:
-		static constexpr uint32 s_disabled_ref_counting = 0xdddddddd;
+		static constexpr uint32 disabled_ref_counting = 0xdddddddd;
 
-		mutable std::atomic<uint32> _ref_count = 0;
+		mutable std::atomic<uint32> ref_count_ = 0;
 	};
 
 	template <class T>
@@ -28,25 +28,25 @@ namespace cp
 	{
 	public:
 		RefPtr() = default;
-		RefPtr(const RefPtr& other) : _ptr(other._ptr) { if (_ptr) _ptr->add_ref(); }
-		RefPtr(RefPtr&& other) : _ptr(other._ptr) { other._ptr = nullptr; }
-		explicit RefPtr(T* ptr) : _ptr(ptr) { if (_ptr) _ptr->add_ref(); }
+		RefPtr(const RefPtr& other) : ptr_(other.ptr_) { if (ptr_) ptr_->add_ref(); }
+		RefPtr(RefPtr&& other) : ptr_(other.ptr_) { other.ptr_ = nullptr; }
+		explicit RefPtr(T* ptr) : ptr_(ptr) { if (ptr_) ptr_->add_ref(); }
 		~RefPtr() { release(); }
 
-		auto get() const -> T* { return _ptr; }
-		void release() { if (_ptr) _ptr->remove_ref(); }
+		T* get() const { return ptr_; }
+		void release() { if (ptr_) ptr_->remove_ref(); }
 
-		auto operator=(const RefPtr& other) -> RefPtr&;
-		auto operator=(RefPtr&& other) -> RefPtr&;
-		auto operator=(T* ptr) -> RefPtr&;
-		auto operator->() const -> T* { return _ptr; }
-		auto operator*() const -> T& { CP_ASSERT(_ptr); return *_ptr; }
-		bool operator==(const T* p) const { return _ptr == p; }
-		bool operator!=(const T* p) const { return _ptr != p; }
-		operator bool() const { return _ptr != nullptr; }
+		RefPtr& operator=(const RefPtr& other);
+		RefPtr& operator=(RefPtr&& other);
+		RefPtr& operator=(T* ptr);
+		T* operator->() const { return ptr_; }
+		T& operator*() const { CP_ASSERT(ptr_); return *ptr_; }
+		bool operator==(const T* p) const { return ptr_ == p; }
+		bool operator!=(const T* p) const { return ptr_ != p; }
+		operator bool() const { return ptr_ != nullptr; }
 
 	private:
-		T* _ptr = nullptr;
+		T* ptr_ = nullptr;
 	};
 
 	template <class T>
@@ -54,45 +54,45 @@ namespace cp
 	{
 	public:
 		~ConstRefPtr() { release(); }
-		void release() { if (_ptr) _ptr->remove_ref(); }
+		void release() { if (ptr_) ptr_->remove_ref(); }
 	private:
-		const T* _ptr = nullptr;
+		const T* ptr_ = nullptr;
 	};
 
 	inline void RefCounted::remove_ref() const
 	{
-		if (--_ref_count == 0)
+		if (--ref_count_ == 0)
 			const_cast<RefCounted*>(this)->on_all_refs_removed();
 	}
 
 	template <class T>
-	auto RefPtr<T>::operator=(const RefPtr& other) -> RefPtr&
+	RefPtr<T>& RefPtr<T>::operator=(const RefPtr& other)
 	{
-		T* old_ptr = _ptr;
-		_ptr = other._ptr;
-		if (_ptr)
-			_ptr->add_ref();
+		T* old_ptr = ptr_;
+		ptr_ = other._ptr;
+		if (ptr_)
+			ptr_->add_ref();
 		if (old_ptr)
 			old_ptr->remove_ref();
 		return *this;
 	}
 
 	template <class T>
-	auto RefPtr<T>::operator=(RefPtr&& other) -> RefPtr&
+	RefPtr<T>& RefPtr<T>::operator=(RefPtr&& other)
 	{
-		std::swap(_ptr, other._ptr);
+		std::swap(ptr_, other.ptr_);
 		return *this;
 	}
 
 	template <class T>
-	auto RefPtr<T>::operator=(T* ptr) -> RefPtr&
+	RefPtr<T>& RefPtr<T>::operator=(T* ptr)
 	{
-		if (_ptr != ptr)
+		if (ptr_ != ptr)
 		{
-			T* old_ptr = _ptr;
-			_ptr = ptr;
-			if (_ptr)
-				_ptr->add_ref();
+			T* old_ptr = ptr_;
+			ptr_ = ptr;
+			if (ptr_)
+				ptr_->add_ref();
 			if (old_ptr)
 				old_ptr->remove_ref();
 		}

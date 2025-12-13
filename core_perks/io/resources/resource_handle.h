@@ -7,30 +7,32 @@
 
 namespace cp
 {
+	class ResourceEntry;
+
 	class UntypedResourceHandle
 	{
 	public:
 		UntypedResourceHandle() = default;
 		UntypedResourceHandle(const std::string& id, const Type& type);
-		//UntypedResourceHandle(const UntypedResourceHandle& other) : _entry(other._entry) {}
+		//UntypedResourceHandle(const UntypedResourceHandle& other) : entry_(other.entry_) {}
 
-		void release() { _entry.release(); }
+		void release() { entry_.release(); }
 		void load_async(std::function<void(bool)> on_done = [](bool) {});
 		void unload_async();
 		void store_async(std::function<void(bool)> on_done = [](bool) {});
-		auto get_name() const -> std::string { return _entry ? _entry->get_name() : nullptr; }
-		auto get_id() const -> const std::string& { return _entry ? _entry->get_id() : nullptr; }
-		//auto operator=(const UntypedResourceHandle& other) { _entry = other._entry; }
-		operator bool() const { return _entry != nullptr; }
+		std::string get_name() const { return entry_ ? entry_->get_name() : nullptr; }
+		const std::string& get_id() const { return entry_ ? entry_->get_id() : nullptr; }
+		//auto operator=(const UntypedResourceHandle& other) { entry_ = other.entry_; }
+		operator bool() const { return entry_ != nullptr; }
 
 	protected:
-		UntypedResourceHandle(ResourceEntry* entry) : _entry(entry) {}
+		UntypedResourceHandle(ResourceEntry* entry) : entry_(entry) {}
 		
 		void set_id(const std::string& id, const Type& type);
-		auto get() const -> Resource* { return _entry ? _entry->get() : nullptr; }
+		Resource* get() const { return entry_ ? entry_->get() : nullptr; }
 		void set_resource(Resource* resource);
 
-		cp::RefPtr<ResourceEntry> _entry;
+		cp::RefPtr<ResourceEntry> entry_;
 	};
 
 	template <class T>
@@ -43,13 +45,13 @@ namespace cp
 		/*
 		ResourceHandle() = default;
 		ResourceHandle(const std::string& id);
-		ResourceHandle(const ResourceHandle& other) : _entry(other._entry) {}
+		ResourceHandle(const ResourceHandle& other) : entry_(other.entry_) {}
 		*/
 
 		//void ReloadAsync();
-		auto get() const -> T* { return static_cast<T*>(Base::get()); }
+		T* get() const { return static_cast<T*>(Base::get()); }
 		void set_resource(T* resource) { Base::set_resource(resource); }
-		//auto operator=(const ResourceHandle& other) -> ResourceHandle& { _entry = other._entry; return *this; }
+		//auto operator=(const ResourceHandle& other) -> ResourceHandle& { entry_ = other.entry_; return *this; }
 
 	private:
 		friend class ResourceManager;

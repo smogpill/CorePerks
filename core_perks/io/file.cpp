@@ -9,10 +9,10 @@ namespace cp
     MappedRegion::~MappedRegion()
     {
 #ifdef CP_WINDOWS
-        if (_view)
-            UnmapViewOfFile(_view);
-        if (_mapping)
-            CloseHandle(_mapping);
+        if (view_)
+            UnmapViewOfFile(view_);
+        if (mapping_)
+            CloseHandle(mapping_);
 #endif
     }
 
@@ -22,11 +22,11 @@ namespace cp
 	}
 
     FileHandle::FileHandle(FileHandle&& other)
-        : _path(other._path)
+        : path_(other.path_)
     {
 #ifdef CP_WINDOWS
-        _native_handle = other._native_handle;
-        other._native_handle = INVALID_HANDLE_VALUE;
+        native_handle_ = other.native_handle_;
+        other.native_handle_ = INVALID_HANDLE_VALUE;
 #endif
     }
 
@@ -73,7 +73,7 @@ namespace cp
 
         // Open
         std::wstring wpath(path.begin(), path.end());
-        _native_handle = CreateFileW(wpath.data(), desired_access, share_mode, nullptr, creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
+        native_handle_ = CreateFileW(wpath.data(), desired_access, share_mode, nullptr, creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
 #endif
 	}
 
@@ -82,7 +82,7 @@ namespace cp
 		if (is_open())
 		{
 #ifdef CP_WINDOWS
-			CloseHandle(_native_handle);
+			CloseHandle(native_handle_);
 #endif
 		}
 	}
@@ -90,16 +90,16 @@ namespace cp
 	bool FileHandle::is_open() const
 	{
 #ifdef CP_WINDOWS
-		return _native_handle != INVALID_HANDLE_VALUE && _native_handle != nullptr;
+		return native_handle_ != INVALID_HANDLE_VALUE && native_handle_ != nullptr;
 #endif
 	}
 
-	auto FileHandle::map(Access access) -> MappedRegion
+    MappedRegion FileHandle::map(Access access)
 	{
 		return map_region(0, get_size(), access);
 	}
 
-	auto FileHandle::map_region(uint64 offset, uint64 size, Access access) -> MappedRegion
+    MappedRegion FileHandle::map_region(uint64 offset, uint64 size, Access access)
 	{
 		MappedRegion region;
 		if (!is_open())
@@ -109,7 +109,7 @@ namespace cp
 		const uint64 file_size = get_size();
 		if (offset + size > file_size)
 		{
-			CP_ERROR("Can't map file region for file {}: region is not within bounds: [offset: {}, size: {}] while file size is {}", _path, offset, size, file_size);
+			CP_ERROR("Can't map file region for file {}: region is not within bounds: [offset: {}, size: {}] while file size is {}", path_, offset, size, file_size);
 			return region;
 		}
 
@@ -134,11 +134,11 @@ namespace cp
         DWORD size_low = static_cast<DWORD>(size & 0xFFFFFFFF);
         DWORD size_high = static_cast<DWORD>((size >> 32) & 0xFFFFFFFF);
 
-        HANDLE mapping = CreateFileMappingW(_native_handle, nullptr, protect, size_high, size_low, nullptr);
+        HANDLE mapping = CreateFileMappingW(native_handle_, nullptr, protect, size_high, size_low, nullptr);
 
         if (!mapping)
 		{
-			CP_ERROR("Failed to map file: {}", _path);
+			CP_ERROR("Failed to map file: {}", path_);
 			return region;
         }
 
@@ -152,26 +152,26 @@ namespace cp
 		{
             DWORD err = GetLastError();
             CloseHandle(mapping);
-			CP_ERROR("Failed to map view of file: {}", _path);
+			CP_ERROR("Failed to map view of file: {}", path_);
 			return region;
         }
 
-        region._data = view;
-        region._size = size;
-        region._mapping = mapping;
-        region._view = view;
+        region.data_ = view;
+        region.size_ = size;
+        region.mapping_ = mapping;
+        region.view_ = view;
 #endif
 
 		return region;
 	}
 
-	auto FileHandle::get_size() const -> uint64
+    uint64 FileHandle::get_size() const
 	{
 		if (!is_open())
 			return 0;
 #ifdef CP_WINDOWS
 		LARGE_INTEGER size;
-		if (!GetFileSizeEx(_native_handle, &size))
+		if (!GetFileSizeEx(native_handle_, &size))
 			return 0;
 		return static_cast<uint64>(size.QuadPart);
 #endif

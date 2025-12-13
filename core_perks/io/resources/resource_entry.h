@@ -14,8 +14,8 @@ namespace cp
 	template <class T>
 	struct LoadResult
 	{
-		std::unique_ptr<T> _resource = nullptr;
-		bool _result = false;
+		std::unique_ptr<T> resource_ = nullptr;
+		bool result_ = false;
 	};
 
 	class ResourceEntry : public RefCounted
@@ -26,18 +26,18 @@ namespace cp
 		ResourceEntry(const std::string& id, uint64 id_hash, const Type& type);
 		virtual ~ResourceEntry();
 
-		auto get_id() const -> const std::string& { return _id; }
-		auto get_name() const -> std::string;
-		auto get_id_hash() const -> uint64 { return _id_hash; }
+		const std::string& get_id() const { return id_; }
+		std::string get_name() const;
+		uint64 get_id_hash() const { return id_hash_; }
 		void add_loading_dependency();
 		void remove_loading_dependency();
 		void load_async(Callback callback);
 		bool path_exists() const;
 		void unload_async();
 		void store_async(Callback callback);
-		auto get() const -> Resource* { return _resource; }
+		Resource* get() const { return resource_; }
 		void set(Resource* resource);
-		auto get_asset_path() const -> std::string;
+		std::string get_asset_path() const;
 
 	protected:
 		friend class ResourceLoader;
@@ -45,20 +45,20 @@ namespace cp
 		void on_all_refs_removed() override;
 		void add_load_callback(Callback callback);
 
-		std::string _id;
-		uint64 _id_hash = 0;
-		const cp::Type* _type = nullptr;
-		RefPtr<ResourceEntry> _loading_parent;
-		std::atomic<uint32> _nb_loading_dependencies = 0;
-		std::mutex _callback_mutex;
-		std::atomic<ResourceState> _state = ResourceState::NONE;
-		std::atomic<ResourceState> _target_state = ResourceState::NONE;
-		std::vector<Callback> _load_callbacks;
-		std::atomic<Resource*> _resource = nullptr;
-		std::atomic<Resource*> _loading_resource = nullptr;
-		std::vector<UntypedResourceHandle> _dependencies;
+		std::string id_;
+		uint64 id_hash_ = 0;
+		const cp::Type* type_ = nullptr;
+		RefPtr<ResourceEntry> loading_parent_;
+		std::atomic<uint32> nb_loading_dependencies_ = 0;
+		std::mutex callback_mutex_;
+		std::atomic<ResourceState> state_ = ResourceState::NONE;
+		std::atomic<ResourceState> target_state_ = ResourceState::NONE;
+		std::vector<Callback> load_callbacks_;
+		std::atomic<Resource*> resource_ = nullptr;
+		std::atomic<Resource*> loading_resource_ = nullptr;
+		std::vector<UntypedResourceHandle> dependencies_;
 
-		bool _loading_result = false;
-		std::mutex _mutex;
+		bool loading_result_ = false;
+		std::mutex mutex_;
 	};
 }

@@ -13,17 +13,17 @@ namespace cp
 	void fill_as_deleted(void* ptr, size_t size);
 
 	template <typename T>
-	CP_FORCE_INLINE void swap_memory(T& _a, T& _b)
+	CP_FORCE_INLINE void swap_memory(T& a, T& b)
 	{
 		std::byte tmp[sizeof(T)];
-		std::memcpy(tmp, &_a, sizeof(_a));
-		std::memcpy(&_a, &_b, sizeof(_b));
-		std::memcpy(&_b, tmp, sizeof(tmp));
+		std::memcpy(tmp, &a, sizeof(a));
+		std::memcpy(&a, &b, sizeof(b));
+		std::memcpy(&b, tmp, sizeof(tmp));
 	}
 
 	struct AllocTag
 	{
-		uint8 _tag = 0;
+		uint8 tag_ = 0;
 	};
 
 	/*

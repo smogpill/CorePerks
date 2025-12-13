@@ -11,22 +11,22 @@ namespace cp
 	public:
 		Singleton()
 		{
-			CP_ASSERT(_singleton == nullptr);
-			_singleton = static_cast<T*>(this);
+			CP_ASSERT(singleton_ == nullptr);
+			singleton_ = static_cast<T*>(this);
 		}
 		~Singleton()
 		{
-			_singleton = nullptr;
+			singleton_ = nullptr;
 		}
 
-		static auto get() -> T& { CP_ASSERT(_singleton); return *_singleton; }
-		static auto get_as_ptr() -> T* { return _singleton; }
-		static bool exists() { return _singleton != nullptr; }
+		static T& get() { CP_ASSERT(singleton_); return *singleton_; }
+		static T* get_as_ptr() { return singleton_; }
+		static bool exists() { return singleton_ != nullptr; }
 
 		Singleton(const Singleton&) = delete;
 		Singleton& operator=(const Singleton&) = delete;
 
 	private:
-		static inline T* _singleton = nullptr;
+		static inline T* singleton_ = nullptr;
 	};
 }

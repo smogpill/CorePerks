@@ -11,7 +11,7 @@ namespace cp
 	{
 	public:
 		Vector() = default;
-		explicit Vector(AllocTag tag) : _tag(tag) {}
+		explicit Vector(AllocTag tag) : tag_(tag) {}
 		explicit Vector(uint32 initial_size, AllocTag tag = AllocTag());
 		Vector(uint32 initial_size, const T& value, AllocTag tag = AllocTag());
 		Vector(const Vector<T>& other, AllocTag tag = AllocTag());
@@ -29,44 +29,44 @@ namespace cp
 		void push_back(const T& value);
 		void push_back(T&& value);
 		template <class... Args>
-		auto emplace_back(Args&&... args) -> T&;
+		T& emplace_back(Args&&... args);
 		void append_range(const Vector<T>& range);
 		void append_range(const std::span<T>& range);
-		auto pop_back() -> const T& { CP_ASSERT(_size); return _data[--_size]; }
+		const T& pop_back() { CP_ASSERT(size_); return data_[--size_]; }
 		void pop_front(uint32 count);
-		auto begin() -> T* { return _data; }
-		auto begin() const -> const T* { return _data; }
-		auto cbegin() const -> const T* { return _data; }
-		auto end() -> T* { return _data + _size; }
-		auto end() const -> const T* { return _data + _size; }
-		auto cend() const -> const T* { return _data + _size; }
-		auto data() -> T* { return _data; }
-		auto data() const -> const T* { return _data; }
-		auto back() -> T& { CP_ASSERT(_size); return _data[_size - 1]; }
-		auto back() const -> const T& { CP_ASSERT(_size); return _data[_size - 1]; }
-		auto operator[] (uint32 i) -> T& { CP_ASSERT(i < _size); return _data[i]; }
-		auto operator[] (uint32 i) const -> const T& { CP_ASSERT(i < _size); return _data[i]; }
+		T* begin() { return data_; }
+		const T* begin() const { return data_; }
+		const T* cbegin() const { return data_; }
+		T* end() { return data_ + size_; }
+		const T* end() const { return data_ + size_; }
+		const T* cend() const { return data_ + size_; }
+		T* data() { return data_; }
+		const T* data() const { return data_; }
+		T& back() { CP_ASSERT(size_); return data_[size_ - 1]; }
+		const T& back() const { CP_ASSERT(size_); return data_[size_ - 1]; }
+		T& operator[] (uint32 i) { CP_ASSERT(i < size_); return data_[i]; }
+		const T& operator[] (uint32 i) const { CP_ASSERT(i < size_); return data_[i]; }
 		void operator=(const Vector<T>& other);
 		constexpr void operator=(Vector<T>&& other);
 		constexpr void operator=(std::initializer_list<T> list);
 		bool operator==(const Vector<T>& other) const;
 		bool operator!=(const Vector<T>& other) const { return !operator==(other); }
-		bool empty() const { return _size == 0; }
-		auto size() const -> uint32 { return _size; }
-		auto capacity() const -> uint32 { return _capacity; }
+		bool empty() const { return size_ == 0; }
+		uint32 size() const { return size_; }
+		uint32 capacity() const { return capacity_; }
 		void swap(Vector<T>& other) { swap_memory(*this, other); }
 		void shrink_to_fit();
-		auto erase(T* it) -> T*;
-		auto erase(const T* it) -> const T* { return (const T*)erase((T*)it); }
+		T* erase(T* it);
+		const T* erase(const T* it) { return (const T*)erase((T*)it); }
 		template <class U>
 		void erase_first(const U& value);
-		auto erase_at(uint32 index) -> uint32;
+		uint32 erase_at(uint32 index);
 		void erase_before(uint32 end_idx);
-		auto swap_and_pop(T* it) -> T*;
-		auto swap_and_pop(const T* it) -> const T* { return (const T*)swap_and_pop((T*)it); }
+		T* swap_and_pop(T* it);
+		const T* swap_and_pop(const T* it) { return (const T*)swap_and_pop((T*)it); }
 		template <class U>
 		void swap_and_pop_first(const U& value);
-		auto swap_and_pop_at(uint32 index) -> uint32;
+		uint32 swap_and_pop_at(uint32 index);
 		template <class U>
 		bool contains(const U& value) const;
 		template <class F>
@@ -75,10 +75,10 @@ namespace cp
 		void fill(const U& value);
 
 	private:
-		T* _data = nullptr;
-		uint32 _size = 0;
-		uint32 _capacity = 0;
-		AllocTag _tag = 0;
+		T* data_ = nullptr;
+		uint32 size_ = 0;
+		uint32 capacity_ = 0;
+		AllocTag tag_ = 0;
 	};
 
 
@@ -86,42 +86,42 @@ namespace cp
 
 	template <class T>
 	Vector<T>::Vector(uint32 initial_size, AllocTag tag)
-		: _tag(tag)
+		: tag_(tag)
 	{
 		resize(initial_size);
 	}
 
 	template <class T>
 	Vector<T>::Vector(uint32 initial_size, const T& value, AllocTag tag)
-		: _tag(tag)
+		: tag_(tag)
 	{
 		resize(initial_size, value);
 	}
 
 	template <class T>
 	Vector<T>::Vector(const Vector<T>& other, AllocTag tag)
-		: _tag(tag)
+		: tag_(tag)
 	{
 		operator=(other);
 	}
 
 	template <class T>
 	Vector<T>::Vector(Vector<T>&& other)
-		: _data(other._data)
-		, _size(other._size)
-		, _capacity(other._capacity)
+		: data_(other._data)
+		, size_(other.size_)
+		, capacity_(other.capacity_)
 		: _tag(tag)
 	{
-		other._data = nullptr;
-		other._size = 0;
-		other._capacity = 0;
+		other.data_ = nullptr;
+		other.size_ = 0;
+		other.capacity_ = 0;
 	}
 
 	template <class T>
 	Vector<T>::Vector(Vector<T>&& other, AllocTag tag)
-		: _tag(tag)
+		: tag_(tag)
 	{
-		if (_tag == other._tag)
+		if (tag_ == other.tag_)
 			operator=(std::move(other));
 		else
 			operator=(other);
@@ -129,7 +129,7 @@ namespace cp
 
 	template <class T>
 	Vector<T>::Vector(std::initializer_list<T> list, AllocTag tag)
-		: _tag(tag)
+		: tag_(tag)
 	{
 		operator=(list);
 	}
@@ -139,7 +139,7 @@ namespace cp
 	{
 		if (_data)
 		{
-			std::destroy(_data, _data + _size);
+			std::destroy(data_, data_ + size_);
 			CP_ASSERT(_allocator);
 			free(_data);
 		}
@@ -148,13 +148,13 @@ namespace cp
 	template <class T>
 	void Vector<T>::clear()
 	{
-		if (!_size)
+		if (!size_)
 			return;
-		std::destroy(_data, _data + _size);
+		std::destroy(data_, data_ + size_);
 #ifdef CP_DEBUG
-		fill_as_deleted(_data, uint64(_size) * sizeof(T));
+		fill_as_deleted(_data, uint64(size_) * sizeof(T));
 #endif
-		_size = 0;
+		size_ = 0;
 	}
 
 	template <class T>
@@ -168,8 +168,8 @@ namespace cp
 	template<class T>
 	inline void Vector<T>::reverse_delete_and_clear()
 	{
-		for (uint32 i = _size; i--;)
-			delete _data[i];
+		for (uint32 i = size_; i--;)
+			delete data_[i];
 		clear();
 	}
 
@@ -201,50 +201,50 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE void Vector<T>::reserve(uint32 size)
 	{
-		if (size > _capacity)
+		if (size > capacity_)
 			set_capacity(compute_best_Vector_capacity(size));
 	}
 
 	template <class T>
 	void Vector<T>::resize(uint32 new_size)
 	{
-		if (new_size != _size)
+		if (new_size != size_)
 		{
-			if (new_size > _size)
+			if (new_size > size_)
 			{
 				reserve(new_size);
-				::new (_data + _size) T[new_size - _size];
+				::new (data_ + size_) T[new_size - size_];
 			}
 			else
 			{
-				std::destroy(_data + new_size, _data + _size);
+				std::destroy(_data + new_size, data_ + size_);
 #ifdef CP_DEBUG
-				fill_as_deleted(_data + new_size, uint64(_size - new_size) * sizeof(T));
+				fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
 			}
-			_size = new_size;
+			size_ = new_size;
 		}
 	}
 
 	template <class T>
 	void Vector<T>::resize(uint32 new_size, const T& value)
 	{
-		if (new_size != _size)
+		if (new_size != size_)
 		{
-			if (new_size > _size)
+			if (new_size > size_)
 			{
 				reserve(new_size);
-				for (uint32 i = _size; i < new_size; ++i)
+				for (uint32 i = size_; i < new_size; ++i)
 					::new (_data + i) T(value);
 			}
 			else
 			{
-				std::destroy(_data + new_size, _data + _size);
+				std::destroy(data_ + new_size, _data + size_);
 #ifdef CP_DEBUG
-				fill_as_deleted(_data + new_size, uint64(_size - new_size) * sizeof(T));
+				fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
 			}
-			_size = new_size;
+			size_ = new_size;
 		}
 	}
 
@@ -264,11 +264,11 @@ namespace cp
 	template <class... Args>
 	T& Vector<T>::emplace_back(Args&&... args)
 	{
-		const uint32 new_size = _size + 1;
+		const uint32 new_size = size_ + 1;
 		reserve(new_size);
-		T& e = _data[_size];
+		T& e = data_[size_];
 		new (&e) T(std::forward<Args>(args)...);
-		_size = new_size;
+		size_ = new_size;
 		return e;
 	}
 
@@ -276,51 +276,51 @@ namespace cp
 	void Vector<T>::append_range(const Vector<T>& range)
 	{
 		//static_assert(std::is_base_of<coSpan<T>, A>::value, "_this should be an array");
-		CP_ASSERT(_size + range.Size() >= _size);
-		const uint32 other_size = range._size;
-		const uint32 desired_size = _size + other_size;
+		CP_ASSERT(size_ + range.Size() >= size_);
+		const uint32 other_size = range.size_;
+		const uint32 desired_size = size_ + other_size;
 		reserve(desired_size);
-		T* dest = _data + _size;
+		T* dest = _data + size_;
 		for (uint32 i = 0; i < other_size; ++i)
 			new (dest + i) T(range[i]);
-		_size = desired_size;
+		size_ = desired_size;
 	}
 
 	template <class T>
 	void Vector<T>::append_range(const std::span<T>& range)
 	{
 		//static_assert(std::is_base_of<coSpan<T>, A>::value, "_this should be an array");
-		CP_ASSERT(_size + range.size() >= _size);
+		CP_ASSERT(size_ + range.size() >= size_);
 		const uint32 other_size = (uint32)range.size();
-		const uint32 desired_size = _size + other_size;
+		const uint32 desired_size = size_ + other_size;
 		reserve(desired_size);
-		T* dest = _data + _size;
+		T* dest = data_ + size_;
 		for (uint32 i = 0; i < other_size; ++i)
 			new (dest + i) T(range[i]);
-		_size = desired_size;
+		size_ = desired_size;
 	}
 
 	template <class T>
 	void Vector<T>::pop_front(uint32 count)
 	{
-		CP_ASSERT(count <= _size);
+		CP_ASSERT(count <= size_);
 		if (count)
 		{
-			const uint32 new_size = _size - count;
-			for (uint32 i = 0; i < _size; ++i)
-				_data[i] = std::move(_data[i + count]);
-			std::destroy(_data + new_size, _data + _size);
+			const uint32 new_size = size_ - count;
+			for (uint32 i = 0; i < size_; ++i)
+				_data[i] = std::move(data_[i + count]);
+			std::destroy(data_ + new_size, _data + size_);
 #ifdef CP_DEBUG
-			fill_as_deleted(_data + new_size, uint64(_size - new_size) * sizeof(T));
+			fill_as_deleted(data_ + new_size, uint64(size_ - new_size) * sizeof(T));
 #endif
-			_size = new_size;
+			size_ = new_size;
 		}
 	}
 
 	template <class T>
 	void Vector<T>::shrink_to_fit()
 	{
-		set_capacity(_size);
+		set_capacity(size_);
 	}
 
 	template <class T> template <class U>
@@ -377,7 +377,7 @@ namespace cp
 	template <class T>
 	T* Vector<T>::erase(T* it)
 	{
-		const T* endIt = _data + _size;
+		const T* endIt = data_ + size_;
 		CP_ASSERT(it && it >= begin() && it < endIt);
 		T* previous = it++;
 		while (it != endIt)
@@ -389,14 +389,14 @@ namespace cp
 #ifdef CP_DEBUG
 		fill_as_deleted(previous, sizeof(T));
 #endif
-		--_size;
+		--size_;
 		return it;
 	}
 
 	template <class T>
 	uint32 Vector<T>::erase_at(const uint32 index)
 	{
-		CP_ASSERT(index < _size);
+		CP_ASSERT(index < size_);
 		erase(&_data[index]);
 		return index;
 	}
@@ -404,8 +404,8 @@ namespace cp
 	template <class T>
 	uint32 Vector<T>::swap_and_pop_at(const uint32 index)
 	{
-		CP_ASSERT(index < _size);
-		swap_and_pop(&_data[index]);
+		CP_ASSERT(index < size_);
+		swap_and_pop(&data_[index]);
 		return index;
 	}
 
@@ -413,7 +413,7 @@ namespace cp
 	T* Vector<T>::swap_and_pop(T* it)
 	{
 		CP_ASSERT(it && it >= begin() && it < end());
-		T* back = &_data[--_size];
+		T* back = &_data[--size_];
 		*it = std::move(*back);
 		std::destroy_at(back);
 #ifdef CP_DEBUG
@@ -426,10 +426,10 @@ namespace cp
 	void Vector<T>::operator=(const Vector<T>& other)
 	{
 		clear();
-		reserve(other._size);
-		for (uint32 i = 0; i < other._size; ++i)
-			new (_data + i) T(other[i]);
-		_size = other._size;
+		reserve(other.size_);
+		for (uint32 i = 0; i < other.size_; ++i)
+			new (data_ + i) T(other[i]);
+		size_ = other.size_;
 	}
 
 	template <class T>
@@ -446,16 +446,16 @@ namespace cp
 		reserve(list_size);
 		for (uint32 i = 0; i < list_size; ++i)
 			new (_data + i) T(list.begin()[i]);
-		_size = list_size;
+		size_ = list_size;
 	}
 
 	template <class T>
 	bool Vector<T>::operator==(const Vector<T>& other) const
 	{
-		if (_size != other._size)
+		if (size_ != other.size_)
 			return false;
-		for (uint32 i = 0; i < _size; ++i)
-			if (_data[i] != other._data[i])
+		for (uint32 i = 0; i < size_; ++i)
+			if (data_[i] != other.data_[i])
 				return false;
 		return true;
 	}
@@ -466,10 +466,10 @@ namespace cp
 		static_assert(std::is_trivially_copyable<T>::value, "Trivially copyable only");
 		if (end_idx)
 		{
-			CP_ASSERT(end_idx <= _size);
-			for (uint32 i = end_idx; i < _size; ++i)
-				_data[i - end_idx] = std::move(_data[i]);
-			_size -= end_idx;
+			CP_ASSERT(end_idx <= size_);
+			for (uint32 i = end_idx; i < size_; ++i)
+				_data[i - end_idx] = std::move(data_[i]);
+			size_ -= end_idx;
 		}
 	}
 }

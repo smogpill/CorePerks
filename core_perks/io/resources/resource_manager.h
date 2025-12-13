@@ -16,32 +16,32 @@ namespace cp
 
 		// Assets path
 		void set_assets_path(const std::string& path);
-		auto get_assets_path() const -> const std::string& { return _assets_path; }
+		const std::string& get_assets_path() const { return assets_path_; }
 
 		// Cache path
 		void set_cache_path(const std::string& path);
-		auto get_cache_path() const -> const std::string& { return _cache_path; }
+		const std::string& get_cache_path() const { return cache_path_; }
 
 	private:
 		friend class ResourceEntry;
 		friend class UntypedResourceHandle;
 
-		auto get_or_create_entry(const std::string& id, const Type& type) -> ResourceEntry*;
+		ResourceEntry* get_or_create_entry(const std::string& id, const Type& type);
 		void destroy_entry(ResourceEntry& entry);
 		void add_request(const UntypedResourceHandle& request);
 
-		mutable std::mutex _mutex;
-		std::unordered_map<uint64, ResourceEntry*> _map;
-		std::queue<UntypedResourceHandle> _requests;
-		std::string _assets_path;
-		std::string _cache_path;
+		mutable std::mutex mutex_;
+		std::unordered_map<uint64, ResourceEntry*> map_;
+		std::queue<UntypedResourceHandle> requests_;
+		std::string assets_path_;
+		std::string cache_path_;
 
 		/*
 		Streaming
-		std::queue<Request> _immediate_queue; // Must load now (player weapon, current mission)
-		std::queue<Request> _high_priority_queue; // Visible/nearby
-		std::queue<Request> _low_priority_queue; // Predictive/prefetch
-		std::queue<Request> _unload_queue;
+		std::queue<Request> immediate_queue_; // Must load now (player weapon, current mission)
+		std::queue<Request> high_priority_queue_; // Visible/nearby
+		std::queue<Request> low_priority_queue_; // Predictive/prefetch
+		std::queue<Request> unload_queue_;
 		*/
 	};
 }

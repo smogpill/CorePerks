@@ -13,6 +13,6 @@ namespace cp
 		void add_resource(const UntypedResourceHandle& handle);
 
 	private:
-		std::vector<UntypedResourceHandle> _resources;
+		std::vector<UntypedResourceHandle> resources_;
 	};
 }
