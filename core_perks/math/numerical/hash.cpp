@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
-#include "core_perks/math/hash.h"
+#include "core_perks/math/numerical/hash.h"
 
 namespace cp::hash
 {

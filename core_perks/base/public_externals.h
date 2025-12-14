@@ -28,6 +28,7 @@
 #include <condition_variable>
 #include <optional>
 #include <nmmintrin.h>
+#include <immintrin.h>
 #include <bit>
 #include <initializer_list>
 

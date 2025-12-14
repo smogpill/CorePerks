@@ -33,9 +33,9 @@ namespace cp
 	auto ResourceLoader::add_dependency(const std::string& id, const DependencyOptions& options) -> ResourceHandle<T>
 	{
 		ResourceHandle<T> handle(id);
-		if (handle._entry->path_exists() || !options._optional)
+		if (handle.entry_->path_exists() || !options._optional)
 		{
-			handle._entry->_loading_parent = &_entry;
+			//handle.entry_->_loading_parent = &_entry;
 			_entry.add_loading_dependency();
 			handle.load_async();
 		}

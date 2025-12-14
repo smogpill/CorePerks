@@ -28,13 +28,13 @@ namespace cp
 	{
 	public:
 		RefPtr() = default;
-		RefPtr(const RefPtr& other) : ptr_(other.ptr_) { if (ptr_) ptr_->add_ref(); }
+		RefPtr(const RefPtr& other) : ptr_(other.ptr_) { if (ptr_) ((RefCounted*)ptr_)->add_ref(); }
 		RefPtr(RefPtr&& other) : ptr_(other.ptr_) { other.ptr_ = nullptr; }
 		explicit RefPtr(T* ptr) : ptr_(ptr) { if (ptr_) ptr_->add_ref(); }
 		~RefPtr() { release(); }
 
 		T* get() const { return ptr_; }
-		void release() { if (ptr_) ptr_->remove_ref(); }
+		void release() { if (ptr_) ((RefCounted*)ptr_)->remove_ref(); }
 
 		RefPtr& operator=(const RefPtr& other);
 		RefPtr& operator=(RefPtr&& other);
@@ -69,7 +69,7 @@ namespace cp
 	RefPtr<T>& RefPtr<T>::operator=(const RefPtr& other)
 	{
 		T* old_ptr = ptr_;
-		ptr_ = other._ptr;
+		ptr_ = other.ptr_;
 		if (ptr_)
 			ptr_->add_ref();
 		if (old_ptr)

@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-//#include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/patterns/reference.h"
 
 namespace cp
 {
+	class Resource;
 	class ResourceEntry;
 
 	class UntypedResourceHandle
@@ -14,22 +14,23 @@ namespace cp
 	public:
 		UntypedResourceHandle() = default;
 		UntypedResourceHandle(const std::string& id, const Type& type);
+		~UntypedResourceHandle() = default;
 		//UntypedResourceHandle(const UntypedResourceHandle& other) : entry_(other.entry_) {}
 
 		void release() { entry_.release(); }
 		void load_async(std::function<void(bool)> on_done = [](bool) {});
 		void unload_async();
 		void store_async(std::function<void(bool)> on_done = [](bool) {});
-		std::string get_name() const { return entry_ ? entry_->get_name() : nullptr; }
-		const std::string& get_id() const { return entry_ ? entry_->get_id() : nullptr; }
+		std::string get_name() const;
+		const std::string& get_id() const;
 		//auto operator=(const UntypedResourceHandle& other) { entry_ = other.entry_; }
 		operator bool() const { return entry_ != nullptr; }
 
 	protected:
-		UntypedResourceHandle(ResourceEntry* entry) : entry_(entry) {}
-		
+		UntypedResourceHandle(ResourceEntry* entry);
+
 		void set_id(const std::string& id, const Type& type);
-		Resource* get() const { return entry_ ? entry_->get() : nullptr; }
+		Resource* get() const;
 		void set_resource(Resource* resource);
 
 		cp::RefPtr<ResourceEntry> entry_;
@@ -42,12 +43,16 @@ namespace cp
 	public:
 		using Base::UntypedResourceHandle;
 		using Base::operator=;
+
+		ResourceHandle() = default;
+		ResourceHandle(const std::string& id) : Base(id, T::get_type_static()) {}
 		/*
 		ResourceHandle() = default;
 		ResourceHandle(const std::string& id);
 		ResourceHandle(const ResourceHandle& other) : entry_(other.entry_) {}
 		*/
 
+		void set_id(const std::string& id) { Base::set_id(id, T::get_type_static()); }
 		//void ReloadAsync();
 		T* get() const { return static_cast<T*>(Base::get()); }
 		void set_resource(T* resource) { Base::set_resource(resource); }

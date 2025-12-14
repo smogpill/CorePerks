@@ -8,7 +8,7 @@
 #include "core_perks/io/resources/resource_loader.h"
 #include "core_perks/io/resources/resource.h"
 #include "core_perks/io/streams.h"
-#include "core_perks/math/hash.h"
+#include "core_perks/math/numerical/hash.h"
 #include "core_perks/threading/job/job_system.h"
 
 namespace cp
@@ -114,6 +114,7 @@ namespace cp
         }
         add_load_callback(on_done);
         
+        /*
         if (state_.compare_exchange_strong(expected, ResourceState::LOADING))
         {
             add_ref();
@@ -129,6 +130,7 @@ namespace cp
                     remove_ref();
                 });
         }
+        */
     }
 
     void ResourceEntry::unload_async()

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 #include "precompiled.h"
 #include "core_perks/io/resources/resource_pack.h"
+#include "core_perks/containers/vector_extensions.h"
 
 namespace cp
 {

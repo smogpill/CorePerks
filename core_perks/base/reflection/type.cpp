@@ -4,10 +4,12 @@
 #include "precompiled.h"
 #include "core_perks/base/reflection/type.h"
 #include "core_perks/base/reflection/type_manager.h"
-#include "core_perks/math/hash.h"
+#include "core_perks/math/numerical/hash.h"
 
 namespace cp
 {
+	std::vector<Type*> Type::_types;
+
 	Type::Type(const char* name)
 		: _name(name)
 		, _name_hash(hash::fast::hash32(_name))

@@ -11,13 +11,13 @@ namespace cp::hash
 		CP_FORCE_INLINE uint32 hash32(uint32 x, uint32 seed = 0) { return _mm_crc32_u32(seed, x); }
 		CP_FORCE_INLINE uint64 hash64(uint64 x, uint64 seed = 0) { return _mm_crc32_u64(seed, x); }
 		uint32 hash32(const void* data, uint64 length, uint32 seed = 0);
-		uint32 hash32(const std::string& str, uint32 seed = 0) { return hash32(str.data(), str.length(), seed); }
+		inline uint32 hash32(const std::string& str, uint32 seed = 0) { return hash32(str.data(), str.length(), seed); }
 	}
 	
 	namespace xxhash
 	{
 #ifdef CP_XXHASHCT
-		constexpr uint32 hash32_compile_time(const void* data, uint32 length, uint32 seed = 0) { return xxh32::hash(reinterpret_cast<const char*>(data), length, seed); }
+		inline constexpr uint32 hash32_compile_time(const void* data, uint32 length, uint32 seed = 0) { return xxh32::hash(reinterpret_cast<const char*>(data), length, seed); }
 		constexpr uint32 hash32_compile_time(const std::string& str, uint32 seed = 0) { return hash32_compile_time(str.data(), (uint32)str.length(), seed); }
 
 		constexpr uint64 hash64_compile_time(const void* data, uint32 length, uint64 seed = 0) { return xxh64::hash(reinterpret_cast<const char*>(data), length, seed); }
@@ -25,10 +25,10 @@ namespace cp::hash
 #endif
 #ifdef CP_XXHASH
 		uint32 hash32(const void* data, uint64 length, uint32 seed = 0);
-		uint32 hash32(const std::string& str, uint32 seed = 0) { return hash32(str.data(), str.length(), seed); }
+		inline uint32 hash32(const std::string& str, uint32 seed = 0) { return hash32(str.data(), str.length(), seed); }
 
 		uint64 hash64(const void* data, uint64 length, uint64 seed = 0);
-		uint64 hash64(const std::string& str, uint64 seed = 0) { return hash64(str.data(), str.length(), seed); }
+		inline uint64 hash64(const std::string& str, uint64 seed = 0) { return hash64(str.data(), str.length(), seed); }
 #endif
 	}
 

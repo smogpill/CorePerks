@@ -20,7 +20,9 @@
 #include "core_perks/vulkan/vulkan.h"
 #endif
 #ifdef CP_TRACY
+#ifndef CP_RELEASE
 #define TRACY_ENABLE
+#endif
 #include <tracy/Tracy.hpp>
 #endif
-#include "core_perks/test/test.h"
+#include "core_perks/patterns/test.h"

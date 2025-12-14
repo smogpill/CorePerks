@@ -75,6 +75,8 @@ namespace cp
 		void fill(const U& value);
 
 	private:
+		void set_capacity(uint32 new_capacity);
+
 		T* data_ = nullptr;
 		uint32 size_ = 0;
 		uint32 capacity_ = 0;
@@ -110,7 +112,7 @@ namespace cp
 		: data_(other.data_)
 		, size_(other.size_)
 		, capacity_(other.capacity_)
-		: tag_(tag)
+		, tag_(other.tag)
 	{
 		other.data_ = nullptr;
 		other.size_ = 0;
@@ -140,7 +142,6 @@ namespace cp
 		if (data_)
 		{
 			std::destroy(data_, data_ + size_);
-			CP_ASSERT(allocator_);
 			free(data_);
 		}
 	}
@@ -166,7 +167,7 @@ namespace cp
 	}
 
 	template<class T>
-	inline void Vector<T>::reverse_delete_and_clear()
+	void Vector<T>::reverse_delete_and_clear()
 	{
 		for (uint32 i = size_; i--;)
 			delete data_[i];
@@ -183,7 +184,6 @@ namespace cp
 			// - For simplicity. For example for working using SIMD on a float array.
 			// - Seems faster on Intel architectures https://software.intel.com/en-us/articles/data-alignment-when-migrating-to-64-bit-intel-architecture).
 			const uint alignment = alignof(T) > 16 ? alignof(T) : 16;
-			CP_ASSERT(_allocator);
 			T* new_buffer;
 			const size_t new_capacity8 = uint64(new_capacity) * sizeof(T);
 			new_buffer = static_cast<T*>(aligned_alloc(alignment, new_capacity8, tag_));
@@ -337,13 +337,13 @@ namespace cp
 	}
 
 	template <class T> template <class U>
-	void Vector<T>::unordered_erase_first(const U& value)
+	void Vector<T>::swap_and_pop_first(const U& value)
 	{
 		for (T& e : *this)
 		{
 			if (e == value)
 			{
-				unordered_erase(&e);
+				swap_and_pop(&e);
 				break;
 			}
 		}

@@ -11,10 +11,10 @@ namespace cp
 		~MappedRegion();
 		void* data() { return data_; }
 		uint64 size() const { return size_; }
-		auto span() -> std::span<std::byte> { return std::span<std::byte>(static_cast<std::byte*>(data_), size_); }
+		auto span() -> std::span<uint8> { return std::span<uint8>(static_cast<uint8*>(data_), size_); }
 		bool is_mapped() const { return data_ != nullptr; }
-		std::byte* begin() { return static_cast<std::byte*>(data_); }
-		std::byte* end() { return static_cast<std::byte*>(data_) + size_; }
+		uint8* begin() { return static_cast<uint8*>(data_); }
+		uint8* end() { return static_cast<uint8*>(data_) + size_; }
 
 	private:
 		friend class FileHandle;

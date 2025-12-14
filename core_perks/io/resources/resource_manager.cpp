@@ -45,7 +45,7 @@ namespace cp
 		if (it == map_.end())
 		{
 			ResourceEntry* entry = new ResourceEntry(id, id_hash, type);
-			map_[id] = entry;
+			map_[id_hash] = entry;
 			return entry;
 		}
 		else
