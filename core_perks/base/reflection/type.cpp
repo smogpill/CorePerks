@@ -39,5 +39,15 @@ namespace cp
 				return true;
 			it = it->_base;
 		} while (it);
+		return false;
+	}
+
+	std::vector<Type*> Type::get_derived() const
+	{
+		std::vector<Type*> derived_types;
+		for (Type* type : _types)
+			if (type != this && type->is_a(*this))
+				derived_types.push_back(type);
+		return derived_types;
 	}
 }

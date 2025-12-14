@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "core_perks/base/reflection/type.h"
 
 namespace cp
 {
@@ -9,11 +10,11 @@ namespace cp
 	{
 		CP_CLASS(Test);
 	public:
+		static void execute_all();
+
 		virtual ~Test() = default;
 		virtual void execute() = 0;
 	};
-
-	void execute_all_tests();
 }
 
 #define _CP_UNIQUE_TEST_NAME(_test_case_name_, _test_name_) _test__##_test_case_name_##__##_test_name_

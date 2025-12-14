@@ -109,6 +109,7 @@ namespace cp
 		template <class T>
 		static auto get() -> Type* { return detail::TypeStatic<T>::get_type_static(); }
 		bool is_a(const Type& type) const;
+		std::vector<Type*> get_derived() const;
 
 		template <class T>
 		void _init_generics();
@@ -158,7 +159,7 @@ namespace cp
 #define _CP_TYPE_INITIALIZATION(_type_) \
 	struct CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE _TypeInitializer_##_type_\
 	{ \
-		using Class = _type_; \
+		using Self = _type_; \
 		using Base = cp::TypeBase<_type_>::Type; \
 		using TypeClass = cp::TypeClassHelper<_type_>::Type; \
 		_TypeInitializer_##_type_() \
@@ -200,10 +201,10 @@ namespace cp
 	template <> \
 	struct cp::detail::TypeStatic<_type_> \
 	{ \
-		static Type& get_type_static() \
+		static Type* get_type_static() \
 		{ \
 			static Type type(#_type_); \
-			return type; \
+			return &type; \
 		} \
 	} 
 

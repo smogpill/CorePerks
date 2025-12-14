@@ -11,12 +11,4 @@ namespace cp
 		for (Type* type : Type::_types)
 			type->init();
 	}
-
-	std::vector<Type*> TypeManager::get_derived_types(const Type& base_type) const
-	{
-		std::vector<Type*> derived_types;
-		for (Type* type : Type::_types)
-			if (type != base_type && type->is_a(base_type))
-				derived_types.push_back(base_type);
-	}
 }
