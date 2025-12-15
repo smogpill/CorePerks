@@ -71,11 +71,9 @@ function cp.cpp_project(name)
 	flags { "MultiProcessorCompile" }
 	files { "**.cpp", "**.h", "**.hpp", "**.inl", "**.natvis", "**.lua" }
 
-	if os.isfile(precompiled_filename..".h") then
+	if os.isfile(path.join(_SCRIPT_DIR, precompiled_filename..".h")) then
 		pchheader(precompiled_filename..".h")
-		filter "action:vs*"
-			pchsource(precompiled_filename..".cpp")
-		filter {}
+		pchsource(path.join(_SCRIPT_DIR, precompiled_filename..".cpp"))
 	end
 
 	filter { "action:vs*" }
