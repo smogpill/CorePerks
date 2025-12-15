@@ -6,11 +6,13 @@
 
 namespace cp
 {
-	class alignas(16) Spheref
+	template <class T>
+	class alignas(alignof(Vec4f)) Sphere
 	{
 	public:
-
-	private:
 		Vec4f translation_and_radius_;
 	};
+
+	using Spheref = Sphere<float>;
+	using Sphered = Sphere<double>;
 }

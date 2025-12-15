@@ -3,5 +3,5 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include "core_perks/math/geometry/aaboxf.h"
-#include "core_perks/math/geometry/spheref.h"
+#include "core_perks/math/geometry/aabox.h"
+#include "core_perks/math/geometry/sphere.h"

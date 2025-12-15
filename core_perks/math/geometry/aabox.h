@@ -6,10 +6,14 @@
 
 namespace cp
 {
-	class alignas(16) AAboxf
+	template <class T>
+	class alignas(alignof(Vec3<T>)) AABox
 	{
 	public:
-		Vec3f min_;
-		Vec3f max_;
+		Vec3<T> min_;
+		Vec3<T> max_;
 	};
+
+	using AABoxf = AABox<float>;
+	using AABoxd = AABox<double>;
 }

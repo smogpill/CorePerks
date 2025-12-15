@@ -8,6 +8,8 @@
 #endif
 #include <cassert>
 #include <stdio.h>
+#include <cstdlib>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <span>

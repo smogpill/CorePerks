@@ -15,6 +15,12 @@ namespace cp
 
 		CP_FORCE_INLINE T square_length() const { return dot(*this, *this); }
 		CP_FORCE_INLINE T length() const { return sqrt(square_length()); }
+		CP_FORCE_INLINE T sum_elements() const { return x_ + y_ + z_; }
+		CP_FORCE_INLINE T min_element() const { return min(min(x_, y_), z_); }
+		CP_FORCE_INLINE T max_element() const { return max(max(x_, y_), z_); }
+
+		CP_FORCE_INLINE T& operator[](int idx) { CP_ASSERT(idx < 3); return (&x_)[idx]; }
+		CP_FORCE_INLINE T operator[](int idx) const { CP_ASSERT(idx < 3); return (&x_)[idx]; }
 
 		CP_FORCE_INLINE bool operator==(const Vec3& v) const { return x_ == v.x_ && y_ == v.y_ && z_ == v.z_; }
 		CP_FORCE_INLINE bool operator!=(const Vec3& v) const { return x_ != v.x_ || y_ != v.y_ || z_ != v.z_; }
@@ -45,16 +51,15 @@ namespace cp
 		T z_ = 0;
 	};
 
-	class Vec3i
-	{
-	public:
-		int32 x_;
-		int32 y_;
-		int32 z_;
-	};
-
 	using Vec3f = Vec3<float>;
 	using Vec3d = Vec3<double>;
+	using Vec3i = Vec3<int32>;
+
+	template <class T>
+	CP_FORCE_INLINE Vec3<T> operator*(T a, const Vec3<T>& v)
+	{
+		return v * a;
+	}
 
 	template <class T>
 	CP_FORCE_INLINE T dot(const Vec3<T>& a, const Vec3<T>& b)
@@ -66,6 +71,12 @@ namespace cp
 	CP_FORCE_INLINE T cross(const Vec3<T>& a, const Vec3<T>& b)
 	{
 		return Vec3(a.y_ * b.z_ - a.z_ * b.y_, a.z_ * b.x_ - a.x_ * b.z_, a.x_ * b.y_ - a.y_ * b.x_);
+	}
+
+	template <class T>
+	CP_FORCE_INLINE Vec3<T> abs(const Vec3<T>& a)
+	{
+		return Vec3(abs(a.x_), abs(a.y_), abs(a.z_));
 	}
 
 	template <class T>
