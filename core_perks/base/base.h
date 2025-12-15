@@ -42,14 +42,33 @@ namespace cp
 	constexpr bool return_true() { return true; }
 }
 
+#define _CP_STRINGIFY(_x_) #_x_
+#define CP_STRINGIFY(_x_) _CP_STRINGIFY(_x_)
+#define _CP_CONCAT(_x_, _y_) _x_ ## _y_
+#define CP_CONCAT(_x_, _y_) _CP_CONCAT(_x_, _y_)
+#define CP_PRAGMA_MESSAGE(_x_)	_Pragma(message(__FILE__ "("  CP_STRINGIFY(__LINE__) "): " _x_))
+
 #ifdef CP_MSVC
-#define CP_BREAKPOINT() cp::return_void(IsDebuggerPresent() && (__debugbreak(), 1))
-#define CP_FORCE_INLINE __forceinline
-#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __declspec(dllexport)
+	#define CP_BREAKPOINT() cp::return_void(IsDebuggerPresent() && (__debugbreak(), 1))
+	#define CP_FORCE_INLINE __forceinline
+	#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __declspec(dllexport)
 #else
-#define CP_BREAKPOINT() std::breakpoint_if_debugging()
-#define CP_FORCE_INLINE [[gnu::always_inline]]
-#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __attribute__ ((used))
+	#define CP_BREAKPOINT() std::breakpoint_if_debugging()
+	#define CP_FORCE_INLINE [[gnu::always_inline]]
+	#define CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE __attribute__ ((used))
+#endif
+
+#ifdef CP_DEBUG_OR_DEV
+#	ifdef CP_MSVC
+#		define CP_DEOPTIMIZE_PUSH() __pragma(optimize("", push)) __pragma(optimize("", off)) CP_PRAGMA_MESSAGE("Deoptimize push")
+#		define CP_DEOPTIMIZE_POP() __pragma(optimize("", pop)) CP_PRAGMA_MESSAGE("Deoptimize pop")
+#	else
+#		define CP_DEOPTIMIZE_PUSH() _Pragma("GCC push_options") _Pragma("GCC optimize (\"O0\")") CP_PRAGMA_MESSAGE("Deoptimize push")
+#		define CP_DEOPTIMIZE_POP()  _Pragma("GCC pop_options")  CP_PRAGMA_MESSAGE("Deoptimize pop")
+#	endif
+#else
+	#define CP_DEOPTIMIZE_PUSH()
+	#define CP_DEOPTIMIZE_POP()
 #endif
 
 #define CP_SAFE_SCOPE(_x_) do { _x_ } while (0)
