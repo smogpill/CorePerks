@@ -72,6 +72,13 @@ namespace cp
 	}
 
 	template <class T>
+	CP_FORCE_INLINE Quat<T> inverse(const Quat<T>& a)
+	{
+		CP_ASSERT(a.square_length() - T(1) < T(1e-5)); // only for unit quaternions
+		return conjugate(a);
+	}
+
+	template <class T>
 	CP_FORCE_INLINE Quat<T> operator*(T a, const Quat<T>& q)
 	{
 		return q * a;

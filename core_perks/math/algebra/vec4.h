@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
+#include "core_perks/math/base/base.h"
+#include "core_perks/math/algebra/vec3.h"
 
 namespace cp
 {
@@ -14,6 +16,7 @@ namespace cp
 		CP_FORCE_INLINE Vec4(T xyz, T w) : x_(xyz), y_(xyz), z_(xyz), w_(w) {}
 		CP_FORCE_INLINE Vec4(T x, T y, T z, T w) : x_(x), y_(y), z_(z), w_(w) {}
 
+		CP_FORCE_INLINE Vec3<T> xyz() const { return Vec3<T>(x_, y_, z_); }
 		CP_FORCE_INLINE T square_length() const { return dot(*this, *this); }
 		CP_FORCE_INLINE T length() const { return sqrt(square_length()); }
 		CP_FORCE_INLINE T sum_elements() const { return x_ + y_ + z_ + w_; }
