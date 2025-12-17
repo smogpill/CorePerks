@@ -78,10 +78,10 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE Transform<T> inverse(const Transform<T>& t)
 	{
+		const T inv_scale = T(1) / t.get_scale();
 		return Transform<T>(
-			inverse(t.rotation_) * (-t.get_translation() * (T(1) / t.get_scale())),
+			inverse(t.rotation_) * (-t.get_translation() * inv_scale),
 			inverse(t.rotation_),
-			T(1) / t.get_scale());
+			inv_scale);
 	}
 }
-

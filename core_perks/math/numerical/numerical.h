@@ -4,4 +4,5 @@
 #pragma once
 
 #include "core_perks/math/numerical/hash.h"
+#include "core_perks/math/numerical/interpolation.h"
 #include "core_perks/math/numerical/trigonometry.h"
