@@ -1,6 +1,7 @@
 local m = {}
 m.define_suffix = "IMGUI"
 function m.add_dependency()
+	includedirs { path.join(cp.extern_path, "imgui") }
 end
 function m.add_project()
 	cp.cpp_project("imgui")

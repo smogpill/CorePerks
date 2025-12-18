@@ -91,3 +91,7 @@
 #endif
 #include <tracy/Tracy.hpp>
 #endif
+
+#ifdef CP_IMGUI
+#include <imgui/imgui.h>
+#endif

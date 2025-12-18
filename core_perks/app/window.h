@@ -3,8 +3,12 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#ifdef CP_SDL
 namespace cp
 {
+	class Window
+	{
+	public:
+		Window(const std::string& name, uint width = 1024, uint height = 768);
+		~Window();
+	};
 }
-#endif

@@ -11,3 +11,12 @@
 #ifdef CP_RAPIDJSON
 #include <rapidjson/rapidjson.h>
 #endif
+
+#ifdef CP_IMGUI
+#ifdef CP_VULKAN
+#include <imgui/backends/imgui_impl_vulkan.h>
+#endif
+#ifdef CP_SDL
+#include <imgui/backends/imgui_impl_sdl3.h>
+#endif
+#endif

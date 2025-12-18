@@ -3,8 +3,15 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#ifdef CP_SDL
 namespace cp
 {
+	class App
+	{
+	public:
+		App();
+		~App();
+
+	private:
+		bool sdl_initialized_ = false;
+	};
 }
-#endif

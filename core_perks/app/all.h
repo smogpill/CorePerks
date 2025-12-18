@@ -2,9 +2,3 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-
-#ifdef CP_SDL
-namespace cp
-{
-}
-#endif

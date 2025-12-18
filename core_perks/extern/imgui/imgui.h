@@ -2,7 +2,19 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/patterns/reference.h"
 #include "core_perks/patterns/singleton.h"
-#include "core_perks/patterns/state_machine.h"
-#include "core_perks/patterns/scope_exit.h"
+
+#ifdef CP_IMGUI
+namespace cp
+{
+	class ImGuiUtils : public Singleton<ImGuiUtils>
+	{
+	public:
+		ImGuiUtils();
+		~ImGuiUtils();
+
+		void begin_frame();
+		void end_frame();
+	};
+}
+#endif
