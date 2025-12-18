@@ -124,7 +124,17 @@ function cp.add_dependency(project_name)
 	dependson { project_name }
 end
 
+function cp.module_used(module_name)
+	for _, module in ipairs(cp.modules) do
+		if module == module_name then
+			return true	
+		end
+	end
+	return false
+end
+
 function cp.add_project(modules)
+	cp.modules = modules
 	local config_content = [[
 // Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
@@ -155,4 +165,10 @@ function cp.add_project(modules)
 	file:close()
 
 	include(core_perks_path)
+
+	for _, module in ipairs(modules) do
+		if module.add_project then
+			module.add_project()
+		end
+	end
 end
