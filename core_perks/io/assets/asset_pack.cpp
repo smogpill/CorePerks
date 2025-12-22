@@ -16,4 +16,18 @@ namespace cp
 		if (!contains(resources_, handle))
 			resources_.push_back(handle);
 	}
+
+	bool AssetPack::on_load(AssetEntry& entry)
+	{
+		return false;
+	}
+
+	MappedAssetData AssetPack::map_asset(AssetEntry& entry)
+	{
+		return MappedAssetData();
+	}
+
+	void AssetPack::unmap_asset(MappedAssetData& data)
+	{
+	}
 }

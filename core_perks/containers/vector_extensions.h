@@ -22,6 +22,14 @@ namespace cp
 	}
 
 	template <class T>
+	void erase_first(std::vector<T>& v, const T& element)
+	{
+		auto it = std::find(v.begin(), v.end(), element);
+		if (it != v.end())
+			v.erase(it);
+	}
+
+	template <class T>
 	bool contains(std::vector<T>& v, const T& element)
 	{
 		return std::find(v.begin(), v.end(), element) != v.end();

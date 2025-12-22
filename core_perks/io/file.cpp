@@ -14,6 +14,8 @@ namespace cp
         if (mapping_)
             CloseHandle(mapping_);
 #endif
+        if (file_)
+			file_->on_mapped_region_unmapped();
     }
 
     FileHandle::FileHandle(const std::string& path, Mode mode)
@@ -79,6 +81,7 @@ namespace cp
 
 	void FileHandle::close()
 	{
+        CP_ASSERT(!mapped_region_count_);
 		if (is_open())
 		{
 #ifdef CP_WINDOWS
@@ -86,6 +89,11 @@ namespace cp
 #endif
 		}
 	}
+
+    void FileHandle::on_mapped_region_unmapped()
+    {
+		--mapped_region_count_;
+    }
 
 	bool FileHandle::is_open() const
 	{
@@ -161,7 +169,8 @@ namespace cp
         region.mapping_ = mapping;
         region.view_ = view;
 #endif
-
+		region.file_ = this;
+		++mapped_region_count_;
 		return region;
 	}
 

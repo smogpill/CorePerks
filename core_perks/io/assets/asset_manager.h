@@ -6,9 +6,12 @@
 #include "core_perks/io/assets/asset.h"
 #include "core_perks/io/assets/asset_entry.h"
 #include "core_perks/io/assets/asset_handle.h"
+#include "core_perks/io/assets/providers/mapped_asset_data.h"
 
 namespace cp
 {
+	class AssetProvider;
+
 	class AssetManager : public Singleton<AssetManager>
 	{
 	public:
@@ -22,8 +25,12 @@ namespace cp
 		void set_cache_path(const std::string& path);
 		const std::string& get_cache_path() const { return cache_path_; }
 
+		void register_provider(AssetProvider& provider);
+		void unregister_provider(AssetProvider& provider);
+
 	private:
 		friend class AssetEntry;
+		friend class AssetProvider;
 		friend class UntypedAssetHandle;
 
 		AssetEntry* get_or_create_entry(const std::string& id, const Type& type);
@@ -31,12 +38,14 @@ namespace cp
 		void add_request(const UntypedAssetHandle& request);
 		void process_requests();
 		void on_entry_updated(AssetEntry& entry);
+		MappedAssetData map_asset(AssetEntry& entry);
 
 		mutable std::mutex mutex_;
 		std::unordered_map<uint64, AssetEntry*> map_;
 		std::queue<UntypedAssetHandle> requests_;
 		std::string assets_path_;
 		std::string cache_path_;
+		std::vector<AssetProvider*> providers_;
 		uint max_parallel_updates_ = 4;
 
 		/*

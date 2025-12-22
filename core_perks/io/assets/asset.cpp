@@ -11,4 +11,14 @@ namespace cp
 	{
 
 	}
+
+	void Asset::map_sub_asset(AssetEntry& entry, MappedAssetData& mapped_data)
+	{
+		mapped_data = MappedAssetData();
+	}
+
+	void Asset::unmap_sub_asset(MappedAssetData& mapped_data)
+	{
+		mapped_data = MappedAssetData();
+	}
 }

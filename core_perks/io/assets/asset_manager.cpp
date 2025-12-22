@@ -4,6 +4,9 @@
 #include "pch.h"
 #include "core_perks/io/assets/asset_manager.h"
 #include "core_perks/io/assets/asset_loader.h"
+#include "core_perks/io/assets/asset_provider.h"
+#include "core_perks/io/assets/asset_entry.h"
+#include "core_perks/containers/vector_extensions.h"
 
 namespace cp
 {
@@ -57,6 +60,31 @@ namespace cp
 	void AssetManager::on_entry_updated(AssetEntry& entry)
 	{
 		process_requests();
+	}
+
+	MappedAssetData AssetManager::map_asset(AssetEntry& entry)
+	{
+		std::scoped_lock lock(mutex_);
+		for (AssetProvider* provider : providers_)
+		{
+			MappedAssetData data = provider->map_asset(entry);
+			if (data.data() != nullptr)
+				return std::move(data);
+		}
+		return MappedAssetData();
+	}
+
+	void AssetManager::register_provider(AssetProvider& provider)
+	{
+		std::scoped_lock lock(mutex_);
+		CP_ASSERT(!contains(providers_, &provider));
+		providers_.push_back(&provider);
+	}
+
+	void AssetManager::unregister_provider(AssetProvider& provider)
+	{
+		std::scoped_lock lock(mutex_);
+		erase_first(providers_, &provider);
 	}
 
 	AssetEntry* AssetManager::get_or_create_entry(const std::string& id, const Type& type)
