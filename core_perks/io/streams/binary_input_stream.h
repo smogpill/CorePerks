@@ -9,6 +9,7 @@ namespace cp
 	{
 	public:
 		BinaryInputStream(const void* data, uint64 size);
+		BinaryInputStream(const void* data, const void* data_end);
 
 		void read(void* buffer, uint64 size);
 		template <class T>
@@ -38,7 +39,7 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE void BinaryInputStream::read(T& value)
 	{
-		static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable");
+		static_assert(std::is_trivially_copyable_v<T>);
 		read(&value, sizeof(T));
 	}
 

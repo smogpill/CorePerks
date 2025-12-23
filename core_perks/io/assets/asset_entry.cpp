@@ -178,7 +178,7 @@ namespace cp
         }
         state_ = AssetState::LOADING_DEPENDENCIES;
         nb_loading_dependencies_ = dependencies_.size();
-        for (UntypedAssetHandle& dep : dependencies_)
+        for (AssetHandle& dep : dependencies_)
             dep.load_async(&on_dependency_loaded);
     }
 
@@ -188,7 +188,7 @@ namespace cp
             return;
 
         std::scoped_lock lock(mutex_);
-        for (const UntypedAssetHandle& dep : dependencies_)
+        for (const AssetHandle& dep : dependencies_)
             if (!dep->is_ready())
             {
                 state_ = AssetState::FAILED;
@@ -216,11 +216,18 @@ namespace cp
 		cp::JobSystem::get().enqeue(job);
     }
 
+    Asset* AssetEntry::create_resource()
+    {
+        CP_ASSERT(type_);
+        Asset* resource = type_->create<Asset>();
+        resource->entry_ = this;
+        return resource;
+    }
+
     void AssetEntry::on_load()
     {
         std::scoped_lock lock(mutex_);
-        CP_ASSERT(type_);
-        std::unique_ptr<Asset> resource = type_->create<Asset>();
+		std::unique_ptr<Asset> resource(create_resource());
         if (!resource->on_load(AssetLoader(*this)))
         {
             state_ = AssetState::FAILED;
@@ -235,7 +242,7 @@ namespace cp
     void AssetEntry::on_unload()
     {
         std::scoped_lock lock(mutex_);
-        for (UntypedAssetHandle& dep : dependencies_)
+        for (AssetHandle& dep : dependencies_)
             dep.unload_async();
     }
 

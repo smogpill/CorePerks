@@ -4,6 +4,7 @@
 #pragma once
 #include "core_perks/io/assets/providers/mapped_region.h"
 #include "core_perks/io/assets/asset_handle.h"
+#include "core_perks/io/streams/binary_input_stream.h"
 
 namespace cp
 {
@@ -12,17 +13,18 @@ namespace cp
 	class MappedAssetData
 	{
 	public:
-		MappedAssetData(const UntypedAssetHandle& asset);
+		MappedAssetData(const AssetHandle& asset);
 
 		bool mapped() const { return region_.mapped(); }
 		void* data() const { return region_.data(); }
 		uint64 size() const { return region_.size(); }
-		const UntypedAssetHandle& get_asset() const { return asset_; }
-		Asset* get_provider() const { return provider_; }
+		const AssetHandle& get_asset() const { return asset_; }
+		const AssetHandle& get_provider() const { return provider_; }
+		BinaryInputStream get_stream() const { return BinaryInputStream(data(), size()); }
 
 	private:
-		UntypedAssetHandle asset_ = nullptr;
-		Asset* provider_ = nullptr;
+		AssetHandle asset_;
+		AssetHandle provider_;
 		MappedRegion region_;
 	};
 }

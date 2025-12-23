@@ -6,7 +6,7 @@
 
 namespace cp
 {
-	MappedAssetData::MappedAssetData(const UntypedAssetHandle& asset)
+	MappedAssetData::MappedAssetData(const AssetHandle& asset)
 		: asset_(asset)
 	{
 	}

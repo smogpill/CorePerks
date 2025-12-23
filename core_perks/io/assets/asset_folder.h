@@ -8,7 +8,7 @@
 namespace cp
 {
 	class AssetEntry;
-	class UntypedAssetHandle;
+	class AssetHandle;
 
 	class AssetFolder : public Asset
 	{
@@ -18,8 +18,8 @@ namespace cp
 		AssetFolder(const std::string& path);
 
 	protected:
-		bool on_load(AssetEntry& entry) override;
-		MappedAssetData map_sub_asset(const UntypedAssetHandle& asset) override;
+		bool on_load() override;
+		MappedAssetData map_sub_asset(const AssetHandle& asset) override;
 		void unmap_sub_asset(MappedAssetData& mapped_data) override;
 
 	private:

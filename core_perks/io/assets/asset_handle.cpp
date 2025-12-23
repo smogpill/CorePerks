@@ -8,22 +8,22 @@
 
 namespace cp
 {
-	UntypedAssetHandle::UntypedAssetHandle(const std::string& id, const Type& type)
+	AssetHandle::AssetHandle(const std::string& id, const Type& type)
 		: entry_(AssetManager::get().get_or_create_entry(id, type))
 	{
 	}
 
-	UntypedAssetHandle::UntypedAssetHandle(AssetEntry* entry)
+	AssetHandle::AssetHandle(AssetEntry* entry)
 		: entry_(entry)
 	{
 	}
 
-	void UntypedAssetHandle::set_id(const std::string& id, const Type& type)
+	void AssetHandle::set_id(const std::string& id, const Type& type)
 	{
 		entry_ = AssetManager::get().get_or_create_entry(id, type);
 	}
 
-	void UntypedAssetHandle::set_resource(Asset* resource)
+	void AssetHandle::set_resource(Asset* resource)
 	{
 		if (entry_)
 		{
@@ -35,36 +35,36 @@ namespace cp
 		}
 	}
 
-	void UntypedAssetHandle::unload_async()
+	void AssetHandle::unload_async()
 	{
 		if (entry_)
 			entry_->unload_async();
 	}
 
-	void UntypedAssetHandle::store_async(std::function<void(bool)> on_done)
+	void AssetHandle::store_async(std::function<void(bool)> on_done)
 	{
 		if (entry_)
 			entry_->store_async(std::move(on_done));
 	}
 
-	void UntypedAssetHandle::load_async(std::function<void(bool)> on_done)
+	void AssetHandle::load_async(std::function<void(bool)> on_done)
 	{
 		if (entry_)
 			entry_->load_async(std::move(on_done));
 	}
 
-	std::string UntypedAssetHandle::get_name() const
+	std::string AssetHandle::get_name() const
 	{
 		return entry_ ? entry_->get_name() : nullptr;
 	}
 
-	const std::string& UntypedAssetHandle::get_id() const
+	const std::string& AssetHandle::get_id() const
 	{
 		static const std::string empty_string;
 		return entry_ ? entry_->get_id() : empty_string;
 	}
 
-	Asset* UntypedAssetHandle::get() const
+	Asset* AssetHandle::get() const
 	{
 		return entry_ ? entry_->get() : nullptr;
 	}

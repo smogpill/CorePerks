@@ -1,10 +1,6 @@
 // Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
-#include "pch.h"
-#include "core_perks/io/streams.h"
-
-namespace cp
-{
-	
-}
+#pragma once
+#include "core_perks/io/streams/binary_input_stream.h"
+#include "core_perks/io/streams/binary_output_stream.h"

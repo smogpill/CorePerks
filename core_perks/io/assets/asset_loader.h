@@ -7,7 +7,7 @@
 
 namespace cp
 {
-	template <class T> class AssetHandle;
+	template <class T> class TypedAssetHandle;
 
 	class AssetLoader
 	{
@@ -19,7 +19,7 @@ namespace cp
 
 		AssetLoader(AssetEntry& entry);
 		template <class T>
-		AssetHandle<T> add_dependency(const std::string& id, const DependencyOptions& options = DependencyOptions());
+		TypedAssetHandle<T> add_dependency(const std::string& id, const DependencyOptions& options = DependencyOptions());
 		const std::string& get_id() const;
 		std::string get_asset_path() const;
 		bool read_as_binary_file(std::vector<uint8>& content);
@@ -30,9 +30,9 @@ namespace cp
 	};
 
 	template <class T>
-	AssetHandle<T> AssetLoader::add_dependency(const std::string& id, const DependencyOptions& options)
+	TypedAssetHandle<T> AssetLoader::add_dependency(const std::string& id, const DependencyOptions& options)
 	{
-		AssetHandle<T> handle(id);
+		TypedAssetHandle<T> handle(id);
 		if (handle.entry_->path_exists() || !options._optional)
 		{
 			//handle.entry_->_loading_parent = &_entry;

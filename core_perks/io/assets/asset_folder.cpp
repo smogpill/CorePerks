@@ -16,9 +16,9 @@ namespace cp
 	{
 	}
 
-	bool AssetFolder::on_load(AssetEntry& entry)
+	bool AssetFolder::on_load()
 	{
-		return Base::on_load(entry);
+		return Base::on_load();
 	}
 
 	MappedAssetData AssetFolder::map_sub_asset(AssetEntry& entry)
@@ -26,8 +26,7 @@ namespace cp
 		AssetInfo& info = get_or_open_file(entry);
 		if (!info.file_.is_open())
 			return MappedAssetData();
-		MappedRegion region = info.file_.map(FileHandle::Access::READ_ONLY);
-		return MappedAssetData(*this, entry, std::move(region));
+		return MappedAssetData(*this, entry, std::move(info.file_.map()));
 	}
 
 	void AssetFolder::unmap_asset(MappedAssetData& data)

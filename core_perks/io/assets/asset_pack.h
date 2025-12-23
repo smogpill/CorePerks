@@ -13,22 +13,22 @@ namespace cp
 		CP_BASE(Asset);
 		CP_CLASS(AssetPack);
 	public:
-		void add_resource(const UntypedAssetHandle& handle);
+		void add_sub_resource(const AssetHandle& handle);
 
 	protected:
-		virtual bool on_load(const MappedAssetData& data) override;
-		virtual MappedAssetData map_asset(AssetEntry& entry) override;
-		virtual void unmap_asset(MappedAssetData& data) override;
+		virtual bool on_load(AssetEntry& entry) override;
+		virtual MappedAssetData map_sub_asset(const AssetHandle& asset) override;
+		virtual void unmap_sub_asset(MappedAssetData& data) override;
 
 	private:
 		struct SubAssetInfo
 		{
-			UntypedAssetHandle handle_;
+			AssetHandle handle_;
 			uint64 offset_ = 0;
 			uint64 size_ = 0;
 		};
 		std::vector<SubAssetInfo> sub_assets_;
-		std::unorder_map<uint64, SubAssetInfo*> id_hash_to_sub_asset_;
+		//std::unorder_map<uint64, SubAssetInfo*> id_hash_to_sub_asset_;
 		FileHandle file_handle_;
 	};
 }

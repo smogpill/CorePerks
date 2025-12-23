@@ -34,7 +34,7 @@ namespace cp
 		mutex_.unlock();
 	}
 
-	void AssetManager::add_request(const UntypedAssetHandle& request)
+	void AssetManager::add_request(const AssetHandle& request)
 	{
 		std::scoped_lock lock(mutex_);
 		requests_.push(request);
@@ -44,7 +44,7 @@ namespace cp
 	{
 		for (;;)
 		{
-			UntypedAssetHandle handle;
+			AssetHandle handle;
 			{
 				std::scoped_lock lock(mutex_);
 				if (requests_.empty())

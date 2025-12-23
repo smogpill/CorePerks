@@ -31,8 +31,8 @@ namespace cp
 		void set_generator(AssetGenerator* generator);
 		void add_loading_dependency();
 		void remove_loading_dependency();
-		//void add_load_request(UntypedAssetHandle& handle);
-		//void remove_load_request(UntypedAssetHandle& handle);
+		//void add_load_request(AssetHandle& handle);
+		//void remove_load_request(AssetHandle& handle);
 		void load_async(Callback callback);
 		bool path_exists() const;
 		void unload_async();
@@ -42,6 +42,7 @@ namespace cp
 		std::string get_asset_path() const;
 		bool is_ready() const { return state_ == AssetState::READY; }
 		void update_async();
+		MappedAssetData get_mapped_data();
 
 	private:
 		friend class AssetLoader;
@@ -55,6 +56,7 @@ namespace cp
 		void on_dependency_loaded(AssetEntry& entry);
 		void flush_load_callbacks();
 		void queue_async_callback(Callback&& callback);
+		Asset* create_resource();
 
 		std::string id_;
 		uint64 id_hash_ = 0;
@@ -64,7 +66,7 @@ namespace cp
 		std::atomic<uint32> nb_loading_dependencies_ = 0;
 		std::mutex callback_mutex_;
 		std::atomic<AssetState> state_ = AssetState::NONE;
-		std::vector<UntypedAssetHandle*> load_requests_;
+		std::vector<AssetHandle*> load_requests_;
 		std::atomic<uint32> load_refs_ = 0;
 		std::vector<Callback> load_callbacks_;
 		std::atomic<Asset*> resource_ = nullptr;

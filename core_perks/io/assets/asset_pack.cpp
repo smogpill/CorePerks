@@ -11,38 +11,34 @@ namespace cp
 	{
 	}
 
-	namespace asset_pack
+	void operator>>(BinaryInputStream& stream, AssetPack::SubAssetInfo& entry)
 	{
-		struct Entry
-		{
-			std::string asset_id_;
-			uint64 offset_ = 0;
-			uint64 size_ = 0;
-		};
-		struct Header
-		{
-			std::vector<Entry> entries_;
-		};
+		stream >> entry.handle_;
+		stream >> entry.offset_;
+		stream >> entry.size_;
 	}
 
-	void AssetPack::add_resource(const UntypedAssetHandle& handle)
+	void AssetPack::add_sub_resource(const AssetHandle& handle)
 	{
 		if (!contains(resources_, handle))
 			resources_.push_back(handle);
 	}
 
-	bool AssetPack::on_load(const MappedAssetData& data)
+	bool AssetPack::on_load(AssetEntry& entry)
 	{
 		CP_TRY(Base::on_load(data));
-		return false;
+
+		BinaryInputStream stream = data.get_stream();
+		stream >> sub_assets_;
+		return true;
 	}
 
-	MappedAssetData AssetPack::map_asset(AssetEntry& entry)
+	MappedAssetData AssetPack::map_sub_asset(const AssetHandle& asset)
 	{
 		return MappedAssetData();
 	}
 
-	void AssetPack::unmap_asset(MappedAssetData& data)
+	void AssetPack::unmap_sub_asset(MappedAssetData& data)
 	{
 	}
 }

@@ -29,18 +29,18 @@ namespace cp
 	private:
 		friend class AssetEntry;
 		friend class Asset;
-		friend class UntypedAssetHandle;
+		friend class AssetHandle;
 
 		AssetEntry* get_or_create_entry(const std::string& id, const Type& type);
 		void destroy_entry(AssetEntry& entry);
-		void add_request(const UntypedAssetHandle& request);
+		void add_request(const AssetHandle& request);
 		void process_requests();
 		void on_entry_updated(AssetEntry& entry);
 		MappedAssetData map_asset(AssetEntry& entry);
 
 		mutable std::mutex mutex_;
 		std::unordered_map<uint64, AssetEntry*> map_;
-		std::queue<UntypedAssetHandle> requests_;
+		std::queue<AssetHandle> requests_;
 		std::string assets_path_;
 		std::string cache_path_;
 		std::vector<Asset*> providers_;
