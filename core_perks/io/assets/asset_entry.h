@@ -6,6 +6,7 @@
 #include "core_perks/io/assets/asset_handle.h"
 #include "core_perks/io/assets/providers/mapped_asset_data.h"
 #include "core_perks/patterns/reference.h"
+#include "core_perks/patterns/string_id.h"
 
 namespace cp
 {
@@ -26,10 +27,8 @@ namespace cp
 		AssetEntry(const std::string& id, uint64 id_hash, const Type& type);
 		virtual ~AssetEntry();
 
-		const std::string& get_id() const { return id_; }
+		const StringID& get_id() const { return id_; }
 		std::string get_name() const;
-		uint64 get_id_hash() const { return id_hash_; }
-		void set_generator(AssetGenerator* generator);
 		void add_loading_dependency();
 		void remove_loading_dependency();
 		//void add_load_request(AssetHandle& handle);
@@ -60,8 +59,7 @@ namespace cp
 		void queue_async_callback(Callback&& callback);
 		Asset* create_resource();
 
-		std::string id_;
-		uint64 id_hash_ = 0;
+		StringID id_;
 		AssetPriority priority_;
 		const Type* type_ = nullptr;
 		RefPtr<AssetEntry> loading_parent_;

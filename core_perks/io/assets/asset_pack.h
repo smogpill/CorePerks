@@ -15,7 +15,7 @@ namespace cp
 	public:
 		struct SubAssetInfo
 		{
-			AssetHandle handle_;
+			uint64 id_hash_ = 0;
 			uint64 offset_ = 0;
 			uint64 size_ = 0;
 		};
@@ -24,6 +24,7 @@ namespace cp
 
 	protected:
 		virtual bool on_load() override;
+		virtual void on_unload() override;
 		virtual MappedAssetData map_sub_asset(const AssetHandle& asset) override;
 		virtual void unmap_sub_asset(const AssetHandle& asset) override;
 

@@ -27,12 +27,6 @@ namespace cp
         delete loading_resource_;
     }
 
-    void AssetEntry::set_generator(AssetGenerator* generator)
-    {
-		std::scoped_lock lock(mutex_);
-		generator_ = generator;
-    }
-
     void AssetEntry::add_loading_dependency()
     {
         ++nb_loading_dependencies_;
@@ -42,44 +36,6 @@ namespace cp
     {
         if (--nb_loading_dependencies_ != 0)
             return;
-        callback_mutex_.lock();
-
-        Asset* loaded_resource = loading_resource_.exchange(nullptr);
-
-        // Notify that all dependencies have been loaded
-        if (loading_result_)
-            loading_result_ = loaded_resource->on_dependencies_loaded();
-
-        // Swap the resource and update the state
-        if (loading_result_)
-        {
-            Asset* old_resource = resource_.exchange(loaded_resource);
-            delete old_resource;
-            state_ = AssetState::READY;
-        }
-        else
-        {
-            delete loaded_resource;
-            if (state_ != AssetState::READY)
-                state_ = AssetState::FAILED;
-        }
-
-        // Call the callbacks
-        std::vector<std::function<void(bool)>> callbacks = std::move(load_callbacks_);
-        callback_mutex_.unlock();
-        for (auto& cb : callbacks)
-        {
-            cp::JobSystem::get().enqeue([callback = std::move(cb), loading_result = loading_result_]() { callback(loading_result); });
-        }
-
-        // Notify the parent resource
-        if (loading_parent_)
-        {
-            if (!loading_result_)
-                loading_parent_->loading_result_ = false;
-            loading_parent_->remove_loading_dependency();
-            loading_parent_ = nullptr;
-        }
     }
 
     void AssetEntry::on_all_refs_removed()

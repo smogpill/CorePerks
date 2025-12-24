@@ -85,7 +85,8 @@ namespace cp
 
 	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const AssetHandle& handle)
 	{
-		const std::string id = handle.entry_ ? handle.entry_->get_id() : "";
+		static const std::string empty_string;
+		const std::string& id = handle.entry_ ? handle.entry_->get_id() : empty_string;
 		stream << id;
 		const uint32 type_hash = handle.entry_ ? handle.entry_->get_type()->get_name_hash() : 0;
 		stream << type_hash;
