@@ -8,7 +8,7 @@ namespace cp
 	class ArenaAllocator
 	{
 	public:
-		void* alloc(size_t size, size_t alignment = alignof(std::max_align_t));
+		void* allocate(uint64 size, uint64 alignment = alignof(std::max_align_t));
 		void free(void*) {}
 		void reset() { offset_ = 0; }
 

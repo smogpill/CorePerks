@@ -3,19 +3,22 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-class Job
+namespace cp
 {
-public:
-    Job() = default;
-
-    template<typename Callable>
-    Job(Callable&& callable)
-        : function_([callable = std::forward<Callable>(callable)]() { callable(); })
+    class Job
     {
-    }
+    public:
+        Job() = default;
 
-    void operator()() { function_(); }
+        template<typename Callable>
+        Job(Callable&& callable)
+            : function_([callable = std::forward<Callable>(callable)]() { callable(); })
+        {
+        }
 
-private:
-    std::function<void()> function_;
-};
+        void operator()() { function_(); }
+
+    private:
+        std::function<void()> function_;
+    };
+}

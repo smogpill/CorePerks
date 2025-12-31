@@ -17,6 +17,7 @@ namespace cp::hash
 
 	namespace mixed_fibonacci
 	{
+		/// Better distribution than pure Fibonacci, helps when the input value has patterns
 		CP_FORCE_INLINE uint32 hash32(uint64 val) { return ((val ^ (val >> 32)) * 11400714819323198485llu) >> 32; }
 	}
 

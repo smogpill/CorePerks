@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include "core_perks/base/base.h"
+#include "core_perks/base/all.h"
 #include "core_perks/memory/memory.h"
 #include "core_perks/math/all.h"
 #include "core_perks/containers/all.h"

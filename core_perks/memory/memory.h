@@ -7,15 +7,15 @@ namespace cp
 {
 	inline constexpr uint8 cache_line_size = 64;
 	inline constexpr uint16 page_size = 4096;
-	inline constexpr uint32 huge_page_size = 2 * 1024 * 1024;
-	inline constexpr uint32 huge_huge_page_size = 1024 * 1024 * 1024;
+	inline constexpr uint32 mega_huge_page_size = 2 * 1024 * 1024;
+	inline constexpr uint32 giga_huge_page_size = 1024 * 1024 * 1024;
 
 	template <class T>
 	constexpr T align_up(const T val, const T alignment) { return (val + (alignment - 1)) & ~(alignment - 1); }
 	template <typename T>
 	constexpr T align_down(const T val, const T alignment) { /*CP_ASSERT(is_power_of_two(alignment)); */ return val & ~(alignment - 1); }
 	constexpr bool is_aligned(const void* ptr, uint64 alignment) { return (std::bit_cast<uintptr>(ptr) & (alignment - 1)) == 0; }
-	void mark_memory_as_deleted(void* ptr, uint64 size);
+	void mark_as_deleted(void* ptr, uint64 size);
 
 	template <typename T>
 	CP_FORCE_INLINE void swap_memory(T& a, T& b)

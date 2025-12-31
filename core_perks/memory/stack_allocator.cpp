@@ -32,7 +32,7 @@ namespace cp
 		}
 	}
 
-	void* StackAllocator::alloc(const size_t size, const size_t alignment)
+	void* StackAllocator::allocate(const size_t size, const size_t alignment)
 	{
 		if (size == 0) [[unlikely]]
 			return nullptr;
@@ -64,12 +64,12 @@ namespace cp
 		stack_allocator::Header* header = stack_allocator::get_header(ptr);
 #ifdef CP_DEBUG
         if (header->pre_marker_ != stack_allocator::marker || header->post_marker_ != stack_allocator::marker) [[unlikely]]
-            CP_FATAL("Stack allocator corruption XD (marker mismatch)");
+            CP_FATAL("Stack alloc corruption XD (marker mismatch)");
 #endif
 		CP_ASSERT((uint8*)ptr + header->size_ == memory_ + offset_);
         offset_ = (size_t)ptr - header->header_alloc_size_;
 #ifdef CP_DEBUG
-		mark_memory_as_deleted(memory_ + offset_, header->header_alloc_size_ + header->size_);
+		mark_as_deleted(memory_ + offset_, header->header_alloc_size_ + header->size_);
 #endif
 	}
 }

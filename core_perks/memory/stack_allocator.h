@@ -8,12 +8,12 @@ namespace cp
 	class StackAllocator
 	{
 	public:
-		void* alloc(size_t size, size_t alignment = alignof(std::max_align_t));
+		void* allocate(uint64 size, uint64 alignment = alignof(std::max_align_t));
 		void free(void* ptr);
 
 	private:
 		uint8* memory_ = nullptr;
-		size_t offset_ = 0;
-		size_t capacity_ = 0;
+		uint64 offset_ = 0;
+		uint64 capacity_ = 0;
 	};
 }
