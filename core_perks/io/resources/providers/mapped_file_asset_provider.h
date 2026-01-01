@@ -5,9 +5,9 @@
 #include "core_perks/io/resources/providers/asset_provider.h"
 #include "core_perks/io/file.h"
 
+#if 0
 namespace cp
 {
-	/*
 	class MappedFileAssetProvider : public AssetProvider
 	{
 	public:
@@ -21,5 +21,5 @@ namespace cp
 	private:
 		FileHandle file_handle_;
 	};
-	*/
 }
+#endif

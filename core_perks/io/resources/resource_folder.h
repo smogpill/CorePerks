@@ -20,6 +20,8 @@ namespace cp
 		MappedResourceData map_sub_resource(const ResourceHandle& resource) override;
 		void unmap_sub_resource(const ResourceHandle& resource) override;
 
+		void store_sub_resource_async(const ResourceHandle& resource);
+
 	protected:
 		bool on_ready() override;
 		void on_unready() override;

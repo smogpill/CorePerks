@@ -14,6 +14,11 @@ namespace cp
 	{
 	public:
 		~ResourceManager();
+	
+		ResourceHandle set_resource(const HashedString& id, const RefPtr<Resource>& resource);
+		ResourceHandle load_async(const HashedString& id, const Type& type, std::function<void(Resource&)> on_done = [](Resource&){});
+		template <class T>
+		ResourceHandle load_async(const HashedString& id, std::function<void(Resource&)> on_done = [](Resource&) {}) { return load_async(id, T::get_type_static(), on_done); }
 
 		// Assets path
 		void set_assets_path(const std::string& path);
@@ -23,8 +28,8 @@ namespace cp
 		void set_cache_path(const std::string& path);
 		const std::string& get_cache_path() const { return cache_path_; }
 
-		void register_provider(Resource& provider);
-		void unregister_provider(Resource& provider);
+		void register_provider(Resource& resource);
+		void unregister_provider(Resource& resource);
 
 	private:
 		friend class ResourceEntry;
@@ -39,7 +44,7 @@ namespace cp
 		MappedResourceData map_resource(const ResourceHandle& resource);
 
 		mutable std::mutex mutex_;
-		std::unordered_map<uint64, ResourceEntry*> map_;
+		std::unordered_map<uint64, Resource*> map_;
 		std::queue<ResourceHandle> requests_;
 		std::string assets_path_;
 		std::string cache_path_;

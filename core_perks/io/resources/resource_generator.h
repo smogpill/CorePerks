@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
+#if 0
+
 namespace cp
 {
 	class Resource;
@@ -14,3 +16,5 @@ namespace cp
 		virtual bool generate(Resource& resource) = 0;
 	};
 }
+
+#endif

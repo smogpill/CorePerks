@@ -4,11 +4,10 @@
 #pragma once
 #include "core_perks/io/resources/providers/mapped_resource_data.h"
 
+#if 0
 namespace cp
 {
 	class ResourceEntry;
-
-	/*
 
 	class AssetProvider
 	{
@@ -21,5 +20,5 @@ namespace cp
 		friend class MappedResourceData;
 		void unmap_asset(MappedResourceData& data) = 0;
 	};
-	*/
 }
+#endif

@@ -4,9 +4,9 @@
 #include "pch.h"
 #include "core_perks/io/resources/providers/folder_asset_provider.h"
 
+#if 0
 namespace cp
 {
-	/*
 	FolderAssetProvider::FolderAssetProvider(const std::string& path)
 		: folder_path_(path)
 	{
@@ -48,5 +48,5 @@ namespace cp
 		}
 		return nullptr;
 	}
-	*/
 }
+#endif

@@ -20,7 +20,7 @@ namespace cp
 		HashedString& operator=(const HashedString& other) = default;
 		HashedString& operator=(HashedString&& other) = default;
 		uint64 hash() const { return hash_; }
-		const std::string& str() const { return str_; }
+		const std::string& string() const { return str_; }
 		void clear();
 		bool empty() const { return str_.empty(); }
 		static const HashedString& get_empty();

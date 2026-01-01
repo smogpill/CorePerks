@@ -12,6 +12,8 @@
 #include "core_perks/math/numerical/hash.h"
 #include "core_perks/threading/job/job_system.h"
 
+#if 0
+
 namespace cp
 {
     ResourceEntry::ResourceEntry(const HashedString& id, const Type& type)
@@ -347,3 +349,5 @@ namespace cp
 		return manager.get_mapped_data(*this);
     }
 }
+
+#endif

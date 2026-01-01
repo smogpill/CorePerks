@@ -4,9 +4,9 @@
 #include "pch.h"
 #include "mapped_file_asset_provider.h"
 
+#if 0
 namespace cp
 {
-	/*
 	MappedFileAssetProvider::MappedFileAssetProvider(FileHandle&& file_handle)
 		: file_handle_(std::move(file_handle))
 	{
@@ -24,5 +24,5 @@ namespace cp
 	void MappedFileAssetProvider::unmap_asset(MappedResourceData& data)
 	{
 	}
-	*/
 }
+#endif

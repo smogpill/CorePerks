@@ -8,16 +8,11 @@
 #include "core_perks/patterns/reference.h"
 #include "core_perks/patterns/hashed_string.h"
 
+#if 0
+
 namespace cp
 {
 	class ResourceLoader; class Resource; class ResourceGenerator;
-
-	template <class T>
-	struct LoadResult
-	{
-		std::unique_ptr<T> resource_ = nullptr;
-		bool result_ = false;
-	};
 
 	class ResourceEntry : public RefCounted
 	{
@@ -76,3 +71,5 @@ namespace cp
 		std::mutex mutex_;
 	};
 }
+
+#endif

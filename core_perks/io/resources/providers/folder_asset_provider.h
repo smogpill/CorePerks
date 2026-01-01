@@ -5,9 +5,9 @@
 #include "core_perks/io/resources/providers/asset_provider.h"
 #include "core_perks/io/file.h"
 
+#if 0
 namespace cp
 {
-	/*
 	class FolderAssetProvider : public AssetProvider
 	{
 	public:
@@ -31,5 +31,5 @@ namespace cp
 		std::filesystem::path folder_path_;
 		std::vector<ResourceInfo*> open_files_;
 	};
-	*/
 }
+#endif

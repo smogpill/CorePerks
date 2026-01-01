@@ -5,6 +5,7 @@
 #include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_manager.h"
 
+#if 0
 namespace cp
 {
 	template <class T> class TypedResourceHandle;
@@ -42,3 +43,4 @@ namespace cp
 		return handle;
 	}
 }
+#endif

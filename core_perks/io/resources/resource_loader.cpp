@@ -6,6 +6,8 @@
 #include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_manager.h"
 
+#if 0
+
 namespace cp
 {
     ResourceLoader::ResourceLoader(ResourceEntry& entry)
@@ -52,3 +54,5 @@ namespace cp
         return _entry.get_id();
     }
 }
+
+#endif

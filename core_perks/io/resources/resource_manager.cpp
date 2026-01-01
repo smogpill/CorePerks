@@ -15,6 +15,13 @@ namespace cp
 		CP_ASSERT(map_.empty());
 	}
 
+	ResourceHandle ResourceManager::create(const HashedString& id, const Type& type)
+	{
+		std::scoped_lock lock(mutex_);
+		CP_ASSERT(false);
+		return ResourceHandle();
+	}
+
 	void ResourceManager::set_assets_path(const std::string& path)
 	{
 		assets_path_ = path;
