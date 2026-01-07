@@ -40,6 +40,8 @@ namespace cp
 		virtual void on_store(BinaryOutputStream& stream) const {}
 
 	private:
+		friend class ResourceManager;
+
 		std::mutex mutex_;
 		HashedString id_;
 		uint32 version_ = 0;

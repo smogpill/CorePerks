@@ -19,24 +19,30 @@ namespace cp
 	{
 		std::scoped_lock lock(mutex_);
 		Resource* resource = get_resource_no_lock(id, type);
-		return ResourceHandle();
+		if (!resource)
+		{
+			resource = type.create<Resource>();
+			resource->id_ = id;
+			map_[id.hash()] = resource;
+			LoadRequest request;
+			request.handle_ = resource;
+			request.on_done_ = on_done;
+			load_requests_.push(std::move(request));
+		}
+		return ResourceHandle(resource);
 	}
 
-	ResourceHandle ResourceManager::replace(const HashedString& id, const RefPtr<Resource>& resource)
+	ResourceHandle ResourceManager::set(const HashedString& id, const cp::RefPtr<Resource>& resource)
 	{
 		std::scoped_lock lock(mutex_);
-		CP_ASSERT(false);
-		return ResourceHandle();
-	}
-
-	void ResourceManager::set_assets_path(const std::string& path)
-	{
-		assets_path_ = path;
-	}
-
-	void ResourceManager::set_cache_path(const std::string& path)
-	{
-		cache_path_ = path;
+		Resource* old_resource = get_resource(id.hash());
+		if (old_resource)
+			old_resource->id_.clear();
+		map_[id.hash()] = resource.get();
+		if (!resource)
+			return ResourceHandle();
+		resource->id_ = id;
+		return ResourceHandle(resource.get());
 	}
 
 	void ResourceManager::remove_resource(Resource& resource)
@@ -49,7 +55,7 @@ namespace cp
 	void ResourceManager::add_request(const ResourceHandle& request)
 	{
 		std::scoped_lock lock(mutex_);
-		requests_.push(request);
+		load_requests_.push(request);
 	}
 
 	void ResourceManager::process_requests()
@@ -59,17 +65,17 @@ namespace cp
 			ResourceHandle handle;
 			{
 				std::scoped_lock lock(mutex_);
-				if (requests_.empty())
+				if (load_requests_.empty())
 					break;
-				handle = requests_.back();
-				requests_.pop();
+				handle = load_requests_.back();
+				load_requests_.pop();
 			}
-			if (handle.entry_)
-				handle.entry_->update_async();
+			if (handle)
+				handle->update_async();
 		}
 	}
 
-	void ResourceManager::on_entry_updated(ResourceEntry& entry)
+	void ResourceManager::on_resource_updated(Resource& resource)
 	{
 		process_requests();
 	}

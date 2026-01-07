@@ -10,13 +10,13 @@
 
 namespace cp
 {
-	ResourceHandle::ResourceHandle(const HashedString& id, const Type& type)
-		: entry_(ResourceManager::get().get_or_create_entry(id, type))
+	ResourceHandleBase::ResourceHandleBase(Resource* resource)
+		: resource_(resource)
 	{
 	}
 
-	ResourceHandle::ResourceHandle(ResourceEntry* entry)
-		: entry_(entry)
+	ResourceHandle::ResourceHandle(const HashedString& id, const Type& type)
+		: entry_(ResourceManager::get().get_or_create_entry(id, type))
 	{
 	}
 

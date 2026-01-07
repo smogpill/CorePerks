@@ -13,12 +13,11 @@ namespace cp
 	{
 	public:
 		ResourceHandleBase() = default;
+		ResourceHandleBase(Resource* resource);
 		~ResourceHandleBase() = default;
 
-		void load_async(std::function<void()> on_done = [](){});
 		void release() { resource_.release(); }
-		std::string get_name() const;
-		const HashedString& get_id() const;
+		ResourceHandleBase& operator=(Resource* resource) { resource_ = resource; }
 		//auto operator=(const ResourceHandle& other) { entry_ = other.entry_; }
 		operator bool() const { return resource_ != nullptr; }
 
@@ -36,8 +35,11 @@ namespace cp
 		CP_BASE(ResourceHandleBase);
 	public:
 		ResourceHandle() = default;
-		ResourceHandle(const HashedString& id) : Base(id, T::get_type_static()) {}
-		void set(const HashedString& id) { set(id, T::get_type_static()); }
 		T* get() const;
+		using operator=;
+
+	private:
+		friend class ResourceManager;
+		explicit ResourceHandle(Resource* resource) { resource_ = resource; }
 	};
 }

@@ -15,18 +15,10 @@ namespace cp
 	public:
 		~ResourceManager();
 	
-		ResourceHandle replace(const HashedString& id, const RefPtr<Resource>& resource);
+		ResourceHandle set(const HashedString& id, const cp::RefPtr<Resource>& resource);
 		ResourceHandle load_async(const HashedString& id, const Type& type, std::function<void(Resource&)> on_done = [](Resource&){});
 		template <class T>
 		ResourceHandle load_async(const HashedString& id, std::function<void(Resource&)> on_done = [](Resource&) {}) { return load_async(id, T::get_type_static(), on_done); }
-
-		// Assets path
-		void set_assets_path(const std::string& path);
-		const std::string& get_assets_path() const { return assets_path_; }
-
-		// Cache path
-		void set_cache_path(const std::string& path);
-		const std::string& get_cache_path() const { return cache_path_; }
 
 		void register_provider(Resource& resource);
 		void unregister_provider(Resource& resource);
@@ -40,7 +32,7 @@ namespace cp
 		void remove_resource(Resource& resource);
 		void add_request(const ResourceHandle& request);
 		void process_requests();
-		void on_entry_updated(ResourceEntry& entry);
+		void on_resource_updated(Resource& resource);
 		MappedResourceData map_resource(const ResourceHandle& resource);
 
 		struct LoadRequest
@@ -52,8 +44,6 @@ namespace cp
 		mutable std::mutex mutex_;
 		std::unordered_map<uint64, Resource*> map_;
 		std::queue<LoadRequest> load_requests_;
-		std::string assets_path_;
-		std::string cache_path_;
 		std::vector<Resource*> providers_;
 		uint max_parallel_updates_ = 4;
 
