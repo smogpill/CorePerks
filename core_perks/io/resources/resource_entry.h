@@ -47,4 +47,14 @@ namespace cp
 		std::vector<std::function<void()>> loading_done_callbacks_;
 		std::atomic<uint32> waiting_dependencies_count_ = 0;
 	};
+
+	template <class T>
+	class ResourceEntryT : public ResourceEntry
+	{
+		CP_BASE(ResourceEntry);
+	public:
+		using ResourceEntry::ResourceEntry;
+
+		RefPtr<T> get() const { return Base::get<T>(); }
+	};
 }

@@ -16,13 +16,13 @@ namespace cp
 		CP_ASSERT(map_.empty());
 	}
 
-	ResourceHandle ResourceManager::get_entry(const ResourceID& id) const
+	ResourceHandle ResourceManager::get_handle(const ResourceID& id) const
 	{
 		std::scoped_lock lock(mutex_);
 		return ResourceHandle(get_entry_no_lock(id));
 	}
 
-	ResourceHandle ResourceManager::get_or_create_entry(const ResourceID& id)
+	ResourceHandle ResourceManager::get_or_create_handle(const ResourceID& id)
 	{
 		std::scoped_lock lock(mutex_);
 		ResourceEntry* entry = get_entry_no_lock(id);

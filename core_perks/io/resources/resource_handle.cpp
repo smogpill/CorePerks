@@ -13,7 +13,6 @@ namespace cp
 	ResourceHandle::ResourceHandle(ResourceEntry* entry)
 		: entry_(entry)
 	{
-
 	}
 
 	void ResourceHandle::release()
@@ -25,13 +24,13 @@ namespace cp
 	{
 		ResourceID id;
 		stream >> id;
-		handle = ResourceManager::get().get_or_create_entry(id);
+		handle = ResourceManager::get().get_or_create_handle(id);
 		return stream;
 	}
 
 	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const ResourceHandle& handle)
 	{
-		stream << (handle.entry_ ? handle.entry_->get_id() : ResourceID::get_empty());
+		stream << (handle ? handle->get_id() : ResourceID::get_empty());
 		return stream;
 	}
 }

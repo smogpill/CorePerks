@@ -81,8 +81,16 @@ namespace cp
 			return;
 		}
 
-		BinarySerializer serializer(std::move(mapped_region), BinarySerializer::READ);
 		RefPtr<Resource> resource(type_->create<Resource>());
+
+		if (!resource->on_read(mapped_region))
+		{
+			state_ = ResourceState::FAILED;
+			flush_loading_callbacks();
+			return;
+		}
+
+		BinarySerializer serializer(std::move(mapped_region), BinarySerializer::READ);
 		resource->on_serialize(serializer);
 		if (serializer.failed())
 		{

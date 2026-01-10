@@ -32,6 +32,7 @@ namespace cp
 
 	protected:
 		MappedResourceData get_mapped_data();
+		virtual bool on_read(MappedFileRegion& region) { return true; }
 		virtual void on_serialize(BinarySerializer& serializer);
 		//virtual void on_serialize_post_dependencies(BinarySerializer& serializer) {}
 		virtual bool on_load();

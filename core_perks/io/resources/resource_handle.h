@@ -15,7 +15,7 @@ namespace cp
 		ResourceHandle() = default;
 		void release();
 		operator bool() const { return entry_ != nullptr; }
-		ResourceEntry* operator->() const { return entry_.get(); }
+		ResourceEntry* operator->() const { CP_ASSERT(entry_); return entry_.get(); }
 		ResourceEntry& operator*() const { CP_ASSERT(entry_); return *entry_.get(); }
 
 	protected:
@@ -34,8 +34,9 @@ namespace cp
 	{
 		CP_BASE(ResourceHandle);
 	public:
-		ResourceHandleT() = default;
-		T* get() const { return static_cast<T*>(entry_.get()); }
-		using operator=;
+		using ResourceHandle::ResourceHandle;
+		using ResourceHandle::operator=;
+
+		T* get() const { return entry_ ? entry_->get<T>() : nullptr; }
 	};
 }
