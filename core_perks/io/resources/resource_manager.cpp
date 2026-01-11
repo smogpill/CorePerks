@@ -28,7 +28,7 @@ namespace cp
 		ResourceEntry* entry = get_entry_no_lock(id);
 		if (entry)
 		{
-			if (entry->get_type() != &type)
+			if (&entry->get_type() != &type)
 			{
 				CP_ERROR("{}: Invalid requested type: {} instead of {}", id.string(), type.get_name(), entry->get_type().get_name());
 				entry = nullptr;
@@ -70,7 +70,7 @@ namespace cp
 				load_requests_.pop();
 			}
 
-			request.handle_->notify_ready_to_load();
+			request.handle_.entry_->notify_ready_to_load();
 		}
 	}
 

@@ -6,6 +6,8 @@
 #include "core_perks/base/reflection/type_manager.h"
 #include "core_perks/math/numerical/hash.h"
 #include "core_perks/containers/vector_extensions.h"
+#include "core_perks/io/streams/binary_input_stream.h"
+#include "core_perks/io/streams/binary_output_stream.h"
 
 namespace cp
 {
@@ -79,5 +81,19 @@ namespace cp
 	{
 		static std::unordered_map<uint32, Type*> map;
 		return map;
+	}
+
+	BinaryInputStream& operator>>(BinaryInputStream& stream, Type*& type)
+	{
+		Type::Id id;
+		stream >> id;
+		type = Type::get_by_id(id);
+		return stream;
+	}
+
+	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const Type* type)
+	{
+		stream << (type ? type->get_id() : Type::Id(0));
+		return stream;
 	}
 }

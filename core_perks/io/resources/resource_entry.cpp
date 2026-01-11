@@ -24,8 +24,8 @@ namespace cp
 	void ResourceEntry::create()
 	{
 		std::scoped_lock lock(mutex_);
-		resource_ = type_->create();
-		resource_->_entry = this;
+		resource_ = type_->create<Resource>();
+		resource_->entry_ = this;
 	}
 
 	void ResourceEntry::load_async(std::function<void()>&& on_done)
@@ -110,7 +110,7 @@ namespace cp
 			{
 				auto callback = [=]()
 					{
-						self->on_dependency_loading_done(*dependency);
+						self->on_dependency_loading_done(*dependency.entry_);
 					};
 				dependency->load_async(callback);
 			}

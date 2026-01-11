@@ -21,7 +21,8 @@ namespace cp
 		MappedFileRegion(const RefPtr<FileHandle>& file, uint64 offset, uint64 size, Access access = Access::READ_ONLY);
 		~MappedFileRegion();
 
-		void* data() { return data_; }
+		const void* data() const { return data_; }
+		void* data();
 		uint64 size() const { return size_; }
 		std::span<uint8> span() { return std::span<uint8>(static_cast<uint8*>(data_), size_); }
 		bool is_mapped() const { return data_ != nullptr; }
@@ -29,11 +30,10 @@ namespace cp
 		uint8* end() { return static_cast<uint8*>(data_) + size_; }
 
 	private:
-		friend class FileHandle;
-
 		void* data_ = nullptr;
 		uint64 size_ = 0;
 		RefPtr<FileHandle> file_;
+		Access access_ = Access::READ_ONLY;
 #ifdef CP_WINDOWS
 		HANDLE mapping_ = INVALID_HANDLE_VALUE;
 #endif

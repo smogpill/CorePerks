@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/io/resources/base/resource_base.h"
+#include "core_perks/io/resources/resource_id.h"
 #include "core_perks/io/file/mapped_file_region.h"
 #include "core_perks/patterns/reference.h"
 
@@ -13,13 +13,13 @@ namespace cp
 	class ResourceEntry : public RefCounted
 	{
 	public:
-		ResourceEntry(const ResourceID& id);
+		ResourceEntry(const ResourceID& id, const Type& type);
 		~ResourceEntry();
 
+		const Type& get_type() const { CP_ASSERT(type_); return *type_; }
 		void create();
 		void load_async(std::function<void()>&& on_done = [](){});
-		template <class T = Resource>
-		RefPtr<T> get() const { return resource_; }
+		RefPtr<Resource> get() const { return resource_; }
 		const ResourceID& get_id() const { return id_; }
 		bool is_ready() const { return state_ == ResourceState::READY; }
 

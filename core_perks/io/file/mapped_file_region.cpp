@@ -79,4 +79,10 @@ namespace cp
             CloseHandle(mapping_);
 #endif
     }
+
+    void* MappedFileRegion::data()
+    {
+        CP_ASSERT(access_ == Access::READ_WRITE);
+        return data_;
+    }
 }

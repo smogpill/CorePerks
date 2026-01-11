@@ -22,6 +22,11 @@ namespace cp
 	{
 	}
 
+	HashedString::HashedString(const char* str)
+		: HashedString(std::move(std::string(str)))
+	{
+	}
+
 	void HashedString::clear()
 	{
 		hash_ = 0;

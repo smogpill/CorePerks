@@ -5,7 +5,7 @@
 
 namespace cp
 {
-	class Type;
+	class Type; class BinaryInputStream; class BinaryOutputStream;
 
 	namespace detail
 	{
@@ -56,15 +56,17 @@ namespace cp
 	class Type
 	{
 	public:
+		using Id = uint32;
+
 		Type(const char* name);
 		virtual ~Type();
 
 		template <class T>
 		static Type* get() { return detail::TypeStatic<T>::get_type_static(); }
-		static Type* get_by_id(uint32 id);
+		static Type* get_by_id(Id id);
 		const std::string& get_name() const { return _name; }
-		void set_id(uint32 id) { _id = id; }
-		uint32 get_id() const { return _id; }
+		void set_id(Id id) { _id = id; }
+		Id get_id() const { return _id; }
 
 		// Derivation
 		bool is_a(const Type& type) const;
@@ -88,7 +90,7 @@ namespace cp
 		void init(Type* type = nullptr);
 
 		Type* _base = nullptr;
-		uint32 _id = 0;
+		Id _id = 0;
 		uint32 _size8 = 0;
 		uint16 _alignment8 = 0;
 		bool _initialized : 1 = false;
@@ -105,6 +107,9 @@ namespace cp
 		static std::vector<Type*>& get_types();
 		static std::unordered_map<uint32, Type*>& get_id_to_type_map();
 	};
+
+	BinaryInputStream& operator>>(BinaryInputStream& stream, Type*& type);
+	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const Type* type);
 
 	template <class T>
 	void Type::_init_generics()

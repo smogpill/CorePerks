@@ -25,40 +25,6 @@ namespace cp
 	void Resource::on_serialize(BinarySerializer& serializer)
 	{
 		serializer / dependencies_;
-		/*
-		if (serializer.writing_)
-		{
-			BinaryOutputStream& stream = serializer.ostream_;
-			stream << (uint32)dependencies_.size();
-			for (const ResourceHandle& dep : dependencies_)
-			{
-				stream << dep->get_type();
-				stream << dep->get_id();
-			}
-		}
-		else
-		{
-			dependencies_.clear();
-			ResourceManager& manager = ResourceManager::get();
-			BinaryInputStream& stream = serializer.istream_;
-			uint32 count = 0;
-			stream >> count;
-			dependencies_.reserve(count);
-			uint32 type_id = 0;
-			HashedString id;
-			for (uint32 i = 0; i < count; ++i)
-			{
-				stream >> type_id;
-				stream >> id;
-				const Type* type = Type::get_by_id(type_id);
-				if (type)
-				{
-					ResourceHandle handle = manager.load_async(id, *type);
-					dependencies_.emplace_back(std::move(handle));
-				}
-			}
-		}
-		*/
 	}
 
 	bool Resource::on_load()
@@ -70,5 +36,10 @@ namespace cp
 	{
 		dependencies_.clear();
 		dependents_.clear();
+	}
+
+	const ResourceID& Resource::get_id() const
+	{
+		return entry_ ? entry_->get_id() : ResourceID::get_empty();
 	}
 }

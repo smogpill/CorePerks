@@ -27,11 +27,11 @@ namespace cp
 		const std::vector<ResourceHandle>& get_dependencies() const { return dependencies_; }
 
 		// Sub resources
-		virtual MappedFileRegion map_sub_resource(const ResourceID& id) = 0 { return MappedFileRegion(); }
-		virtual void store_sub_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) = 0 { on_done(false); }
+		virtual MappedFileRegion map_sub_resource(const ResourceID& id) { return MappedFileRegion(); }
+		virtual void store_sub_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) { on_done(false); }
 
 	protected:
-		virtual bool on_read(MappedFileRegion& region) { return true; }
+		virtual bool on_read(const MappedFileRegion& region) { return true; }
 		virtual void on_serialize(BinarySerializer& serializer);
 		//virtual void on_serialize_post_dependencies(BinarySerializer& serializer) {}
 		virtual bool on_load();

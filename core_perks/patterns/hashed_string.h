@@ -13,6 +13,7 @@ namespace cp
 		HashedString() = default;
 		HashedString(const HashedString& other) = default;
 		HashedString(HashedString&& other) = default;
+		HashedString(const char* str);
 		HashedString(const std::string& str);
 		HashedString(std::string&& str);
 		bool operator==(const HashedString& other) const { return hash_ == other.hash_ && str_ == other.str_; }

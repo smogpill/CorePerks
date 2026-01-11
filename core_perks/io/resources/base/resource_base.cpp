@@ -3,12 +3,3 @@
 // SPDX-License-Identifier: MIT
 #include "pch.h"
 #include "core_perks/io/resources/base/resource_base.h"
-
-namespace cp
-{
-	const ResourceID& ResourceID::get_empty()
-	{
-		static const ResourceID empty;
-		return empty;
-	}
-}

@@ -56,23 +56,16 @@ namespace cp
 	class BinaryOutputStream
 	{
 	public:
-		BinaryOutputStream(OutputMemory& memory);
-		~BinaryOutputStream();
-		void write(const void* buffer, uint64 size);
+		BinaryOutputStream(OutputMemory& memory) : memory_(memory) {}
+		CP_FORCE_INLINE void write(const void* buffer, uint64 size) { memory_.write(buffer, size); }
 		template <class T> requires std::is_trivially_copyable_v<T>
-		void write(const T& value);
+		CP_FORCE_INLINE void write(const T& value) { memory_.write(&value, sizeof(T)); }
 		uint64 size() const { return memory_.size(); }
 		bool failed() const { return memory_.failed(); }
 
 	private:
 		OutputMemory& memory_;
 	};
-
-	template <class T> requires std::is_trivially_copyable_v<T>
-	CP_FORCE_INLINE void BinaryOutputStream::write(const T& value)
-	{
-		write(&value, sizeof(T));
-	}
 
 	template <class T> requires std::is_trivially_copyable_v<T>
 	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const T& value) { stream.write(value); return stream; }

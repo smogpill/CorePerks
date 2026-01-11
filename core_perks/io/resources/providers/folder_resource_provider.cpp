@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 #include "pch.h"
 #include "core_perks/io/resources/providers/folder_resource_provider.h"
-#include "core_perks/io/resources/base/resource_base.h"
+#include "core_perks/io/resources/resource_id.h"
 #include "core_perks/io/file/mapped_file_region.h"
 
 namespace cp
