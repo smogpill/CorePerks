@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #include "pch.h"
-#include "core_perks/io/resources/providers/resource_mapping_result.h"
+#include "core_perks/io/resources/providers/resource_mapping.h"
 
 #if 0
 

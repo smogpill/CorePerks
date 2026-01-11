@@ -6,6 +6,7 @@
 #include "core_perks/io/resources/resource_manager.h"
 #include "core_perks/io/resources/resource_handle.h"
 #include "core_perks/io/streams/binary_serializer.h"
+#include "core_perks/io/file/file_handle.h"
 #include "core_perks/threading/job/job_system.h"
 
 namespace cp
@@ -77,26 +78,33 @@ namespace cp
 	{
 		CP_ASSERT(state_ == ResourceState::LOADING);
 
-		RefPtr<Resource> resource(type_->create<Resource>());
-		if (resource->should_load_file())
+		loading_resource_ = type_->create<Resource>();
+		if (loading_resource_->should_load_file())
 		{
-			MappedFileRegion mapped_region = manager().map_resource(id_);
-			if (!mapped_region.is_mapped())
+			ResourceMapping mapping = manager().map_resource(id_);
+			if (mapping.status_ == ResourceMapping::Status::MISSING)
+			{
+				state_ = ResourceState::MISSING;
+				flush_loading_callbacks();
+				return;
+			}
+
+			if (mapping.status_ == ResourceMapping::Status::FAILED)
 			{
 				state_ = ResourceState::FAILED;
 				flush_loading_callbacks();
 				return;
 			}
 
-			if (!resource->on_read(mapped_region))
+			if (!loading_resource_->on_read(mapping.region_))
 			{
 				state_ = ResourceState::FAILED;
 				flush_loading_callbacks();
 				return;
 			}
 
-			BinarySerializer serializer(std::move(mapped_region), BinarySerializer::READ);
-			resource->on_serialize(serializer);
+			BinarySerializer serializer(std::move(mapping.region_), BinarySerializer::READ);
+			loading_resource_->on_serialize(serializer);
 			if (serializer.failed())
 			{
 				state_ = ResourceState::FAILED;
@@ -105,9 +113,7 @@ namespace cp
 			}
 		}
 
-		loading_resource_ = std::move(resource);
-
-		const auto& dependencies = resource->get_dependencies();
+		const auto& dependencies = loading_resource_->get_dependencies();
 		if (!dependencies.empty())
 		{
 			state_ = ResourceState::WAITING_DEPENDENCIES;

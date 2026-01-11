@@ -5,14 +5,19 @@
 #include "core_perks/io/file/mapped_file_region.h"
 #include "core_perks/io/resources/resource_handle.h"
 
-#if 0
 namespace cp
 {
-	class Resource;
-
-	class ResourceMappingResult
+	struct ResourceMapping
 	{
+		enum class Status
+		{
+			MISSING,
+			FAILED,
+			SUCCESS
+		};
+
+		Status status_ = Status::MISSING;
 		MappedFileRegion region_;
+		ResourceHandle provider_;
 	};
 }
-#endif

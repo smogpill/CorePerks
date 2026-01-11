@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "core_perks/io/resources/base/resource_base.h"
-#include "core_perks/io/resources/providers/mapped_resource_data.h"
+#include "core_perks/io/resources/providers/resource_mapping.h"
+#include "core_perks/io/resources/resource_handle.h"
 #include "core_perks/patterns/hashed_string.h"
 #include "core_perks/patterns/reference.h"
 
@@ -20,6 +21,7 @@ namespace cp
 		virtual ~Resource() = default;
 
 		const ResourceID& get_id() const;
+		ResourceHandle get_handle() const;
 		bool is_ready() const { return state_ == ResourceState::READY; }
 
 		// Dependencies
@@ -27,7 +29,7 @@ namespace cp
 		const std::vector<ResourceHandle>& get_dependencies() const { return dependencies_; }
 
 		// Sub resources
-		virtual MappedFileRegion map_sub_resource(const ResourceID& id) { return MappedFileRegion(); }
+		virtual ResourceMapping map_sub_resource(const ResourceID& id) { return ResourceMapping(); }
 		virtual void store_sub_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) { on_done(false); }
 
 		virtual bool should_load_file() const { return true; }

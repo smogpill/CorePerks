@@ -6,6 +6,7 @@
 #include "core_perks/io/resources/resource.h"
 #include "core_perks/io/resources/resource_entry.h"
 #include "core_perks/io/resources/resource_handle.h"
+#include "core_perks/io/resources/providers/resource_mapping.h"
 
 namespace cp
 {
@@ -46,7 +47,7 @@ namespace cp
 		void push_load_request(LoadRequest&& request);
 		void process_requests();
 		void on_resource_updated(Resource& resource);
-		std::unique_ptr<MappedFileRegion> map_resource(const ResourceID& id);
+		ResourceMapping map_resource(const ResourceID& id);
 
 		mutable std::mutex mutex_;
 		std::unordered_map<ResourceID, ResourceEntry*, Hash> map_;

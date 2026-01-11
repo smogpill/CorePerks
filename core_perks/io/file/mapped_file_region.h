@@ -16,10 +16,11 @@ namespace cp
 			READ_ONLY,
 			READ_WRITE
 		};
-		MappedFileRegion() = default;
+		MappedFileRegion();
 		MappedFileRegion(const RefPtr<FileHandle>& file, Access access = Access::READ_ONLY);
 		/// If the size is 0, the size is automatically set to match the end of the file.
 		MappedFileRegion(const RefPtr<FileHandle>& file, uint64 offset, uint64 size, Access access = Access::READ_ONLY);
+		MappedFileRegion(MappedFileRegion&& other);
 		~MappedFileRegion();
 
 		const void* data() const { return data_; }
@@ -29,6 +30,7 @@ namespace cp
 		bool is_mapped() const { return data_ != nullptr; }
 		uint8* begin() { return static_cast<uint8*>(data_); }
 		uint8* end() { return static_cast<uint8*>(data_) + size_; }
+		MappedFileRegion& operator=(MappedFileRegion&& other);
 
 	private:
 		void* data_ = nullptr;
@@ -36,7 +38,7 @@ namespace cp
 		RefPtr<FileHandle> file_;
 		Access access_ = Access::READ_ONLY;
 #ifdef CP_WINDOWS
-		HANDLE mapping_ = INVALID_HANDLE_VALUE;
+		HANDLE native_handle_ = INVALID_HANDLE_VALUE;
 #endif
 	};
 }

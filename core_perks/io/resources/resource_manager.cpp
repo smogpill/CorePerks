@@ -82,15 +82,14 @@ namespace cp
 		process_requests();
 	}
 
-	std::unique_ptr<MappedFileRegion> ResourceManager::map_resource(const ResourceID& id)
+	ResourceMapping ResourceManager::map_resource(const ResourceID& id)
 	{
-		std::unique_ptr<MappedFileRegion> mapping;
-
+		ResourceMapping mapping;
 		std::scoped_lock lock(mutex_);
 		for (ResourceProvider* provider : providers_ | std::views::reverse)
 		{
 			mapping = provider->map_resource(id);
-			if (mapping)
+			if (mapping.status_ != ResourceMapping::Status::MISSING)
 				break;
 		}
 		return mapping;

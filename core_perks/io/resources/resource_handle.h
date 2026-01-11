@@ -25,6 +25,7 @@ namespace cp
 	protected:
 		friend class ResourceManager;
 		friend class ResourceEntry;
+		friend class Resource;
 		friend BinaryInputStream& operator>>(BinaryInputStream& stream, ResourceHandle& handle);
 		friend BinaryOutputStream& operator<<(BinaryOutputStream& stream, const ResourceHandle& handle);
 

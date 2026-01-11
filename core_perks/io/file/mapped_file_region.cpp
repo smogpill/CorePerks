@@ -8,6 +8,10 @@
 
 namespace cp
 {
+    MappedFileRegion::MappedFileRegion()
+    {
+    }
+
     MappedFileRegion::MappedFileRegion(const RefPtr<FileHandle>& file, Access access)
         : MappedFileRegion(file, 0, 0, access)
     {
@@ -49,8 +53,8 @@ namespace cp
         DWORD size_low = static_cast<DWORD>(requested_size & 0xFFFFFFFF);
         DWORD size_high = static_cast<DWORD>((requested_size >> 32) & 0xFFFFFFFF);
 
-        mapping_ = CreateFileMappingW(file_->get_native_handle(), nullptr, protect, size_high, size_low, nullptr);
-        if (!mapping_)
+        native_handle_ = CreateFileMappingW(file_->get_native_handle(), nullptr, protect, size_high, size_low, nullptr);
+        if (!native_handle_)
         {
             CP_ERROR("Failed to map file: {}", file_->get_debug_path());
             return;
@@ -60,7 +64,7 @@ namespace cp
         DWORD offset_low = static_cast<DWORD>(offset & 0xFFFFFFFF);
         DWORD offset_high = static_cast<DWORD>((offset >> 32) & 0xFFFFFFFF);
 
-        data_ = MapViewOfFile(mapping_, desired_access, offset_high, offset_low, static_cast<SIZE_T>(requested_size));
+        data_ = MapViewOfFile(native_handle_, desired_access, offset_high, offset_low, static_cast<SIZE_T>(requested_size));
         if (!data_)
         {
             DWORD err = GetLastError();
@@ -72,13 +76,32 @@ namespace cp
 #endif
     }
 
+    MappedFileRegion::MappedFileRegion(MappedFileRegion&& other)
+    {
+        *this = std::move(other);
+    }
+
+    MappedFileRegion& MappedFileRegion::operator=(MappedFileRegion&& other)
+    {
+        data_ = other.data_;
+        other.data_ = nullptr;
+        size_ = other.size_;
+        file_ = std::move(other.file_);
+        access_ = other.access_;
+#ifdef CP_WINDOWS
+        native_handle_ = other.native_handle_;
+        other.native_handle_ = INVALID_HANDLE_VALUE;
+#endif
+        return *this;
+    }
+
     MappedFileRegion::~MappedFileRegion()
     {
 #ifdef CP_WINDOWS
         if (data_)
             UnmapViewOfFile(data_);
-        if (mapping_ != INVALID_HANDLE_VALUE)
-            CloseHandle(mapping_);
+        if (native_handle_ != INVALID_HANDLE_VALUE)
+            CloseHandle(native_handle_);
 #endif
     }
 

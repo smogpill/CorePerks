@@ -23,7 +23,7 @@ namespace cp
 			uint64 size_ = 0;
 		};
 
-		virtual MappedFileRegion map_sub_resource(const ResourceID& id) override;
+		virtual ResourceMapping map_sub_resource(const ResourceID& id) override;
 
 		void build(const std::vector<ResourceHandle>& resources);
 

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
-#include "core_perks/io/file/mapped_file_region.h"
+#include "core_perks/io/resources/providers/resource_mapping.h"
 
 namespace cp
 {
@@ -14,7 +14,7 @@ namespace cp
 		virtual ~ResourceProvider() = default;
 
 		virtual bool has_resource(const ResourceID& id) const = 0;
-		virtual std::unique_ptr<MappedFileRegion> map_resource(const ResourceID& id) = 0 { return nullptr; }
+		virtual ResourceMapping map_resource(const ResourceID& id) = 0 { return ResourceMapping(); }
 		virtual void store_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) { on_done(false); }
 
 	protected:

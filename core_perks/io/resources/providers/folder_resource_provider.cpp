@@ -13,13 +13,40 @@ namespace cp
 	{
 	}
 
-	std::unique_ptr<MappedFileRegion> FolderResourceProvider::map_resource(const ResourceID& id)
+	bool FolderResourceProvider::has_resource(const ResourceID& id) const
 	{
-		const std::filesystem::path asset_path = folder_path_ / id.string();
-		RefPtr<FileHandle> file(new FileHandle(asset_path.string(), FileHandle::Mode::READ));
-		std::unique_ptr<MappedFileRegion> mapping(new MappedFileRegion(file));
-		if (!mapping->is_mapped())
-			mapping.reset();
+		return std::filesystem::exists(get_resource_path(id));
+	}
+
+	ResourceMapping FolderResourceProvider::map_resource(const ResourceID& id)
+	{
+		const std::filesystem::path path = get_resource_path(id);
+		ResourceMapping mapping;
+		if (!std::filesystem::exists(path))
+		{
+			mapping.status_ = ResourceMapping::Status::MISSING;
+			return mapping;
+		}
+
+		RefPtr<FileHandle> file(new FileHandle(path.string(), FileHandle::Mode::READ));
+		if (!file->is_open())
+		{
+			mapping.status_ = ResourceMapping::Status::FAILED;
+			return mapping;
+		}
+		
+		MappedFileRegion region(file);
+		if (!region.is_mapped())
+		{
+			mapping.status_ = ResourceMapping::Status::FAILED;
+			return mapping;
+		}
+		mapping.region_ = std::move(region);
 		return mapping;
+	}
+
+	std::filesystem::path FolderResourceProvider::get_resource_path(const ResourceID& id) const
+	{
+		return folder_path_ / id.string();
 	}
 }

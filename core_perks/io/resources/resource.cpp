@@ -42,4 +42,9 @@ namespace cp
 	{
 		return entry_ ? entry_->get_id() : ResourceID::get_empty();
 	}
+
+	ResourceHandle Resource::get_handle() const
+	{
+		return ResourceHandle(entry_);
+	}
 }

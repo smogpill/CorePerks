@@ -39,11 +39,11 @@ namespace cp
 		Base::on_unload();
 	}
 
-	MappedFileRegion ResourcePack::map_sub_resource(const ResourceID& id)
+	ResourceMapping ResourcePack::map_sub_resource(const ResourceID& id)
 	{
 		SubResourceInfo* info = get_sub_resource_info(resource);
 		if (info == nullptr)
-			return MappedFileRegion();
+			return ResourceMapping();
 		return MappedFileRegion(file_handle_, info->offset_, info->size_, FileHandle::Access::READ_ONLY);
 	}
 
