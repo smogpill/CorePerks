@@ -49,7 +49,7 @@ function cp.project(name)
 	configurations(project_configurations)
 
 	filter{"configurations:debug"}
-		defines {"CP_DEBUG"}
+		defines {"CP_DEBUG", "_DEBUG"}
 	filter{"configurations:dev"}
 		defines {"CP_DEV"}
 	filter{"configurations:profile"}
@@ -65,7 +65,6 @@ function cp.cpp_project(name)
 	language "C++"
 	exceptionhandling "Off"
 	vectorextensions "AVX"
-	symbols "On"
 	cppdialect "C++20"
 	fatalwarnings { "All"}
 	flags { "MultiProcessorCompile" }
@@ -84,8 +83,15 @@ function cp.cpp_project(name)
 		--linkoptions { "/ENTRY:mainCRTStartup" } -- TODO: Not working with DLL, should avoid that case somehow.
 		linkoptions {"/ignore:4221"} -- warns when .cpp are empty depending on the order of obj linking.
 		
-	filter { "configurations:release" }
+	filter { "configurations:debug or dev" }
+		defines { "_DEBUG" }
+	filter { "configurations:debug or dev or profile" }
+		symbols "On"
+	filter { "configurations:dev" }
 		optimize "On"
+	filter { "configurations:profile or release" }
+		defines { "NDEBUG" }
+		optimize "Full"
 		omitframepointer "On"
 	filter {}
 end
