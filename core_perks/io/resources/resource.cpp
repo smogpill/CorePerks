@@ -14,12 +14,22 @@ namespace cp
 	CP_DEFINE_CLASS(Resource)
 	{
 	}
+
+	void Resource::clear_dependencies()
+	{
+		dependencies_.clear();
+	}
 	
 	void Resource::add_dependency(const ResourceHandle& handle)
 	{
 		CP_ASSERT(handle);
 		if (!contains(dependencies_, handle))
 			dependencies_.push_back(handle);
+	}
+
+	void Resource::remove_dependency(const ResourceHandle& handle)
+	{
+		erase_first(dependencies_, handle);
 	}
 
 	void Resource::on_serialize(BinarySerializer& serializer)

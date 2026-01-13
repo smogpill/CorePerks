@@ -8,17 +8,15 @@
 
 namespace cp
 {
-	// TODO: Shared internal strings to reduce memory usage
+	// TODO: Shared internal strings to reduce memory usage?
 
 	HashedString::HashedString(const std::string& str)
-		: hash_(hash::strong::hash64(str))
-		, str_(str)
+		: str_(str)
 	{
 	}
 
 	HashedString::HashedString(std::string&& str)
-		: hash_(hash::strong::hash64(str))
-		, str_(std::move(str))
+		: str_(std::move(str))
 	{
 	}
 
@@ -39,17 +37,21 @@ namespace cp
 		return empty_id;
 	}
 
+	void HashedString::update_hash() const
+	{
+		hash_ = hash::strong::hash64(str_);
+	}
+
 	BinaryInputStream& operator>>(BinaryInputStream& stream, HashedString& id)
 	{
-		std::string str;
-		stream >> str;
-		id = std::move(HashedString(std::move(str)));
+		stream >> id.str_;
+		id.hash_ = 0;
 		return stream;
 	}
 
 	BinaryOutputStream& operator<<(BinaryOutputStream& stream, const HashedString& id)
 	{
-		stream << id.string();
+		stream << id.str_;
 		return stream;
 	}
 }

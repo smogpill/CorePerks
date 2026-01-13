@@ -177,7 +177,7 @@ namespace cp
 		// Check if all dependencies are ready
 		for (const auto& dependency : loading_resource_->get_dependencies())
 		{
-			if (!dependency->is_ready())
+			if (!dependency->ready())
 			{
 				state_ = ResourceState::FAILED;
 				flush_loading_callbacks();

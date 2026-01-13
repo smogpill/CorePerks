@@ -67,7 +67,8 @@ namespace cp
         // Open
         std::wstring wpath(path.begin(), path.end());
         native_handle_ = CreateFileW(wpath.data(), desired_access, share_mode, nullptr, creation_disposition, FILE_ATTRIBUTE_NORMAL, nullptr);
-        CP_TRY(native_handle_ != INVALID_HANDLE_VALUE, "Failed to open {}", path);
+        if (native_handle_ == INVALID_HANDLE_VALUE)
+            return false;
 #endif
 #ifdef CP_DEBUG_OR_DEV
         debug_path_ = path;
@@ -87,7 +88,6 @@ namespace cp
 #endif
 		}
 	}
-
 
 	bool FileHandle::is_open() const
 	{

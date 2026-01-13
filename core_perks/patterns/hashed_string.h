@@ -16,18 +16,23 @@ namespace cp
 		HashedString(const char* str);
 		HashedString(const std::string& str);
 		HashedString(std::string&& str);
-		bool operator==(const HashedString& other) const { return hash_ == other.hash_ && str_ == other.str_; }
+		bool operator==(const HashedString& other) const { return hash() == other.hash() && str_ == other.str_; }
 		bool operator!=(const HashedString& other) const { return !operator==(other); }
 		HashedString& operator=(const HashedString& other) = default;
 		HashedString& operator=(HashedString&& other) = default;
-		uint64 hash() const { return hash_; }
+		uint64 hash() const { if (!hash_ && !str_.empty()) update_hash(); return hash_; }
 		const std::string& string() const { return str_; }
 		void clear();
 		bool empty() const { return str_.empty(); }
 		static const HashedString& get_empty();
 
 	private:
-		uint64 hash_ = 0;
+		friend BinaryInputStream& operator>>(BinaryInputStream&, HashedString&);
+		friend BinaryOutputStream& operator<<(BinaryOutputStream&, const HashedString&);
+
+		void update_hash() const;
+
+		mutable uint64 hash_ = 0;
 		std::string str_;
 	};
 

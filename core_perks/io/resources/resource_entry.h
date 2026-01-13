@@ -21,7 +21,10 @@ namespace cp
 		void load_async(std::function<void()>&& on_done = [](){});
 		RefPtr<Resource> get() const { return resource_; }
 		const ResourceID& get_id() const { return id_; }
-		bool is_ready() const { return state_ == ResourceState::READY; }
+		ResourceState get_state() const { return state_; }
+		bool missing() const { return state_ == ResourceState::MISSING; }
+		bool ready() const { return state_ == ResourceState::READY; }
+		bool failed() const { return state_ == ResourceState::FAILED; }
 
 	protected:
 		void on_all_refs_removed() override;

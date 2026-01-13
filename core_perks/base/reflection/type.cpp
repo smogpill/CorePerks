@@ -41,7 +41,7 @@ namespace cp
 			_init(*type);
 	}
 
-	Type* Type::get_by_id(uint32 id)
+	Type* Type::get_by_id(Id id)
 	{
 		const auto& map = get_id_to_type_map();
 		auto it = map.find(id);

@@ -22,10 +22,11 @@ namespace cp
 
 		const ResourceID& get_id() const;
 		ResourceHandle get_handle() const;
-		bool is_ready() const { return state_ == ResourceState::READY; }
 
 		// Dependencies
+		void clear_dependencies();
 		void add_dependency(const ResourceHandle& handle);
+		void remove_dependency(const ResourceHandle& handle);
 		const std::vector<ResourceHandle>& get_dependencies() const { return dependencies_; }
 
 		// Sub resources
@@ -51,7 +52,6 @@ namespace cp
 		std::mutex mutex_;
 		ResourceEntry* entry_ = nullptr;
 		uint32 version_ = 0;
-		ResourceState state_ = ResourceState::NONE;
 		std::vector<ResourceHandle> dependencies_;
 		std::vector<Resource*> dependents_;
 		std::vector<ResourceHandle*> users_;

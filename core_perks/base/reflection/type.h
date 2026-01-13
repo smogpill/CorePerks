@@ -27,31 +27,31 @@ namespace cp
 			typename T::Base; // Checks if T has a nested 'Base' type
 			requires std::is_base_of_v<typename T::Base, T>;  // Checks if T::Base is actually its base
 		};
+
+		template <typename T, typename = void>
+		struct TypeClassHelper
+		{
+			using Type = Type;
+		};
+
+		template <typename T>
+		struct TypeClassHelper<T, std::void_t<typename T::UserTypeClass>>
+		{
+			using Type = typename T::UserTypeClass;
+		};
+
+		template <typename T, typename = void>
+		struct TypeBase
+		{
+			using Type = void;
+		};
+
+		template <typename T>
+		struct TypeBase<T, std::void_t<typename T::BasePublic>>
+		{
+			using Type = typename T::BasePublic;
+		};
 	}
-
-	template <typename T, typename = void>
-	struct TypeClassHelper
-	{
-		using Type = Type;
-	};
-
-	template <typename T>
-	struct TypeClassHelper<T, std::void_t<typename T::UserTypeClass>>
-	{
-		using Type = typename T::UserTypeClass;
-	};
-
-	template <typename T, typename = void>
-	struct TypeBase
-	{
-		using Type = void;
-	};
-
-	template <typename T>
-	struct TypeBase<T, std::void_t<typename T::BasePublic>>
-	{
-		using Type = typename T::BasePublic;
-	};
 
 	class Type
 	{
@@ -89,6 +89,7 @@ namespace cp
 
 		void init(Type* type = nullptr);
 
+		std::string _name;
 		Type* _base = nullptr;
 		Id _id = 0;
 		uint32 _size8 = 0;
@@ -102,7 +103,6 @@ namespace cp
 		std::function<void(void*, void*)> _move;
 		std::function<void(void*)> _destruct;
 		std::function<void(Type&)> _init;
-		std::string _name;
 
 		static std::vector<Type*>& get_types();
 		static std::unordered_map<uint32, Type*>& get_id_to_type_map();
@@ -114,7 +114,7 @@ namespace cp
 	template <class T>
 	void Type::_init_generics()
 	{
-		using BaseType = TypeBase<T>::Type;
+		using BaseType = detail::TypeBase<T>::Type;
 		_base = detail::TypeStatic<BaseType>::get_type_static();
 		_size8 = sizeof(T);
 		_alignment8 = alignof(T);
@@ -150,8 +150,8 @@ namespace cp
 	struct CP_FORCE_SYMBOL_INCLUSION_ATTRIBUTE _TypeInitializer_##_type_\
 	{ \
 		using Self = _type_; \
-		using Base = cp::TypeBase<_type_>::Type; \
-		using TypeClass = cp::TypeClassHelper<_type_>::Type; \
+		using Base = cp::detail::TypeBase<_type_>::Type; \
+		using TypeClass = cp::detail::TypeClassHelper<_type_>::Type; \
 		_TypeInitializer_##_type_() \
 		{ \
 			cp::Type* type = cp::detail::TypeStatic<_type_>::get_type_static(); \
@@ -171,7 +171,7 @@ namespace cp
 		using Self = _class_; \
 		friend struct _TypeInitializer_##_class_; \
 	public: \
-		using TypeClass = TypeClassHelper<_class_>::Type; \
+		using TypeClass = cp::detail::TypeClassHelper<_class_>::Type; \
 		static TypeClass& get_type_static(); \
 	private:
 
