@@ -11,12 +11,13 @@ namespace cp
 	{
 		enum class Status
 		{
+			NONE,
 			MISSING,
 			FAILED,
 			SUCCESS
 		};
 
-		Status status_ = Status::MISSING;
+		Status status_ = Status::NONE;
 		MappedFileRegion region_;
 		ResourceHandle provider_;
 	};

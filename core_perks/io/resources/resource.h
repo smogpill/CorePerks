@@ -34,6 +34,7 @@ namespace cp
 		virtual void store_sub_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) { on_done(false); }
 
 		virtual bool should_load_file() const { return true; }
+		virtual bool should_serialize() const { return true; }
 
 	protected:
 		virtual bool on_read(const MappedFileRegion& region) { return true; }

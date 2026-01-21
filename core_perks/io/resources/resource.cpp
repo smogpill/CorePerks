@@ -34,6 +34,7 @@ namespace cp
 
 	void Resource::on_serialize(BinarySerializer& serializer)
 	{
+		serializer / serializer.version_;
 		serializer / dependencies_;
 	}
 

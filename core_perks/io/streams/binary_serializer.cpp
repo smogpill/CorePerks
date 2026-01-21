@@ -6,11 +6,29 @@
 
 namespace cp
 {
-	BinarySerializer::BinarySerializer(MappedFileRegion&& region, Mode mode)
-		: writing_(mode == Mode::WRITE)
-		, input_stream_(region.data(), region.size())
-		, output_memory_view_(region.data(), region.size())
+	BinarySerializer::BinarySerializer(void* data, uint64 size)
+		: writing_(true)
+		, input_stream_(nullptr, 0)
+		, output_memory_view_(data, size)
 		, output_stream_(output_memory_view_)
+	{
+	}
+
+	BinarySerializer::BinarySerializer(const void* data, uint64 size)
+		: writing_(false)
+		, input_stream_(data, size)
+		, output_memory_view_(nullptr, 0)
+		, output_stream_(output_memory_view_)
+	{
+	}
+
+	InputBinarySerializer::InputBinarySerializer(const void* data, uint64 size)
+		: BinarySerializer(data, size)
+	{
+	}
+
+	OutputBinarySerializer::OutputBinarySerializer(void* data, uint64 size)
+		: BinarySerializer(data, size)
 	{
 	}
 

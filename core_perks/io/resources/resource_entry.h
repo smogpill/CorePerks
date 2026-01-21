@@ -17,7 +17,7 @@ namespace cp
 		~ResourceEntry();
 
 		const Type& get_type() const { CP_ASSERT(type_); return *type_; }
-		void create();
+		void set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = []() {});
 		void load_async(std::function<void()>&& on_done = [](){});
 		RefPtr<Resource> get() const { return resource_; }
 		const ResourceID& get_id() const { return id_; }
@@ -35,6 +35,7 @@ namespace cp
 		ResourceManager& manager();
 		void update_state();
 		void do_loading();
+		void load_dependencies_async();
 		void do_readying();
 		void on_dependency_loading_done(ResourceEntry& dependency);
 		void on_all_dependencies_loading_done();

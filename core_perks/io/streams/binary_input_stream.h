@@ -9,7 +9,7 @@ namespace cp
 	{
 	public:
 		BinaryInputStream(const void* data, uint64 size);
-		BinaryInputStream(const void* data, const void* data_end);
+		BinaryInputStream(const void* data);
 
 		void read(void* buffer, uint64 size);
 		template <class T> requires std::is_trivially_copyable_v<T>

@@ -42,6 +42,7 @@ namespace cp
 			return mapping;
 		}
 		mapping.region_ = std::move(region);
+		mapping.status_ = ResourceMapping::Status::SUCCESS;
 		return mapping;
 	}
 

@@ -11,11 +11,6 @@ namespace cp
 	{
 	}
 
-	BinaryInputStream::BinaryInputStream(const void* data, const void* data_end)
-		: data_(static_cast<const uint8*>(data)), data_end_(static_cast<const uint8*>(data_end))
-	{
-	}
-
 	BinaryInputStream& operator>>(BinaryInputStream& stream, std::string& str)
 	{
 		uint32 size = 0;

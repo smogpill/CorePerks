@@ -17,13 +17,14 @@ namespace cp
 			READ_WRITE
 		};
 		MappedFileRegion();
+		MappedFileRegion(const MappedFileRegion&) = delete;
+		MappedFileRegion(MappedFileRegion&& other);
 		MappedFileRegion(const RefPtr<FileHandle>& file, Access access = Access::READ_ONLY);
 		/// If the size is 0, the size is automatically set to match the end of the file.
 		MappedFileRegion(const RefPtr<FileHandle>& file, uint64 offset, uint64 size, Access access = Access::READ_ONLY);
-		MappedFileRegion(MappedFileRegion&& other);
 		~MappedFileRegion();
 
-		const void* data() const { return data_; }
+		const void* cdata() const { return data_; }
 		void* data();
 		uint64 size() const { return size_; }
 		std::span<uint8> span() { return std::span<uint8>(static_cast<uint8*>(data_), size_); }

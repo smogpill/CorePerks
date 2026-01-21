@@ -17,21 +17,33 @@ namespace cp
 	class BinarySerializer
 	{
 	public:
-		enum Mode
-		{
-			READ,
-			WRITE
-		};
-		BinarySerializer(MappedFileRegion&& region, Mode mode = Mode::READ);
 		bool failed() const;
 		
 		uint32 version_ = 0;
 		bool writing_ = false;
-		MappedFileRegion file_region_;
 		BinaryInputStream input_stream_;
 		BinaryOutputStream output_stream_;
+
+	protected:
+		BinarySerializer(const void* data, uint64 size);
+		BinarySerializer(void* data, uint64 size);
+
+	private:
 		OutputMemoryView output_memory_view_;
 	};
+
+	class InputBinarySerializer : public BinarySerializer
+	{
+	public:
+		InputBinarySerializer(const void* data, uint64 size);
+	};
+
+	class OutputBinarySerializer : public BinarySerializer
+	{
+	public:
+		OutputBinarySerializer(void* data, uint64 size);
+	};
+
 
 	template <class T>
 	struct Versioned

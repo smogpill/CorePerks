@@ -7,6 +7,7 @@
 #include "core_perks/io/resources/resource_handle.h"
 #include "core_perks/io/streams/binary_serializer.h"
 #include "core_perks/io/file/file_handle.h"
+#include "core_perks/patterns/scope_exit.h"
 #include "core_perks/threading/job/job_system.h"
 
 namespace cp
@@ -22,11 +23,16 @@ namespace cp
 		manager().on_entry_destroyed(*this);
 	}
 
-	void ResourceEntry::create()
+	void ResourceEntry::set_async(RefPtr<Resource> resource, std::function<void()>&& on_done)
 	{
 		std::scoped_lock lock(mutex_);
-		resource_ = type_->create<Resource>();
-		resource_->entry_ = this;
+		loading_resource_ = resource;
+		if (loading_resource_)
+		{
+			loading_resource_->entry_ = this;
+			state_ = ResourceState::WAITING_DEPENDENCIES;
+			load_dependencies_async();
+		}
 	}
 
 	void ResourceEntry::load_async(std::function<void()>&& on_done)
@@ -79,6 +85,7 @@ namespace cp
 		CP_ASSERT(state_ == ResourceState::LOADING);
 
 		loading_resource_ = type_->create<Resource>();
+		loading_resource_->entry_ = this;
 		if (loading_resource_->should_load_file())
 		{
 			ResourceMapping mapping = manager().map_resource(id_);
@@ -103,35 +110,42 @@ namespace cp
 				return;
 			}
 
-			BinarySerializer serializer(std::move(mapping.region_), BinarySerializer::READ);
-			loading_resource_->on_serialize(serializer);
-			if (serializer.failed())
+			if (loading_resource_->should_serialize())
 			{
-				state_ = ResourceState::FAILED;
-				flush_loading_callbacks();
-				return;
+				InputBinarySerializer serializer(mapping.region_.cdata(), mapping.region_.size());
+				loading_resource_->on_serialize(serializer);
+				if (serializer.failed())
+				{
+					state_ = ResourceState::FAILED;
+					flush_loading_callbacks();
+					return;
+				}
 			}
 		}
 
+		state_ = ResourceState::WAITING_DEPENDENCIES;
+		load_dependencies_async();
+	}
+
+	void ResourceEntry::load_dependencies_async()
+	{
 		const auto& dependencies = loading_resource_->get_dependencies();
-		if (!dependencies.empty())
+		if (dependencies.empty())
 		{
-			state_ = ResourceState::WAITING_DEPENDENCIES;
-			waiting_dependencies_count_ = (uint32)dependencies.size();
-			ResourceHandle self(this);
-			for (const ResourceHandle& dependency : dependencies)
-			{
-				auto callback = [=]()
-					{
-						self->on_dependency_loading_done(*dependency.entry_);
-					};
-				dependency->load_async(callback);
-			}
+			state_ = ResourceState::READYING;
+			do_readying();
 			return;
 		}
-
-		state_ = ResourceState::READYING;
-		do_readying();
+		waiting_dependencies_count_ = (uint32)dependencies.size();
+		ResourceHandle self(this);
+		for (const ResourceHandle& dependency : dependencies)
+		{
+			auto callback = [=]()
+				{
+					self->on_dependency_loading_done(*dependency.entry_);
+				};
+			dependency->load_async(callback);
+		}
 	}
 
 	void ResourceEntry::do_readying()
@@ -151,6 +165,7 @@ namespace cp
 		}
 		resource_ = std::move(loading_resource_);
 		state_ = ResourceState::READY;
+		flush_loading_callbacks();
 	}
 
 	void ResourceEntry::on_dependency_loading_done(ResourceEntry& dependency)
