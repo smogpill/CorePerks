@@ -47,6 +47,8 @@ namespace cp
 		RefPtr& operator=(T* ptr);
 		T* operator->() const { return ptr_; }
 		T& operator*() const { CP_ASSERT(ptr_); return *ptr_; }
+		bool operator==(const RefPtr& o) const { return ptr_ == o.ptr_; }
+		bool operator!=(const RefPtr& o) const { return ptr_ != o.ptr_; }
 		bool operator==(const T* p) const { return ptr_ == p; }
 		bool operator!=(const T* p) const { return ptr_ != p; }
 		operator bool() const { return ptr_ != nullptr; }

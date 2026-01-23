@@ -17,11 +17,13 @@ namespace cp
 		~ResourceEntry();
 
 		const Type& get_type() const { CP_ASSERT(type_); return *type_; }
+		void create();
 		void set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = []() {});
 		void load_async(std::function<void()>&& on_done = [](){});
 		RefPtr<Resource> get() const { return resource_; }
 		const ResourceID& get_id() const { return id_; }
 		ResourceState get_state() const { return state_; }
+		bool exists() const;
 		bool missing() const { return state_ == ResourceState::MISSING; }
 		bool ready() const { return state_ == ResourceState::READY; }
 		bool failed() const { return state_ == ResourceState::FAILED; }
@@ -32,7 +34,7 @@ namespace cp
 	private:
 		friend class ResourceManager;
 
-		ResourceManager& manager();
+		ResourceManager& manager() const;
 		void update_state();
 		void do_loading();
 		void load_dependencies_async();
@@ -43,7 +45,7 @@ namespace cp
 		void notify_ready_to_load();
 		void finish_loading();
 
-		std::mutex mutex_;
+		mutable std::mutex mutex_;
 		ResourceState state_ = ResourceState::NONE;
 		const Type* type_ = nullptr;
 		ResourceID id_;

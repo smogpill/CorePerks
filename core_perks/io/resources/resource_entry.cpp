@@ -23,18 +23,25 @@ namespace cp
 		manager().on_entry_destroyed(*this);
 	}
 
-	void ResourceEntry::set_async(RefPtr<Resource> resource, std::function<void()>&& on_done)
+	void ResourceEntry::create()
 	{
 		std::scoped_lock lock(mutex_);
-		loading_resource_ = resource;
-		if (!loading_resource_)
+	}
+
+	void ResourceEntry::set_async(RefPtr<Resource> resource, std::function<void()>&& on_done)
+	{
 		{
-			on_done();
-			return;
+			std::scoped_lock lock(mutex_);
+			loading_resource_ = resource;
+			if (!loading_resource_)
+			{
+				on_done();
+				return;
+			}
+			loading_resource_->entry_ = this;
+			loading_done_callbacks_.emplace_back(std::move(on_done));
+			state_ = ResourceState::WAITING_DEPENDENCIES;
 		}
-		loading_resource_->entry_ = this;
-		loading_done_callbacks_.emplace_back(std::move(on_done));
-		state_ = ResourceState::WAITING_DEPENDENCIES;
 		load_dependencies_async();
 	}
 
@@ -55,12 +62,20 @@ namespace cp
 		manager().push_load_request(std::move(request));
 	}
 
+	bool ResourceEntry::exists() const
+	{
+		std::scoped_lock lock(mutex_);
+		if (resource_)
+			return true;
+		return manager().exists_in_storage(id_);
+	}
+
 	void ResourceEntry::on_all_refs_removed()
 	{
 		// TODO
 	}
 
-	ResourceManager& ResourceEntry::manager()
+	ResourceManager& ResourceEntry::manager() const
 	{
 		return ResourceManager::get();
 	}

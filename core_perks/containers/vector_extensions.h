@@ -30,7 +30,7 @@ namespace cp
 	}
 
 	template <class T>
-	bool contains(std::vector<T>& v, const T& element)
+	bool contains(const std::vector<T>& v, const T& element)
 	{
 		return std::find(v.begin(), v.end(), element) != v.end();
 	}

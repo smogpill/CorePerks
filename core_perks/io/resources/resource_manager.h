@@ -48,6 +48,7 @@ namespace cp
 		void process_requests();
 		void on_resource_updated(Resource& resource);
 		ResourceMapping map_resource(const ResourceID& id);
+		bool exists_in_storage(const ResourceID& id) const;
 
 		mutable std::mutex mutex_;
 		std::unordered_map<ResourceID, ResourceEntry*, Hash> map_;

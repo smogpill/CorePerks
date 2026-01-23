@@ -21,6 +21,8 @@ namespace cp
 		operator bool() const { return entry_ != nullptr; }
 		ResourceEntry* operator->() const { CP_ASSERT(entry_); return entry_.get(); }
 		ResourceEntry& operator*() const { CP_ASSERT(entry_); return *entry_.get(); }
+		bool operator==(const ResourceHandle& other) const { return entry_ == other.entry_; }
+		bool operator!=(const ResourceHandle& other) const { return entry_ != other.entry_; }
 
 	protected:
 		friend class ResourceManager;

@@ -9,7 +9,7 @@
 namespace cp
 {
 	/// Handles:
-	/// - Write code once for both serialization and deserialization operations.
+	/// - Writing code once for both serialization and deserialization operations.
 	/// - Conditional operations such as versioning and removals of serialized values. 
 	/// 
 	/// Inspired by Media Molecule's "LBP" serialization method:

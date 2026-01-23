@@ -95,6 +95,17 @@ namespace cp
 		return mapping;
 	}
 
+	bool ResourceManager::exists_in_storage(const ResourceID& id) const
+	{
+		std::scoped_lock lock(mutex_);
+		for (ResourceProvider* provider : providers_ | std::views::reverse)
+		{
+			if (provider->has_resource(id))
+				return true;
+		}
+		return false;
+	}
+
 	void ResourceManager::register_provider(ResourceProvider& provider)
 	{
 		std::scoped_lock lock(mutex_);
