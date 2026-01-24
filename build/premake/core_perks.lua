@@ -42,7 +42,8 @@ function cp.project(name)
 	objdir(cp.obj_path)
 	targetdir("$(SolutionDir)$(Platform)/$(Configuration)")
 	libdirs { "$(OutDir)" }
-	includedirs("..")
+	includedirs(_SCRIPT_DIR)
+	includedirs(_SCRIPT_DIR.."/..")
 	includedirs(cp.extern_path)
 
 	debugdir "$(OutDir)"
