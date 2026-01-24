@@ -16,16 +16,20 @@ namespace cp
 		ResourceEntry(const ResourceID& id, const Type& type);
 		~ResourceEntry();
 
+		// Entry
+		const ResourceID& get_id() const { return id_; }
 		const Type& get_type() const { CP_ASSERT(type_); return *type_; }
-		void create();
+
+		// Resource
 		void set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = []() {});
 		void load_async(std::function<void()>&& on_done = [](){});
 		void store_async(std::function<void(bool)>&& on_done = [](bool) {});
 		void store_and_set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = [](){});
 		RefPtr<Resource> get() const { return resource_; }
-		const ResourceID& get_id() const { return id_; }
+		bool exists_in_storage() const;
+
+		// State
 		ResourceState get_state() const { return state_; }
-		bool exists() const;
 		bool missing() const { return state_ == ResourceState::MISSING; }
 		bool ready() const { return state_ == ResourceState::READY; }
 		bool failed() const { return state_ == ResourceState::FAILED; }

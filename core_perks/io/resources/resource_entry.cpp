@@ -23,11 +23,6 @@ namespace cp
 		manager().on_entry_destroyed(*this);
 	}
 
-	void ResourceEntry::create()
-	{
-		std::scoped_lock lock(mutex_);
-	}
-
 	void ResourceEntry::set_async(RefPtr<Resource> resource, std::function<void()>&& on_done)
 	{
 		{
@@ -97,11 +92,8 @@ namespace cp
 		manager().push_store_request(std::move(request));
 	}
 
-	bool ResourceEntry::exists() const
+	bool ResourceEntry::exists_in_storage() const
 	{
-		std::scoped_lock lock(mutex_);
-		if (resource_)
-			return true;
 		return manager().exists_in_storage(id_);
 	}
 
