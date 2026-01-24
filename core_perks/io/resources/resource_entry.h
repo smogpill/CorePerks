@@ -20,6 +20,8 @@ namespace cp
 		void create();
 		void set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = []() {});
 		void load_async(std::function<void()>&& on_done = [](){});
+		void store_async(std::function<void(bool)>&& on_done = [](bool) {});
+		void store_and_set_async(RefPtr<Resource> resource, std::function<void()>&& on_done = [](){});
 		RefPtr<Resource> get() const { return resource_; }
 		const ResourceID& get_id() const { return id_; }
 		ResourceState get_state() const { return state_; }

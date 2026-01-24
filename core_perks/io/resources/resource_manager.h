@@ -32,6 +32,13 @@ namespace cp
 			ResourceHandle handle_;
 		};
 
+		struct StoreRequest
+		{
+			ResourceID id_;
+			RefPtr<Resource> resource_;
+			std::function<void(bool)> on_done_;
+		};
+
 		struct Hash
 		{
 			std::size_t operator()(const ResourceID& id) const
@@ -44,8 +51,10 @@ namespace cp
 		ResourceEntry* get_entry_no_lock(const ResourceID& id) const;
 		void on_entry_destroyed(ResourceEntry& entry);
 		void remove_resource(Resource& resource);
+		void push_store_request(StoreRequest&& request);
 		void push_load_request(LoadRequest&& request);
-		void process_requests();
+		void process_load_requests();
+		void process_store_requests();
 		void on_resource_updated(Resource& resource);
 		ResourceMapping map_resource(const ResourceID& id);
 		bool exists_in_storage(const ResourceID& id) const;
@@ -53,6 +62,7 @@ namespace cp
 		mutable std::mutex mutex_;
 		std::unordered_map<ResourceID, ResourceEntry*, Hash> map_;
 		std::queue<LoadRequest> load_requests_;
+		std::queue<StoreRequest> store_requests_;
 		std::vector<ResourceProvider*> providers_;
 		uint max_parallel_updates_ = 4;
 

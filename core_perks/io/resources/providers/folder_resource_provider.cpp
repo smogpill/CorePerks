@@ -4,7 +4,10 @@
 #include "pch.h"
 #include "core_perks/io/resources/providers/folder_resource_provider.h"
 #include "core_perks/io/resources/resource_id.h"
+#include "core_perks/io/resources/resource.h"
 #include "core_perks/io/file/mapped_file_region.h"
+#include "core_perks/io/streams/binary_output_stream.h"
+#include "core_perks/io/streams/binary_serializer.h"
 
 namespace cp
 {
@@ -44,6 +47,33 @@ namespace cp
 		mapping.region_ = std::move(region);
 		mapping.status_ = ResourceMapping::Status::SUCCESS;
 		return mapping;
+	}
+
+	void FolderResourceProvider::store_resource_async(const ResourceID& id, const RefPtr<Resource>& resource, std::function<void(bool)>&& on_done)
+	{
+		OutputMemoryBuffer buffer;
+		OutputBinarySerializer serializer(buffer);
+		resource->serialize(serializer);
+		if (serializer.failed())
+		{
+			on_done(false);
+			return;
+		}
+
+		const std::filesystem::path path = get_resource_path(id);
+		FileHandle file(path.string(), FileHandle::Mode::WRITE_TRUNCATE);
+		if (!file.is_open())
+		{
+			on_done(false);
+			return;
+		}
+		if (!buffer.write_to_file(file))
+		{
+			on_done(false);
+			return;
+		}
+		
+		on_done(true);
 	}
 
 	std::filesystem::path FolderResourceProvider::get_resource_path(const ResourceID& id) const

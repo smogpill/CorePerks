@@ -77,12 +77,12 @@ namespace cp
 	{
 		if (handle)
 		{
-			stream << (Type*)nullptr;
+			stream << &handle->get_type();
+			stream << handle->get_id();
 		}
 		else
 		{
-			stream << &handle->get_type();
-			stream << handle->get_id();
+			stream << (Type*)nullptr;
 		}
 		return stream;
 	}

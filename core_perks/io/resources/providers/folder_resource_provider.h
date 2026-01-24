@@ -14,6 +14,7 @@ namespace cp
 
 		bool has_resource(const ResourceID& id) const override;
 		ResourceMapping map_resource(const ResourceID& id) override;
+		void store_resource_async(const ResourceID& id, const RefPtr<Resource>& resource, std::function<void(bool)>&& on_done = [](bool) {}) override;
 
 	private:
 		std::filesystem::path get_resource_path(const ResourceID& id) const;

@@ -22,6 +22,7 @@ namespace cp
 
 		const ResourceID& get_id() const;
 		ResourceHandle get_handle() const;
+		void serialize(BinarySerializer& serializer);
 
 		// Dependencies
 		void clear_dependencies();

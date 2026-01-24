@@ -6,6 +6,8 @@
 
 namespace cp
 {
+	class FileHandle;
+
 	class OutputMemory
 	{
 	public:
@@ -42,7 +44,8 @@ namespace cp
 	public:
 		~OutputMemoryBuffer();
 
-		void copy_to_buffer(void* dest_buffer);
+		bool write_to_file(FileHandle& file) const;
+		void copy_to_buffer(void* dest_buffer) const;
 		uint64 size() const override;
 
 	protected:
@@ -51,6 +54,19 @@ namespace cp
 	private:
 		static constexpr uint32 block_size = 16 * page_size;
 		std::vector<uint8*> blocks_;
+	};
+
+	class DummyOutputMemory : public OutputMemory
+	{
+	public:
+		uint64 size() const override { return 0; }
+		bool failed() const override { return failed_; }
+
+	protected:
+		void grow(uint64 size) override { failed_ = true; }
+
+	private:
+		bool failed_ = false;
 	};
 
 	class BinaryOutputStream

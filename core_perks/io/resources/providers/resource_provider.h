@@ -15,7 +15,7 @@ namespace cp
 
 		virtual bool has_resource(const ResourceID& id) const = 0;
 		virtual ResourceMapping map_resource(const ResourceID& id) = 0 { return ResourceMapping(); }
-		virtual void store_resource_async(const ResourceHandle& resource, std::function<void(bool)> on_done = [](bool) {}) { on_done(false); }
+		virtual void store_resource_async(const ResourceID& id, const RefPtr<Resource>& resource, std::function<void(bool)>&& on_done = [](bool) {}) { on_done(false); }
 
 	protected:
 	};

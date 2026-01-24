@@ -25,23 +25,22 @@ namespace cp
 		BinaryOutputStream output_stream_;
 
 	protected:
-		BinarySerializer(const void* data, uint64 size);
-		BinarySerializer(void* data, uint64 size);
-
-	private:
-		OutputMemoryView output_memory_view_;
+		BinarySerializer(OutputMemory& output_memory, const void* data, uint64 size);
 	};
 
 	class InputBinarySerializer : public BinarySerializer
 	{
 	public:
 		InputBinarySerializer(const void* data, uint64 size);
+
+	private:
+		DummyOutputMemory dummy_output_memory_;
 	};
 
 	class OutputBinarySerializer : public BinarySerializer
 	{
 	public:
-		OutputBinarySerializer(void* data, uint64 size);
+		OutputBinarySerializer(OutputMemory& memory);
 	};
 
 

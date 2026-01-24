@@ -58,8 +58,43 @@ namespace cp
 			loading_done_callbacks_.emplace_back(std::move(on_done));
 			request.handle_.entry_ = this;
 		}
-		
 		manager().push_load_request(std::move(request));
+	}
+
+	void ResourceEntry::store_async(std::function<void(bool)>&& on_done)
+	{
+		ResourceManager::StoreRequest request;
+		{
+			std::scoped_lock lock(mutex_);
+			request.id_ = id_;
+			request.resource_ = resource_;
+			request.on_done_ = std::move(on_done);
+		}
+		manager().push_store_request(std::move(request));
+	}
+
+	void ResourceEntry::store_and_set_async(RefPtr<Resource> resource, std::function<void()>&& on_done)
+	{
+		auto on_store_done = [this, resource, on_done = std::move(on_done)](bool success) mutable
+			{
+				if (success)
+				{
+					set_async(resource, std::move(on_done));
+				}
+				else
+				{
+					on_done();
+				}
+			};
+
+		ResourceManager::StoreRequest request;
+		{
+			std::scoped_lock lock(mutex_);
+			request.id_ = id_;
+			request.resource_ = resource;
+			request.on_done_ = std::move(on_store_done);
+		}
+		manager().push_store_request(std::move(request));
 	}
 
 	bool ResourceEntry::exists() const

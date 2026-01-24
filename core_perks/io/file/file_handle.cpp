@@ -13,6 +13,7 @@ namespace cp
 
     FileHandle::FileHandle(FileHandle&& other)
     {
+		mode_ = other.mode_;
 #ifdef CP_WINDOWS
         native_handle_ = other.native_handle_;
         other.native_handle_ = INVALID_HANDLE_VALUE;
@@ -30,39 +31,40 @@ namespace cp
 	bool FileHandle::open(const std::string& path, Mode mode)
 	{
         close();
+        mode_ = mode;
 #ifdef CP_WINDOWS
         DWORD desired_access = 0;
         DWORD creation_disposition = 0;
         DWORD share_mode = FILE_SHARE_READ;
 
-        uint32 mode_flags = static_cast<uint32>(mode);
-
-        // Access
-        if (mode_flags & static_cast<uint32_t>(Mode::READ))
-            desired_access |= GENERIC_READ;
-        if (mode_flags & static_cast<uint32_t>(Mode::WRITE))
-            desired_access |= GENERIC_WRITE;
-        if (mode_flags & static_cast<uint32_t>(Mode::APPEND))
-            desired_access |= FILE_APPEND_DATA;
-
-        // Creation
-        if (mode_flags & static_cast<uint32_t>(Mode::CREATE))
+        switch (mode)
         {
-            if (mode_flags & static_cast<uint32_t>(Mode::EXCLUSIVE))
-                creation_disposition = CREATE_NEW;
-            else if (mode_flags & static_cast<uint32_t>(Mode::TRUNCATE))
-                creation_disposition = CREATE_ALWAYS;
-            else
-                creation_disposition = OPEN_ALWAYS;
-        }
-        else if (mode_flags & static_cast<uint32_t>(Mode::TRUNCATE))
+        case Mode::READ:
         {
-            creation_disposition = TRUNCATE_EXISTING;
-        }
-        else 
-        {
+			desired_access = GENERIC_READ;
             creation_disposition = OPEN_EXISTING;
+            break;
         }
+        case Mode::WRITE_TRUNCATE:
+        {
+			desired_access = GENERIC_WRITE;
+            creation_disposition = CREATE_ALWAYS;
+            share_mode = 0;
+			break;
+        }
+        case Mode::WRITE_APPEND:
+        {
+			desired_access = GENERIC_WRITE | FILE_APPEND_DATA;
+            creation_disposition = CREATE_ALWAYS;
+            share_mode = 0;
+            break;
+        }
+        default:
+        {
+            CP_ASSERT(false);
+            break;
+        }
+		}
 
         // Open
         std::wstring wpath(path.begin(), path.end());
@@ -96,6 +98,11 @@ namespace cp
 #endif
 	}
 
+    bool FileHandle::is_writable() const
+    {
+        return is_open() && (mode_ == Mode::WRITE_TRUNCATE || mode_ == Mode::WRITE_APPEND);
+    }
+
     uint64 FileHandle::get_size() const
 	{
 		if (!is_open())
@@ -107,4 +114,24 @@ namespace cp
 		return static_cast<uint64>(size.QuadPart);
 #endif
 	}
+
+    bool FileHandle::write(const void* data, uint64 size)
+    {
+        CP_ASSERT(is_writable());
+#ifdef CP_WINDOWS
+        while (size > 0)
+        {
+            const DWORD chunk_size = static_cast<DWORD>(std::min(size, static_cast<uint64>(std::numeric_limits<DWORD>::max())));
+			DWORD written;
+            const BOOL success = WriteFile(native_handle_, data, chunk_size, &written, nullptr);
+            if (!success || written != chunk_size)
+                return false;
+            data = static_cast<const uint8*>(data) + written;
+			size -= written;
+        }
+        return true;
+#else
+        return false;
+#endif
+    }
 }

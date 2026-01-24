@@ -58,4 +58,9 @@ namespace cp
 	{
 		return ResourceHandle(entry_);
 	}
+
+	void Resource::serialize(BinarySerializer& serializer)
+	{
+		on_serialize(serializer);
+	}
 }

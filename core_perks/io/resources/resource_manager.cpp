@@ -56,10 +56,19 @@ namespace cp
 			std::scoped_lock lock(mutex_);
 			load_requests_.emplace(std::move(request));
 		}
-		process_requests();
+		process_load_requests();
 	}
 
-	void ResourceManager::process_requests()
+	void ResourceManager::push_store_request(StoreRequest&& request)
+	{
+		{
+			std::scoped_lock lock(mutex_);
+			store_requests_.emplace(std::move(request));
+		}
+		process_store_requests();
+	}
+
+	void ResourceManager::process_load_requests()
 	{
 		for (;;)
 		{
@@ -69,7 +78,7 @@ namespace cp
 				std::scoped_lock lock(mutex_);
 				if (load_requests_.empty())
 					break;
-				request = load_requests_.back();
+				request = std::move(load_requests_.front());
 				load_requests_.pop();
 			}
 
@@ -77,9 +86,48 @@ namespace cp
 		}
 	}
 
+	void ResourceManager::process_store_requests()
+	{
+		for (;;)
+		{
+			StoreRequest request;
+			{
+				std::scoped_lock lock(mutex_);
+				if (store_requests_.empty())
+					break;
+				request = std::move(store_requests_.front());
+				store_requests_.pop();
+			}
+
+			if (request.resource_ && !request.resource_->should_serialize())
+			{
+				request.on_done_(false);
+				continue;
+			}
+
+			// TODO: HACK
+			mutex_.lock();
+			CP_ASSERT(!providers_.empty());
+			ResourceProvider* provider = providers_[0];
+			mutex_.unlock();
+			
+			if (provider)
+			{
+				provider->store_resource_async(request.id_, std::move(request.resource_), [on_done = std::move(request.on_done_)](bool success)
+					{
+						on_done(success);
+					});
+			}
+			else
+			{
+				request.on_done_(false);
+			}
+		}
+	}
+
 	void ResourceManager::on_resource_updated(Resource& resource)
 	{
-		process_requests();
+		process_load_requests();
 	}
 
 	ResourceMapping ResourceManager::map_resource(const ResourceID& id)

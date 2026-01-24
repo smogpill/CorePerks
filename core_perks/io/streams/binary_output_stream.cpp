@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 #include "pch.h"
 #include "core_perks/io/streams/binary_output_stream.h"
+#include "core_perks/io/file/file_handle.h"
 
 namespace cp
 {
@@ -60,7 +61,26 @@ namespace cp
 		return blocks_.size() * block_size - capacity_;
 	}
 
-	void OutputMemoryBuffer::copy_to_buffer(void* dest_buffer)
+	bool OutputMemoryBuffer::write_to_file(FileHandle& file) const
+	{
+		CP_ASSERT(file.is_writable());
+		if (blocks_.empty())
+			return true;
+		uint64 remaining_size = size();
+		const uint block_count_minus_one = (uint)blocks_.size() - 1;
+		for (uint block_idx = 0; block_idx < block_count_minus_one; ++block_idx)
+		{
+			const uint8* block = blocks_[block_idx];
+			if (!file.write(block, block_size))
+				return false;
+			remaining_size -= block_size;
+		}
+		const uint8* last_block = blocks_.back();
+		CP_ASSERT(remaining_size <= block_size);
+		return file.write(last_block, remaining_size);
+	}
+
+	void OutputMemoryBuffer::copy_to_buffer(void* dest_buffer) const
 	{
 		if (blocks_.empty())
 			return;
