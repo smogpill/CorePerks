@@ -7,8 +7,21 @@ namespace cp
 {
 	using simd128 = __m128;
 
+	template <class T>
+	struct CallOnElements
+	{
+		template <class F>
+		CP_FORCE_INLINE static T call(F func, const T& a) { return func(a); }
+		template <class F>
+		CP_FORCE_INLINE static T call(F func, const T& a, const T& b) { return func(a, b); }
+		template <class F>
+		CP_FORCE_INLINE static T call(F func, const T& a, const T& b, const T& c) { return func(a, b, c); }
+	};
+
+	//template <class T> CP_FORCE_INLINE T abs(T x) { return std::abs(x); }
+	template <class T> CP_FORCE_INLINE T abs(T x) { return CallOnElements<T>::call([](const T& v) { return std::abs(v); }, x); }
+
 	template <class T> CP_FORCE_INLINE T fma(T x, T y, T z) { return std::fma(x, y, z); }
-	template <class T> CP_FORCE_INLINE T abs(T x) { return std::abs(x); }
 	template <class T> CP_FORCE_INLINE T sign(T x) { return (T(0) < x) - (x < T(0)); }
 	template <class T> CP_FORCE_INLINE T copysign(T x, T y) { return std::copysign(x, y); }
 	template <class T> CP_FORCE_INLINE T sqrt(T x) { return std::sqrt(x); }
@@ -23,8 +36,10 @@ namespace cp
 	template <class T> CP_FORCE_INLINE T round(T x) { return std::round(x); }
 	template <class T> CP_FORCE_INLINE T trunc(T x) { return std::trunc(x); }
 	template <class T> CP_FORCE_INLINE T fract(T x) { return x - floor(x); }
-	template <class T> CP_FORCE_INLINE T min(T x, T y) { return std::min(x, y); }
-	template <class T> CP_FORCE_INLINE T max(T x, T y) { return std::max(x, y); }
+	//template <class T> CP_FORCE_INLINE T min(T x, T y) { return std::min(x, y); }
+	template <class T> CP_FORCE_INLINE T min(T x, T y) { return CallOnElements<T>::call([](const auto& x, const auto& y) { return std::min(x, y); }, x, y); }
+	//template <class T> CP_FORCE_INLINE T max(T x, T y) { return std::max(x, y); }
+	template <class T> CP_FORCE_INLINE T max(T x, T y) { return CallOnElements<T>::call([](const auto& x, const auto& y) { return std::max(x, y); }, x, y); }
 	template <class T> CP_FORCE_INLINE T clamp(T x, T low, T high) { return std::clamp(x, low, high); }
 	template <class T> CP_FORCE_INLINE T saturate(T x) { return clamp(x, T(0), T(1)); }
 

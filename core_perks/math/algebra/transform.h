@@ -14,15 +14,15 @@ namespace cp
 		CP_FORCE_INLINE Transform() = default;
 		CP_FORCE_INLINE Transform(const Vec3<T>& translation, const Quat<T>& rotation, T scale)
 			: translation_scale_(translation.x_, translation.y_, translation.z_, scale), rotation_(rotation) {}
-		CP_FORCE_INLINE Vec3<T> get_translation() const { return translation_scale_.xyz(); }
+		CP_FORCE_INLINE const Vec3<T>& get_translation() const { return translation_scale_.xyz(); }
 		CP_FORCE_INLINE void set_translation(const Vec3<T>& t) { translation_scale_.x_ = t.x_; translation_scale_.y_ = t.y_; translation_scale_.z_ = t.z_; }
 		CP_FORCE_INLINE void set_scale(T s) { translation_scale_.w_ = s; }
 		CP_FORCE_INLINE T get_scale() const { return translation_scale_.w_; }
-		CP_FORCE_INLINE void set_rotation(Quat<T>& rotation) { return rotation_ = rotation; }
+		CP_FORCE_INLINE void set_rotation(const Quat<T>& rotation) { rotation_ = rotation; }
 		CP_FORCE_INLINE const Quat<T>& get_rotation() const { return rotation_; }
 		CP_FORCE_INLINE Vec3<T> get_left() const { return rotation_ * Vec3<T>::unit_x(); }
 		CP_FORCE_INLINE Vec3<T> get_up() const { return rotation_ * Vec3<T>::unit_y(); }
-		CP_FORCE_INLINE Vec3<T> get_forward() const { return rotation_ * Vec3<T>::unit_z; }
+		CP_FORCE_INLINE Vec3<T> get_forward() const { return rotation_ * Vec3<T>::unit_z(); }
 		Vec3<T> transform_position(const Vec3<T>& x) const;
 		Vec3<T> transform_vector(const Vec3<T>& x) const;
 		Vec3<T> inverse_transform_position(const Vec3<T>& x) const;
@@ -80,8 +80,8 @@ namespace cp
 	{
 		const T inv_scale = T(1) / t.get_scale();
 		return Transform<T>(
-			inverse(t.rotation_) * (-t.get_translation() * inv_scale),
-			inverse(t.rotation_),
+			inverse(t.get_rotation()) * (-t.get_translation() * inv_scale),
+			inverse(t.get_rotation()),
 			inv_scale);
 	}
 }

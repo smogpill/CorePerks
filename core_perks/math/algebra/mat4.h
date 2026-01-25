@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "core_perks/math/algebra/vec4.h"
+#include "core_perks/math/algebra/transform.h"
 
 namespace cp
 {
@@ -13,13 +14,16 @@ namespace cp
 		Mat4() = default;
 		Mat4(T diag) : x_(diag, 0, 0, 0), y_(0, diag, 0, 0), z_(0, 0, diag, 0), w_(0, 0, 0, diag) {}
 		Mat4(const Vec4<T>& x, const Vec4<T>& y, const Vec4<T>& z, const Vec4<T>& w) : x_(x), y_(y), z_(z), w_(w) {}
+		template <class U>
+		Mat4(const Mat4<U>& o) : x_(static_cast<Vec4<T>>(o.x_)), y_(static_cast<Vec4<T>>(o.y_)), z_(static_cast<Vec4<T>>(o.z_)), w_(static_cast<Vec4<T>>(o.w_)) {}
+
+		bool is_scale_uniform(float tolerance = 1e-3f) const;
 
 		CP_FORCE_INLINE Vec4<T>& operator[](int idx) { CP_ASSERT(idx < 4); return (&x_)[idx]; }
 		CP_FORCE_INLINE const Vec4<T>& operator[](int idx) const { CP_ASSERT(idx < 4); return (&x_)[idx]; }
 		Mat4 operator*(const Mat4& o) const;
 		CP_FORCE_INLINE Mat4& operator*=(const Mat4& o) const { *this = *this * o; return *this; }
 
-	private:
 		Vec4<T> x_ = Vec4<T>::unit_x();
 		Vec4<T> y_ = Vec4<T>::unit_y();
 		Vec4<T> z_ = Vec4<T>::unit_z();
@@ -28,6 +32,17 @@ namespace cp
 
 	using Mat4f = Mat4<float>;
 	using Mat4d = Mat4<double>;
+
+	template<class T>
+	CP_FORCE_INLINE bool Mat4<T>::is_scale_uniform(float tolerance) const
+	{
+		// Tolerance handling is a bit shady, but should be fine enough for now
+		const float tolerance_sq = tolerance * tolerance;
+		const T slx = x_.square_length();
+		const T sly = y_.square_length();
+		const T slz = z_.square_length();
+		return abs(slx - sly) < tolerance_sq && abs(slx - slz) < tolerance_sq;
+	}
 
 	template <class T>
 	Mat4<T> Mat4<T>::operator*(const Mat4& o) const
@@ -57,6 +72,16 @@ namespace cp
 			Vec4<T>(m.x_.y_, m.y_.y_, m.z_.y_, m.w_.y_),
 			Vec4<T>(m.x_.z_, m.y_.z_, m.z_.z_, m.w_.z_),
 			Vec4<T>(m.x_.w_, m.y_.w_, m.z_.w_, m.w_.w_));
+	}
+
+	template <class T>
+	CP_FORCE_INLINE Mat4<T> translate(const Mat4<T>& m, const Vec3<T>& t)
+	{
+		Mat4<T> result = m;
+		result.w_.x_ += t.x_;
+		result.w_.y_ += t.y_;
+		result.w_.z_ += t.z_;
+		return result;
 	}
 
 	template <class T>
@@ -110,10 +135,84 @@ namespace cp
 		Vec4<T> row0(inv[0][0], inv[1][0], inv[2][0], inv[3][0]);
 
 		Vec4<T> dot0(m[0] * row0);
-		T dot1 = (dot0.x + dot0.y) + (dot0.z + dot0.w);
+		T dot1 = (dot0.x_ + dot0.y_) + (dot0.z_ + dot0.w_);
 
 		T one_over_determinant = static_cast<T>(1) / dot1;
 
 		return inv * one_over_determinant;
+	}
+
+	template <class T>
+	Mat4<T> mat4_cast(const Quat<T>& q)
+	{
+		const Mat3<T> mat3 = mat3_cast(q);
+		return Mat4<T>(Vec4<T>(mat3.x_, 0.0f), Vec4<T>(mat3.y_, 0.0f), Vec4<T>(mat3.z_, 0.0f), Vec4<T>::unit_w());
+	}
+
+	template <class T>
+	Mat4<T> mat4_cast(const Transform<T>& t)
+	{
+		return translate(Mat4<T>(1.0), t.get_translation()) * mat4_cast(t.get_rotation());
+	}
+
+	template <class T>
+	Quat<T> quat_cast(const Mat4<T>& m)
+	{
+		const Mat3<T> mat3(m.x_.xyz(), m.y_.xyz(), m.z_.xyz());
+		return quat_cast(mat3);
+	}
+
+	template <class T>
+	Transform<T> transform_cast(const Mat4<T>& m)
+	{
+		CP_ASSERT(m.is_scale_uniform());
+		return Transform<T>(m.w_.xyz(), normalize(quat_cast(m)), m.x_.length());
+	}
+
+	template <class T>
+	Mat4<T> to_left_up_forward(const Mat4<T>& m)
+	{
+		return Mat4<T>(m.x_, m.y_, -m.z_, m.w_);
+	}
+
+	template <class T>
+	Mat4<T> look_at(const Vec3<T>& eye, const Vec3<T>& center, const Vec3<T>& up)
+	{
+		// From glm::lookAtRH
+
+		const Vec3<T> f(normalize(center - eye));
+		const Vec3<T> s(normalize(cross(f, up)));
+		const Vec3<T> u(cross(s, f));
+
+		Mat4<T> result(1);
+		result[0][0] = s.x_;
+		result[1][0] = s.y_;
+		result[2][0] = s.z_;
+		result[0][1] = u.x_;
+		result[1][1] = u.y_;
+		result[2][1] = u.z_;
+		result[0][2] = -f.x_;
+		result[1][2] = -f.y_;
+		result[2][2] = -f.z_;
+		result[3][0] = -dot(s, eye);
+		result[3][1] = -dot(u, eye);
+		result[3][2] = dot(f, eye);
+		return result;
+	}
+
+	template <class T>
+	Mat4<T> perspective(T fovy, T aspect, T z_near, T z_far)
+	{
+		// From glm::perspectiveRH_ZO
+
+		CP_ASSERT(aspect > static_cast<T>(0));
+		T const tan_half_fovy = tan(fovy / static_cast<T>(2));
+		Mat4<T> result(static_cast<T>(0));
+		result[0][0] = static_cast<T>(1) / (aspect * tan_half_fovy);
+		result[1][1] = static_cast<T>(1) / (tan_half_fovy);
+		result[2][2] = z_far / (z_near - z_far);
+		result[2][3] = -static_cast<T>(1);
+		result[3][2] = -(z_far * z_near) / (z_far - z_near);
+		return result;
 	}
 }

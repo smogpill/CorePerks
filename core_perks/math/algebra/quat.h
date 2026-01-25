@@ -9,15 +9,20 @@
 namespace cp
 {
 	template <class T>
-	class alignas(16) Quat
+	class alignas(alignof(T) * 4) Quat
 	{
 	public:
 		CP_FORCE_INLINE Quat() = default;
 		CP_FORCE_INLINE Quat(T x, T y, T z, T w) : x_(x), y_(y), z_(z), w_(w) {}
 		CP_FORCE_INLINE Quat(const Vec4<T>& v) : x_(v.x_), y_(v.y_), z_(v.z_), w_(v.w_) {}
+		CP_FORCE_INLINE Quat(const Vec3<T>& xyz, T w) : x_(xyz.x_), y_(xyz.y_), z_(xyz.z_), w_(w) {}
+		template <class U>
+		CP_FORCE_INLINE Quat(const Quat<U>& o) : x_(static_cast<T>(o.x_)), y_(static_cast<T>(o.y_)), z_(static_cast<T>(o.z_)), w_(static_cast<T>(o.w_)) {}
 
 		CP_FORCE_INLINE T square_length() const { return dot(*this, *this); }
 		CP_FORCE_INLINE T length() const { return sqrt(square_length()); }
+		T angle() const;
+		Vec3<T> axis() const;
 
 		CP_FORCE_INLINE bool operator==(const Quat& v) const { return x_ == v.x_ && y_ == v.y_ && z_ == v.z_ && w_ == v.w_; }
 		CP_FORCE_INLINE bool operator!=(const Quat& v) const { return x_ != v.x_ || y_ != v.y_ || z_ != v.z_ || w_ != v.w_; }
@@ -52,7 +57,7 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE T dot(const Quat<T>& a, const Quat<T>& b)
 	{
-		return a.x_ * b._x + a.y_ * b.y_ + a.z_ * b.z_ + a.w_ * b.w_;
+		return a.x_ * b.x_ + a.y_ * b.y_ + a.z_ * b.z_ + a.w_ * b.w_;
 	}
 
 	template <class T>
@@ -62,7 +67,7 @@ namespace cp
 		if (len > 1e-5f) [[likely]]
 			return a / len;
 		else
-			return Vec4<T>::identity();
+			return Quat<T>::identity();
 	}
 
 	template <class T>
@@ -102,5 +107,37 @@ namespace cp
 		const Vec3<T> qxyz = std::bit_cast<Vec3<T>>(q);
 		const Vec3<T> t = T(2) * cross(qxyz, b);
 		return b + q.w_ * t + cross(qxyz, t);
+	}
+
+	template <class T>
+	CP_FORCE_INLINE T Quat<T>::angle() const
+	{
+		if (abs(w_) > cos_one_over_two<T>())
+		{
+			const T a = asin(sqrt(x_ * x_ + y_ * y_ + z_ * z_)) * T(2);
+			if (w_ < T(0))
+				return pi<T>() * T(2) - a;
+			return a;
+		}
+
+		return acos(w_) * T(2);
+	}
+
+	template <class T>
+	CP_FORCE_INLINE Vec3<T> Quat<T>::axis() const
+	{
+		const T tmp1 = T(1) - w_ * w_;
+		if (tmp1 <= T(0))
+			return Vec3(0, 0, 1);
+		const T tmp2 = T(1) / sqrt(tmp1);
+		return *this * tmp2;
+	}
+
+	template <class T>
+	CP_FORCE_INLINE Quat<T> axis_angle(const Vec3<T>& axis, const T angle)
+	{
+		const T a(angle);
+		const T s = sin(a * T(0.5));
+		return Quat<T>(axis * s, cos(a * T(0.5)));
 	}
 }
