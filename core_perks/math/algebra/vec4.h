@@ -68,6 +68,7 @@ namespace cp
 		T w_ = 0;
 	};
 
+	/*
 	template <class T>
 	struct CallOnElements<Vec4<T>>
 	{
@@ -78,6 +79,7 @@ namespace cp
 		template <class F>
 		CP_FORCE_INLINE static Vec4<T> call(F func, const Vec4<T>& a, const Vec4<T>& b, const Vec4<T>& c) { return Vec4<T>(func(a.x_, b.x_, c.x_), func(a.y_, b.y_, c.y_), func(a.z_, b.z_, c.z_), func(a.w_, b.w_, c.w_)); }
 	};
+	*/
 
 	using Vec4f = Vec4<float>;
 	using Vec4d = Vec4<double>;

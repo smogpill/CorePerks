@@ -7,19 +7,76 @@ namespace cp
 {
 	using simd128 = __m128;
 
-	template <class T>
-	struct CallOnElements
-	{
-		template <class F>
-		CP_FORCE_INLINE static T call(F func, const T& a) { return func(a); }
-		template <class F>
-		CP_FORCE_INLINE static T call(F func, const T& a, const T& b) { return func(a, b); }
-		template <class F>
-		CP_FORCE_INLINE static T call(F func, const T& a, const T& b, const T& c) { return func(a, b, c); }
-	};
+	template <class T> concept HasXY = requires(const T& t) { t.x_; t.y_; };
+	template <class T> concept HasXYZ = requires(const T& t) { t.x_; t.y_; t.z_; };
+	template <class T> concept HasXYZW = requires(const T& t) { t.x_; t.y_; t.z_; t.w_; };
 
-	//template <class T> CP_FORCE_INLINE T abs(T x) { return std::abs(x); }
-	template <class T> CP_FORCE_INLINE T abs(T x) { return CallOnElements<T>::call([](const T& v) { return std::abs(v); }, x); }
+	template <typename Func, typename T>
+	CP_FORCE_INLINE T elementwise(Func&& func, const T& a)
+	{
+		if constexpr (HasXYZW<T>)
+			return T(elementwise(func, a.x_), elementwise(func, a.y_), elementwise(func, a.z_), elementwise(func, a.w_));
+		else if constexpr (HasXYZ<T>)
+			return T(elementwise(func, a.x_), elementwise(func, a.y_), elementwise(func, a.z_));
+		else if constexpr (HasXY<T>)
+			return T(elementwise(func, a.x_), elementwise(func, a.y_));
+		else
+			return func(a);
+	}
+
+	template <typename Func, typename T>
+	CP_FORCE_INLINE T elementwise(Func&& func, const T& a, const T& b)
+	{
+		if constexpr (HasXYZW<T>)
+			return T(elementwise(func, a.x_, b.x_), elementwise(func, a.y_, b.y_), elementwise(func, a.z_, b.z_), elementwise(func, a.w_, b.w_));
+		else if constexpr (HasXYZ<T>)
+			return T(elementwise(func, a.x_, b.x_), elementwise(func, a.y_, b.y_), elementwise(func, a.z_, b.z_));
+		else if constexpr (HasXY<T>)
+			return T(elementwise(func, a.x_, b.x_), elementwise(func, a.y_, b.y_));
+		else
+			return func(a, b);
+	}
+
+	template <typename Func, typename T>
+	CP_FORCE_INLINE T elementwise(Func&& func, const T& a, const T& b, const T& c)
+	{
+		if constexpr (HasXYZW<T>)
+			return T(elementwise(func, a.x_, b.x_, c.x_), elementwise(func, a.y_, b.y_, c.z_), elementwise(func, a.z_, b.z_, c.z_), elementwise(func, a.w_, b.w_, c.w_));
+		else if constexpr (HasXYZ<T>)
+			return T(elementwise(func, a.x_, b.x_, c.x_), elementwise(func, a.y_, b.y_, c.z_), elementwise(func, a.z_, b.z_, c.z_));
+		else if constexpr (HasXY<T>)
+			return T(elementwise(func, a.x_, b.x_, c.x_), elementwise(func, a.y_, b.y_, c.z_));
+		else
+			return func(a, b, c);
+	}
+
+	/*
+	template <size_t N, typename Func, typename T>
+	CP_FORCE_INLINE void apply_to_element(Func&& func, const T& in, T& out)
+	{
+		if constexpr (N == 0)
+			return;
+
+		apply_to_element<N - 1>(func, in, out);
+		std::get<N - 1>(out) = func(std::get<N - 1>(in));
+	}
+
+	template <typename Func, typename T>
+	CP_FORCE_INLINE T elementwise(Func&& func, const T& value)
+	{
+		T result;
+		apply_to_element<std::tuple_size<T>::value>(func, value, result);
+		return result;
+	}*/
+
+	//CP_FORCE_INLINE
+#define CP_ELEMENTWISE_1(impl) elementwise([](const auto& x) impl, x)
+#define CP_ELEMENTWISE_2(impl) elementwise([](const auto& x, const auto& y) impl, a, b)
+#define CP_ELEMENTWISE_3(impl) elementwise([](const auto& x, const auto& y, const auto& z) impl, a, b, c)
+
+	template <class T> CP_FORCE_INLINE T abs(const T& x) { return CP_ELEMENTWISE_1({ return std::abs(x); }); }
+
+	//template <class T> CP_FORCE_INLINE T abs(const T& x) { return elementwise([](const auto& v) { return std::abs(v); }, x); }
 
 	template <class T> CP_FORCE_INLINE T fma(T x, T y, T z) { return std::fma(x, y, z); }
 	template <class T> CP_FORCE_INLINE T sign(T x) { return (T(0) < x) - (x < T(0)); }
@@ -36,10 +93,8 @@ namespace cp
 	template <class T> CP_FORCE_INLINE T round(T x) { return std::round(x); }
 	template <class T> CP_FORCE_INLINE T trunc(T x) { return std::trunc(x); }
 	template <class T> CP_FORCE_INLINE T fract(T x) { return x - floor(x); }
-	//template <class T> CP_FORCE_INLINE T min(T x, T y) { return std::min(x, y); }
-	template <class T> CP_FORCE_INLINE T min(T x, T y) { return CallOnElements<T>::call([](const auto& x, const auto& y) { return std::min(x, y); }, x, y); }
-	//template <class T> CP_FORCE_INLINE T max(T x, T y) { return std::max(x, y); }
-	template <class T> CP_FORCE_INLINE T max(T x, T y) { return CallOnElements<T>::call([](const auto& x, const auto& y) { return std::max(x, y); }, x, y); }
+	template <class T> CP_FORCE_INLINE T min(const T& a, const T& b) { return elementwise([](const auto& x, const auto& y) { return std::min(x, y); }, a, b); }
+	template <class T> CP_FORCE_INLINE T max(const T& a, const T& b) { return elementwise([](const auto& x, const auto& y) { return std::max(x, y); }, a, b); }
 	template <class T> CP_FORCE_INLINE T clamp(T x, T low, T high) { return std::clamp(x, low, high); }
 	template <class T> CP_FORCE_INLINE T saturate(T x) { return clamp(x, T(0), T(1)); }
 

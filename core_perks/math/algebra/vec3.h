@@ -15,8 +15,8 @@ namespace cp
 		template <class U>
 		CP_FORCE_INLINE Vec3(const Vec3<U>& o) : x_(static_cast<T>(o.x_)), y_(static_cast<T>(o.y_)), z_(static_cast<T>(o.z_)) {}
 
-		CP_FORCE_INLINE T& operator[](int idx) { CP_ASSERT(idx < 3); return (&x_)[idx]; }
-		CP_FORCE_INLINE T operator[](int idx) const { CP_ASSERT(idx < 3); return (&x_)[idx]; }
+		CP_FORCE_INLINE T& operator[](int idx) { CP_ASSERT(idx < 3); return xyz_[idx]; }
+		CP_FORCE_INLINE T operator[](int idx) const { CP_ASSERT(idx < 3); return xyz_[idx]; }
 
 		CP_FORCE_INLINE T sum_elements() const { return x_ + y_ + z_; }
 		CP_FORCE_INLINE T min_element() const { return min(min(x_, y_), z_); }
@@ -62,11 +62,14 @@ namespace cp
 		CP_FORCE_INLINE static Vec3 unit_y() { return Vec3(0, 1, 0); }
 		CP_FORCE_INLINE static Vec3 unit_z() { return Vec3(0, 0, 1); }
 
-		T x_ = 0;
-		T y_ = 0;
-		T z_ = 0;
+		union
+		{
+			struct { T x_, y_, z_; };
+			T xyz_[3] = {};
+		};
 	};
 
+	/*
 	template <class T>
 	struct CallOnElements<Vec3<T>>
 	{
@@ -77,6 +80,7 @@ namespace cp
 		template <class F>
 		CP_FORCE_INLINE static Vec3<T> call(F func, const Vec3<T>& a, const Vec3<T>& b, const Vec3<T>& c) { return Vec3<T>(func(a.x_, b.x_, c.x_), func(a.y_, b.y_, c.y_), func(a.z_, b.z_, c.z_)); }
 	};
+	*/
 
 	using Vec3f = Vec3<float>;
 	using Vec3d = Vec3<double>;
@@ -152,5 +156,21 @@ namespace cp
 	CP_FORCE_INLINE Vec3b greater_or_equal(const Vec3<T>& a, const Vec3<T>& b)
 	{
 		return Vec3b(a.x_ >= b.x_, a.y_ >= b.y_, a.z_ >= b.z_);
+	}
+}
+
+namespace std
+{
+	template <class T>
+	struct tuple_size<cp::Vec3<T>> : integral_constant<size_t, 3> {};
+
+	template <size_t I, class T>
+	struct tuple_element<I, cp::Vec3<T>> { using type = T; };
+
+	template <size_t I, typename T>
+	constexpr T& get(cp::Vec3<T>& v) noexcept
+	{
+		static_assert(I < 3);
+		return v.xyz_[I];
 	}
 }
