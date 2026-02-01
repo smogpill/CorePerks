@@ -22,8 +22,10 @@ namespace cp
 
 		CP_FORCE_INLINE Vec4<T>& operator[](int idx) { CP_ASSERT(idx < 4); return xyzw_[idx]; }
 		CP_FORCE_INLINE const Vec4<T>& operator[](int idx) const { CP_ASSERT(idx < 4); return xyzw_[idx]; }
+		CP_FORCE_INLINE Vec4<T> operator*(const Vec4<T>& v) const { return x_ * v.x_ + y_ * v.y_ + z_ * v.z_ + w_ * v.w_; }
+		CP_FORCE_INLINE Mat4<T> operator*(T s) const { return Mat4<T>(x_ * s, y_ * s, z_ * s, w_ * s); }
 		Mat4 operator*(const Mat4& o) const;
-		CP_FORCE_INLINE Mat4& operator*=(const Mat4& o) const { *this = *this * o; return *this; }
+		CP_FORCE_INLINE Mat4& operator*=(const Mat4& o) { *this = *this * o; return *this; }
 
 		union
 		{
@@ -49,15 +51,7 @@ namespace cp
 	template <class T>
 	Mat4<T> Mat4<T>::operator*(const Mat4& o) const
 	{
-		const Vec4<T> ox = o.x_;
-		const Vec4<T> oy = o.y_;
-		const Vec4<T> oz = o.z_;
-		const Vec4<T> ow = o.w_;
-		return Mat4<T>(
-			x_ * ox.x_ + y_ * ox.y_ + z_ * ox.z_ + w_ * ox.w_,
-			x_ * oy.x_ + y_ * oy.y_ + z_ * oy.z_ + w_ * oy.w_,
-			x_ * oz.x_ + y_ * oz.y_ + z_ * oz.z_ + w_ * oz.w_,
-			x_ * ow.x_ + y_ * ow.y_ + z_ * ow.z_ + w_ * ow.w_);
+		return Mat4<T>((*this) * o.x_, (*this) * o.y_, (*this) * o.z_, (*this) * o.w_);
 	}
 
 	template <class T>
@@ -77,12 +71,10 @@ namespace cp
 	}
 
 	template <class T>
-	CP_FORCE_INLINE Mat4<T> translate(const Mat4<T>& m, const Vec3<T>& t)
+	CP_FORCE_INLINE Mat4<T> translate(const Mat4<T>& m, const Vec3<T>& v)
 	{
 		Mat4<T> result = m;
-		result.w_.x_ += t.x_;
-		result.w_.y_ += t.y_;
-		result.w_.z_ += t.z_;
+		result.w_ = m * Vec4<T>(v, 1.0f);
 		return result;
 	}
 
@@ -177,35 +169,15 @@ namespace cp
 		return Transform<T>(m.w_.xyz(), normalize(quat_cast(m)), m.x_.length());
 	}
 
-	template <class T>
-	Mat4<T> to_left_up_forward(const Mat4<T>& m)
-	{
-		return Mat4<T>(m.x_, m.y_, -m.z_, m.w_);
-	}
-
+	// Unlike GLM, produces a transform matrix, without the inverse of a view matrix used for rendering
+	// So this is well suited for camera transforms or any gameplay transforms. The inverse happens during rendering when inverting the camera transform.
 	template <class T>
 	Mat4<T> look_at(const Vec3<T>& eye, const Vec3<T>& center, const Vec3<T>& up)
 	{
-		// From glm::lookAtRH
-
 		const Vec3<T> f(normalize(center - eye));
-		const Vec3<T> s(normalize(cross(f, up)));
-		const Vec3<T> u(cross(s, f));
-
-		Mat4<T> result(1);
-		result[0][0] = s.x_;
-		result[1][0] = s.y_;
-		result[2][0] = s.z_;
-		result[0][1] = u.x_;
-		result[1][1] = u.y_;
-		result[2][1] = u.z_;
-		result[0][2] = -f.x_;
-		result[1][2] = -f.y_;
-		result[2][2] = -f.z_;
-		result[3][0] = -dot(s, eye);
-		result[3][1] = -dot(u, eye);
-		result[3][2] = dot(f, eye);
-		return result;
+		const Vec3<T> l(normalize(cross(up, f)));
+		const Vec3<T> u(cross(f, l));
+		return Mat4<T>(Vec4<T>(l, 0), Vec4<T>(u, 0), Vec4<T>(f, 0), Vec4<T>(eye, 1) );
 	}
 
 	template <class T>

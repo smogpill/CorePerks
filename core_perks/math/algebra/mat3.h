@@ -18,6 +18,9 @@ namespace cp
 
 		CP_FORCE_INLINE Vec3<T>& operator[](int idx) { CP_ASSERT(idx < 3); return xyz_[idx]; }
 		CP_FORCE_INLINE const Vec3<T>& operator[](int idx) const { CP_ASSERT(idx < 3); return xyz_[idx]; }
+		CP_FORCE_INLINE Vec3<T> operator*(const Vec3<T>& v) const { return x_ * v.x_ + y_ * v.y_ + z_ * v.z_; }
+		Mat3 operator*(const Mat3& o) const;
+		CP_FORCE_INLINE Mat3& operator*=(const Mat3& o) { *this = *this * o; return *this; }
 
 		union
 		{
@@ -28,6 +31,12 @@ namespace cp
 
 	using Mat3f = Mat3<float>;
 	using Mat3d = Mat3<double>;
+
+	template <class T>
+	Mat3<T> Mat3<T>::operator*(const Mat3& o) const
+	{
+		return Mat3<T>((*this) * o.x_, (*this) * o.y_, (*this) * o.z_);
+	}
 
 	template <class T>
 	Mat3<T> transpose(const Mat3<T>& m)

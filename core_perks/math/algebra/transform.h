@@ -72,7 +72,8 @@ namespace cp
 		return Transform<T>(
 			rotation_ * (b.get_translation() * get_scale()) + get_translation(),
 			rotation_ * b.rotation_,
-			get_scale() * b.get_scale());
+			get_scale() * b.get_scale()
+		);
 	}
 
 	template <class T>
