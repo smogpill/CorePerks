@@ -183,8 +183,6 @@ namespace cp
 	template <class T>
 	Mat4<T> perspective(T fovy, T aspect, T z_near, T z_far)
 	{
-		// From glm::perspectiveRH_ZO
-
 		CP_ASSERT(aspect > static_cast<T>(0));
 		T const tan_half_fovy = tan(fovy / static_cast<T>(2));
 		Mat4<T> result(static_cast<T>(0));
