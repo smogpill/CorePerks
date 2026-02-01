@@ -56,6 +56,5 @@ namespace cp
 		uint32 version_ = 0;
 		Vector<ResourceHandle> dependencies_;
 		Vector<Resource*> dependents_;
-		Vector<ResourceHandle*> users_;
 	};
 }

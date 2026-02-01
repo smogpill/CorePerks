@@ -3,3 +3,4 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "core_perks/extern/vulkan/vulkan_diagnostics.h"
+#include "core_perks/extern/vulkan/vulkan_conventions.h"

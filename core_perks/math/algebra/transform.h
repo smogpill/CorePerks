@@ -70,8 +70,8 @@ namespace cp
 	CP_FORCE_INLINE Transform<T> Transform<T>::operator* (const Transform<T>& b) const
 	{
 		return Transform<T>(
-			b.rotation_ * (get_translation() * b.get_scale()) + b.get_translation(),
-			b.rotation_ * rotation_,
+			rotation_ * (b.get_translation() * get_scale()) + get_translation(),
+			rotation_ * b.rotation_,
 			get_scale() * b.get_scale());
 	}
 
@@ -79,9 +79,8 @@ namespace cp
 	CP_FORCE_INLINE Transform<T> inverse(const Transform<T>& t)
 	{
 		const T inv_scale = T(1) / t.get_scale();
-		return Transform<T>(
-			inverse(t.get_rotation()) * (-t.get_translation() * inv_scale),
-			inverse(t.get_rotation()),
-			inv_scale);
+		const Quat<T> inv_rotation = conjugate(t.get_rotation());
+		const Vec3<T> inv_translation = inv_rotation * (-t.get_translation() * inv_scale);
+		return Transform<T>(inv_translation, inv_rotation, inv_scale);
 	}
 }

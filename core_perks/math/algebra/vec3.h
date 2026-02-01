@@ -25,6 +25,8 @@ namespace cp
 		CP_FORCE_INLINE T square_length() const { return dot(*this, *this); }
 		CP_FORCE_INLINE T length() const requires std::floating_point<T> { return sqrt(square_length()); }
 
+		CP_FORCE_INLINE bool is_normalized(float tolerance = 1e-3f) const { return abs(square_length() - 1) <= tolerance * tolerance; }
+
 		CP_FORCE_INLINE bool all() const requires std::integral<T> { return x_ && y_ && z_; }
 		CP_FORCE_INLINE bool any() const requires std::integral<T> { return x_ || y_ || z_; }
 
@@ -61,6 +63,9 @@ namespace cp
 		CP_FORCE_INLINE static Vec3 unit_x() { return Vec3(1, 0, 0); }
 		CP_FORCE_INLINE static Vec3 unit_y() { return Vec3(0, 1, 0); }
 		CP_FORCE_INLINE static Vec3 unit_z() { return Vec3(0, 0, 1); }
+		CP_FORCE_INLINE static Vec3 left() { return unit_x(); }
+		CP_FORCE_INLINE static Vec3 up() { return unit_y(); }
+		CP_FORCE_INLINE static Vec3 forward() { return unit_z(); }
 
 		union
 		{

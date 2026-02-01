@@ -4,7 +4,7 @@
 #pragma once
 
 /// Usage:
-/// coSCOPE_EXIT { instructions }
+/// coSCOPE_EXIT { instructions };
 
 namespace cp::detail
 {

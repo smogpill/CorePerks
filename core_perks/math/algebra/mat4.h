@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 #include "core_perks/math/algebra/vec4.h"
+#include "core_perks/math/algebra/mat3.h"
 #include "core_perks/math/algebra/transform.h"
 
 namespace cp
@@ -153,7 +154,13 @@ namespace cp
 	template <class T>
 	Mat4<T> mat4_cast(const Transform<T>& t)
 	{
-		return translate(Mat4<T>(1.0), t.get_translation()) * mat4_cast(t.get_rotation());
+		Mat4<T> m = mat4_cast(t.get_rotation());
+		const T scale = t.get_scale();
+		m.x_ *= scale;
+		m.y_ *= scale;
+		m.z_ *= scale;
+		m.w_ = Vec4<T>(t.get_translation(), static_cast<T>(1));
+		return m;
 	}
 
 	template <class T>

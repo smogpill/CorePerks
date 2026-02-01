@@ -4,6 +4,7 @@
 #pragma once
 #include "core_perks/math/algebra/vec4.h"
 #include "core_perks/math/algebra/vec3.h"
+#include "core_perks/math/algebra/mat3.h"
 #include "core_perks/math/numerical/trigonometry.h"
 
 namespace cp
@@ -41,9 +42,9 @@ namespace cp
 		CP_FORCE_INLINE Quat& operator/=(T s) { *this = *this / s; return *this; }
 
 		CP_FORCE_INLINE static Quat identity() { return Quat(); }
-		CP_FORCE_INLINE static Quat rotation_x(T angle) { const T half_angle = angle * 0.5; return Quat(sin(angle), 0, 0, cos(angle)); }
-		CP_FORCE_INLINE static Quat rotation_y(T angle) { const T half_angle = angle * 0.5; return Quat(0, sin(angle), 0, cos(angle)); }
-		CP_FORCE_INLINE static Quat rotation_z(T angle) { const T half_angle = angle * 0.5; return Quat(0, 0, sin(angle), cos(angle)); }
+		CP_FORCE_INLINE static Quat rotation_x(T angle) { const T half_angle = angle * 0.5; return Quat(sin(half_angle), 0, 0, cos(half_angle)); }
+		CP_FORCE_INLINE static Quat rotation_y(T angle) { const T half_angle = angle * 0.5; return Quat(0, sin(half_angle), 0, cos(half_angle)); }
+		CP_FORCE_INLINE static Quat rotation_z(T angle) { const T half_angle = angle * 0.5; return Quat(0, 0, sin(half_angle), cos(half_angle)); }
 
 		union
 		{
@@ -137,8 +138,95 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE Quat<T> axis_angle(const Vec3<T>& axis, const T angle)
 	{
-		const T a(angle);
-		const T s = sin(a * T(0.5));
-		return Quat<T>(axis * s, cos(a * T(0.5)));
+		CP_ASSERT(axis.is_normalized());
+		const T half_angle(angle * T(0.5));
+		return Quat<T>(axis * sin(half_angle), cos(half_angle));
 	}
+
+
+	template <class T>
+	Mat3<T> mat3_cast(const Quat<T>& q)
+	{
+		const T xx = q.x_ * q.x_;
+		const T yy = q.y_ * q.y_;
+		const T zz = q.z_ * q.z_;
+		const T xy = q.x_ * q.y_;
+		const T xz = q.x_ * q.z_;
+		const T yz = q.y_ * q.z_;
+		const T wx = q.w_ * q.x_;
+		const T wy = q.w_ * q.y_;
+		const T wz = q.w_ * q.z_;
+		return Mat3<T>(
+			Vec3<T>(1.0 - 2.0 * (yy + zz), 2.0 * (xy + wz), 2.0 * (xz - wy)),
+			Vec3<T>(2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz), 2.0 * (yz + wx)),
+			Vec3<T>(2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy))
+		);
+		/*
+		return Mat3<T>(
+			Vec3<T>(1 - 2 * (yy + zz), 2 * (xy - wz), 2 * (xz + wy)),
+			Vec3<T>(2 * (xy + wz), 1 - 2 * (xx + zz), 2 * (yz - wx)),
+			Vec3<T>(2 * (xz - wy), 2 * (yz + wx), 1 - 2 * (xx + yy))
+		);
+		*/
+	}
+
+	template <class T>
+	Quat<T> quat_cast(const Mat3<T>& m)
+	{
+		// From glm::quat_cast
+
+		T four_x_squared_minus_1 = m[0][0] - m[1][1] - m[2][2];
+		T four_y_squared_minus_1 = m[1][1] - m[0][0] - m[2][2];
+		T four_z_squared_minus_1 = m[2][2] - m[0][0] - m[1][1];
+		T four_w_squared_minus_1 = m[0][0] + m[1][1] + m[2][2];
+
+		int biggest_index = 0;
+		T four_biggest_squared_minus_1 = four_w_squared_minus_1;
+		if (four_x_squared_minus_1 > four_biggest_squared_minus_1)
+		{
+			four_biggest_squared_minus_1 = four_x_squared_minus_1;
+			biggest_index = 1;
+		}
+		if (four_y_squared_minus_1 > four_biggest_squared_minus_1)
+		{
+			four_biggest_squared_minus_1 = four_y_squared_minus_1;
+			biggest_index = 2;
+		}
+		if (four_z_squared_minus_1 > four_biggest_squared_minus_1)
+		{
+			four_biggest_squared_minus_1 = four_z_squared_minus_1;
+			biggest_index = 3;
+		}
+
+		T biggest_val = sqrt(four_biggest_squared_minus_1 + static_cast<T>(1)) * static_cast<T>(0.5);
+		T mult = static_cast<T>(0.25) / biggest_val;
+
+		switch (biggest_index)
+		{
+		case 0:
+			return Quat<T>((m[1][2] - m[2][1]) * mult, (m[2][0] - m[0][2]) * mult, (m[0][1] - m[1][0]) * mult, biggest_val);
+		case 1:
+			return Quat<T>(biggest_val, (m[0][1] + m[1][0]) * mult, (m[2][0] + m[0][2]) * mult, (m[1][2] - m[2][1]) * mult);
+		case 2:
+			return Quat<T>((m[0][1] + m[1][0]) * mult, biggest_val, (m[1][2] + m[2][1]) * mult, (m[2][0] - m[0][2]) * mult);
+		case 3:
+			return Quat<T>((m[2][0] + m[0][2]) * mult, (m[1][2] + m[2][1]) * mult, biggest_val, (m[0][1] - m[1][0]) * mult);
+		default: // Silence a -Wswitch-default warning in GCC. Should never actually get here. Assert is just for sanity.
+			CP_ASSERT(false);
+			return Quat<T>::identity();
+		}
+	}
+
+
+	/*
+	template <class T>
+	CP_FORCE_INLINE Quat<T> from_forward_up(const Vec3<T>& forward, const Vec3<T>& up = Vec3<T>::up())
+	{
+		Vec3f f = normalize(forward);
+		Vec3f u = normalize(up);
+		Vec3f l = normalize(cross(u, f));
+		u = cross(f, l);
+		return from_basis(l, u, f);
+	}
+	*/
 }
