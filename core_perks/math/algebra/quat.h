@@ -1,4 +1,4 @@
-﻿// Core Perks (https://github.com/smogpill/core_perks)
+// Core Perks (https://github.com/smogpill/core_perks)
 // SPDX-FileCopyrightText: 2025 Jounayd ID SALAH
 // SPDX-License-Identifier: MIT
 #pragma once
@@ -255,7 +255,7 @@ namespace cp
 
 		// Roll
 		const T sinr_cosp = T(2) * (q.w_ * q.z_ + q.x_ * q.y_);
-		const T cosr_cosp = T(1) - T(2) * (q.y_ * q.y_ + q.z_ * q.z_);
+		const T cosr_cosp = T(1) - T(2) * (q.x_ * q.x_ + q.z_ * q.z_);
 		angles.z_ = -atan2(sinr_cosp, cosr_cosp);
 
 		return angles;
