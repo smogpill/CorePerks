@@ -9,6 +9,7 @@ namespace cp
 	template <class T> CP_FORCE_INLINE constexpr T degrees(T radians) { return radians * static_cast<T>(57.295779513082320876798154814105); }
 	template <class T> CP_FORCE_INLINE T pi() { return T(3.1415926535897932384626433832795); }
 	template <class T> CP_FORCE_INLINE T half_pi() { return T(1.57079632679489661923132169163975144); }
+	template <class T> CP_FORCE_INLINE T two_pi() { return T(6.283185307179586); }
 	template <class T> CP_FORCE_INLINE T cos_one_over_two() { return T(0.877582561890372716130286068203503191); }
 	template <class T> CP_FORCE_INLINE T sin(T x) { return std::sin(x); }
 	template <class T> CP_FORCE_INLINE T cos(T x) { return std::cos(x); }
