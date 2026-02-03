@@ -220,9 +220,6 @@ namespace cp
 	template <class T>
 	CP_FORCE_INLINE Quat<T> quat_from_euler_angles(T pitch, T yaw, T roll)
 	{
-		pitch = -pitch;
-		roll = -roll;
-
 		const T hp = pitch * T(0.5);
 		const T hy = yaw * T(0.5);
 		const T hr = roll * T(0.5);
@@ -245,7 +242,7 @@ namespace cp
 		Vec3<T> angles;
 
 		// Pitch
-		const T sinp = T(2) * (q.y_ * q.z_ - q.w_ * q.x_);
+		const T sinp = T(2) * (q.w_ * q.x_ - q.y_ * q.z_);
 		angles.x_ = asin(clamp(sinp, T(-1), T(1)));
 
 		// Yaw
@@ -256,7 +253,7 @@ namespace cp
 		// Roll
 		const T sinr_cosp = T(2) * (q.w_ * q.z_ + q.x_ * q.y_);
 		const T cosr_cosp = T(1) - T(2) * (q.x_ * q.x_ + q.z_ * q.z_);
-		angles.z_ = -atan2(sinr_cosp, cosr_cosp);
+		angles.z_ = atan2(sinr_cosp, cosr_cosp);
 
 		return angles;
 	}
