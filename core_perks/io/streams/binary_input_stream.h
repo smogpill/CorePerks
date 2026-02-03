@@ -14,6 +14,7 @@ namespace cp
 		template <class T> requires std::is_trivially_copyable_v<T>
 		void read(T& value);
 		bool failed() const { return failed_; }
+		bool eof() const { return data_ >= data_end_; }
 		void set_failed();
 
 	private:
