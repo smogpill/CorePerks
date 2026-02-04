@@ -25,7 +25,6 @@ namespace cp
 
 	CP_FORCE_INLINE void BinaryInputStream::read(void* buffer, uint64 size)
 	{
-		CP_ASSERT(buffer);
 		const uint8* next_data = data_ + size;
 		if (next_data <= data_end_) [[likely]]
 		{
