@@ -22,3 +22,4 @@
 #ifdef CP_JOLT
 #include "core_perks/extern/jolt/all.h"
 #endif
+#include "core_perks/app/all.h"
