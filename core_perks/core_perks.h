@@ -17,5 +17,8 @@
 #include "core_perks/extern/sdl/sdl.h"
 #endif
 #ifdef CP_VULKAN
-#include "core_perks/extern/vulkan/vulkan.h"
+#include "core_perks/extern/vulkan/all.h"
+#endif
+#ifdef CP_JOLT
+#include "core_perks/extern/jolt/all.h"
 #endif

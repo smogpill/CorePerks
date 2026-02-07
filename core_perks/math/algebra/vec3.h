@@ -143,4 +143,10 @@ namespace cp
 	{
 		return Vec3b(a.x_ >= b.x_, a.y_ >= b.y_, a.z_ >= b.z_);
 	}
+
+	template <class T>
+	CP_FORCE_INLINE Vec3<T> reflect(const Vec3<T>& incidence, const Vec3<T>& normal, T factor = T(1))
+	{
+		return incidence - normal * dot(normal, incidence) * (T(1) + factor);
+	}
 }

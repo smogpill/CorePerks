@@ -20,3 +20,7 @@
 #include <imgui/backends/imgui_impl_sdl3.h>
 #endif
 #endif
+
+#ifdef CP_JOLT
+#include <Jolt/Core/JobSystemThreadPool.h>
+#endif

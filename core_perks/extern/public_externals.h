@@ -96,3 +96,32 @@
 #ifdef CP_IMGUI
 #include <imgui/imgui.h>
 #endif
+
+#ifdef CP_JOLT
+#define JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
+#define JPH_DISABLE_CUSTOM_ALLOCATOR
+#define JPH_DOUBLE_PRECISION
+#define JPH_DEBUG_RENDERER
+#define JPH_PROFILE_ENABLED
+#define JPH_OBJECT_STREAM
+#define JPH_USE_AVX
+#define JPH_USE_SSE4_1
+#define JPH_USE_SSE4_2
+#define JPH_USE_LZCNT
+#define JPH_USE_TZCNT
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Core.h>
+#include <Jolt/Core/IssueReporting.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/Memory.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#endif

@@ -52,9 +52,10 @@ namespace cp
 	{
 		uint32 size = 0;
 		stream >> size;
-		v.resize(size);
-		if (size > 0)
+		v.clear();
+		if (size)
 		{
+			v.resize(size);
 			if constexpr (std::is_trivially_copyable_v<T>)
 			{
 				stream.read(v.data(), size * sizeof(T));
